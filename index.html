@@ -47,7 +47,100 @@
         </div>
     </div>
 
-    <!-- Navbar Header -->
+    <!-- Header & Sidebar Container -->
+    <div class="flex flex-col min-h-screen">
+        <!-- Navbar Header -->
+        <header class="bg-slate-900 text-white shadow-xl sticky top-0 z-40 no-print border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <!-- Mobile Sidebar Toggle -->
+                    <div class="flex items-center gap-3 lg:hidden">
+                        <button onclick="toggleSidebar()" class="p-2.5 bg-slate-800 text-amber-400 hover:bg-slate-700 rounded-xl transition border border-slate-700">
+                            <i class="fa-solid fa-bars text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Branding with Ministry Logo & School Logo -->
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <!-- Ministry Logo -->
+                        <img id="nav-ministry-logo" class="ministry-logo-display h-12 object-contain bg-white/5 p-1 rounded-xl" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Ministry_of_Education_KSA_Logo.svg/1200px-Ministry_of_Education_KSA_Logo.svg.png" alt="شعار وزارة التعليم" onerror="this.classList.add('hidden')">
+                        <div class="h-8 w-px bg-slate-700/60 hidden sm:block"></div>
+                        <!-- School Logo -->
+                        <img id="nav-logo-img" class="school-logo-display h-12 w-12 object-contain bg-white/10 p-1 rounded-2xl hidden" src="" alt="شعار المدرسة">
+                        <div>
+                            <h1 class="school-name-display text-base sm:text-lg font-black text-amber-400 tracking-wide">مدارس المجد الجديد الأهلية</h1>
+                            <p class="text-[11px] text-slate-400 font-medium flex items-center gap-1.5">
+                                <span>منظومة الزيارات الصفية الذكية</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Clock & Sync Status -->
+                    <div class="hidden md:flex items-center space-x-4 space-x-reverse bg-slate-800/80 px-4 py-2 rounded-2xl border border-slate-700/50">
+                        <div class="text-left">
+                            <div id="live-time" class="text-xs font-bold text-slate-200 font-mono">00:00:00</div>
+                            <div id="live-date" class="text-[10px] text-slate-400">اليوم، --</div>
+                        </div>
+                        <div class="h-6 w-px bg-slate-700"></div>
+                        <div class="flex items-center gap-2">
+                            <span id="current-period-badge" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 text-xs font-bold rounded-lg border border-amber-500/30">الحصة الحالية: -</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Layout Body (Sidebar + Content) -->
+        <div class="flex-1 flex max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 gap-6 relative">
+
+            <!-- Sidebar Navigation -->
+            <aside id="app-sidebar" class="no-print fixed lg:static inset-y-0 right-0 z-30 w-64 bg-slate-900 lg:bg-transparent p-4 lg:p-0 transition-transform transform translate-x-full lg:translate-x-0 flex-shrink-0 flex flex-col justify-between border-l border-slate-800 lg:border-none shadow-2xl lg:shadow-none">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-800 lg:hidden">
+                        <span class="text-xs font-bold text-amber-400">القائمة الرئيسية</span>
+                        <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-1">
+                            <i class="fa-solid fa-xmark text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Navigation Items List -->
+                    <nav class="space-y-2 bg-white lg:p-3 lg:rounded-2xl lg:border lg:border-slate-200/80 lg:shadow-sm">
+                        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn w-full py-3 px-4 rounded-xl font-bold text-xs transition-all duration-200 flex items-center gap-3 bg-amber-500 text-slate-950 shadow-md">
+                            <i class="fa-solid fa-chart-pie text-base w-5 text-center"></i>
+                            <span>الرئيسية</span>
+                        </button>
+                        <button onclick="switchTab('teachers')" id="tab-teachers" class="tab-btn w-full py-3 px-4 rounded-xl font-bold text-xs transition-all duration-200 flex items-center gap-3 text-slate-600 hover:bg-slate-100">
+                            <i class="fa-solid fa-chalkboard-user text-base w-5 text-center"></i>
+                            <span>المعلمين</span>
+                        </button>
+                        <button onclick="switchTab('new-visit')" id="tab-new-visit" class="tab-btn w-full py-3 px-4 rounded-xl font-bold text-xs transition-all duration-200 flex items-center gap-3 text-slate-600 hover:bg-slate-100">
+                            <i class="fa-solid fa-file-circle-plus text-base w-5 text-center"></i>
+                            <span>زيارة جديدة</span>
+                        </button>
+                        <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn w-full py-3 px-4 rounded-xl font-bold text-xs transition-all duration-200 flex items-center gap-3 text-slate-600 hover:bg-slate-100">
+                            <i class="fa-solid fa-folder-open text-base w-5 text-center"></i>
+                            <span>أرشيف الزيارات</span>
+                        </button>
+                        <button onclick="switchTab('recycle-bin')" id="tab-recycle-bin" class="tab-btn w-full py-3 px-4 rounded-xl font-bold text-xs transition-all duration-200 flex items-center gap-3 text-slate-600 hover:bg-slate-100">
+                            <i class="fa-solid fa-box-archive text-base w-5 text-center"></i>
+                            <span>سلة المحذوفات</span>
+                        </button>
+                        <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn w-full py-3 px-4 rounded-xl font-bold text-xs transition-all duration-200 flex items-center gap-3 text-slate-600 hover:bg-slate-100">
+                            <i class="fa-solid fa-sliders text-base w-5 text-center"></i>
+                            <span>الإعدادات والشعارات</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="mt-auto pt-4 border-t border-slate-800 lg:border-slate-200 text-center text-[10px] text-slate-400">
+                    <span>منظومة تقويم المعلمين v2.5</span>
+                </div>
+            </aside>
+
+            <!-- Main Workspace Container -->
+            <main class="flex-1 w-full min-w-0">
+
     <header class="bg-slate-900 text-white shadow-xl sticky top-0 z-40 no-print border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
@@ -118,8 +211,8 @@
                         <i class="fa-solid fa-cloud-arrow-down"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-amber-300">النسخ الاحتياطي للبيانات</h2>
-                        <p class="text-xs text-slate-300">يمكنك تنزيل نسخة احتياطية من جميع بيانات المعلمين والزيارات بضغطة زر لحفظها على جهازك.</p>
+                        <h2 class="text-lg font-bold text-amber-300">التزامن الآلي والحفظ التلقائي ⚡</h2>
+                        <p class="text-xs text-slate-300">كل التعديلات المحفوظة يتم تحديثها أوتوماتيكياً في موقعك وتظهر للجميع فوراً بدون الذهاب لـ GitHub!</p>
                     </div>
                 </div>
                 <button onclick="triggerDailyBackup(true)" class="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm">
@@ -373,16 +466,28 @@
                 <div class="space-y-6">
                     <!-- School Info Settings -->
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-                        <h3 class="font-bold text-sm text-slate-800">الهوية واسم الصرح التعليمي:</h3>
+                        <h3 class="font-bold text-sm text-slate-800">الهوية والشعارات الخاصة بالمنظومة:</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                            <div class="md:col-span-2">
                                 <label class="block text-xs font-bold text-slate-700 mb-1">اسم المدرسة المعتمد</label>
                                 <input type="text" id="setting-school-name" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-400 outline-none">
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">رابط الشعار (Logo URL)</label>
-                                <input type="text" id="setting-school-logo" placeholder="https://example.com/logo.png" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-400 outline-none">
+
+                            <!-- Upload School Logo -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">رفع شعار المدرسة (من الجهاز)</label>
+                                <input type="file" id="setting-school-logo-file" accept="image/*" onchange="handleLogoUpload(event)" class="block w-full text-xs text-slate-500 file:mr-0 file:ml-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-600 cursor-pointer bg-white p-1 rounded-xl border border-slate-300">
+                                <p class="text-[10px] text-slate-400">أو يمكنك إضافة رابط الشعار المباشر أدناه:</p>
+                                <input type="text" id="setting-school-logo" placeholder="https://example.com/logo.png" class="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold outline-none">
                             </div>
+
+                            <!-- Ministry Logo -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">رابط شعار وزارة التعليم</label>
+                                <input type="text" id="setting-ministry-logo" placeholder="رابط شعار الوزارة..." class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold outline-none">
+                                <p class="text-[10px] text-slate-400">الشعار الافتراضي مدمج رسمياً ويمكنك تعديله عند الحاجة.</p>
+                            </div>
+
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">رمز الدخول السري (PIN)</label>
                                 <input type="text" id="setting-pin-code" placeholder="2403511922" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-400 outline-none">
@@ -390,7 +495,7 @@
                         </div>
                         <button onclick="updateSchoolInfo()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl transition text-xs flex items-center gap-2">
                             <i class="fa-solid fa-check"></i>
-                            <span>حفظ الإعدادات الهوية</span>
+                            <span>حفظ إعدادات الهوية والشعارات</span>
                         </button>
                     </div>
 
@@ -458,6 +563,7 @@
         const DEFAULT_STATE = {
             schoolName: "مدارس المجد الجديد الأهلية",
             schoolLogo: "",
+            ministryLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Ministry_of_Education_KSA_Logo.svg/1200px-Ministry_of_Education_KSA_Logo.svg.png",
             pinCode: "2403511922",
             teachers: [
                 { id: "1", name: "أحمد محمود علي", subject: "الرياضيات", grades: "الأول المتوسط، الثاني المتوسط", phone: "0501234567", isDeleted: false },
@@ -485,6 +591,7 @@
                         ...parsed,
                         schoolName: (parsed.schoolName && parsed.schoolName.trim() !== "") ? parsed.schoolName : DEFAULT_STATE.schoolName,
                         schoolLogo: parsed.schoolLogo !== undefined ? parsed.schoolLogo : DEFAULT_STATE.schoolLogo,
+                        ministryLogo: parsed.ministryLogo || DEFAULT_STATE.ministryLogo,
                         pinCode: "2403511922"
                     };
                 }
@@ -492,6 +599,26 @@
                 console.error("Error loading state", e);
             }
             return DEFAULT_STATE;
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('app-sidebar');
+            if (sidebar) sidebar.classList.toggle('translate-x-full');
+        }
+
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                appState.schoolLogo = e.target.result;
+                const logoInput = document.getElementById('setting-school-logo');
+                if (logoInput) logoInput.value = e.target.result;
+                applySchoolInfo();
+                saveAppState();
+            };
+            reader.readAsDataURL(file);
         }
 
         // Authentication PIN Checker
@@ -523,22 +650,36 @@
                 }
             });
 
+            const minLogoEl = document.getElementById('nav-ministry-logo');
+            if (minLogoEl) {
+                if (appState.ministryLogo && appState.ministryLogo.trim() !== "") {
+                    minLogoEl.src = appState.ministryLogo;
+                    minLogoEl.classList.remove('hidden');
+                } else {
+                    minLogoEl.classList.add('hidden');
+                }
+            }
+
             const nameInput = document.getElementById('setting-school-name');
             const logoInput = document.getElementById('setting-school-logo');
+            const minInput = document.getElementById('setting-ministry-logo');
             const pinInput = document.getElementById('setting-pin-code');
 
             if (nameInput) nameInput.value = appState.schoolName || "";
             if (logoInput) logoInput.value = appState.schoolLogo || "";
+            if (minInput) minInput.value = appState.ministryLogo || DEFAULT_STATE.ministryLogo;
             if (pinInput) pinInput.value = appState.pinCode || "2403511922";
         }
 
         function updateSchoolInfo() {
             const nameInput = document.getElementById('setting-school-name');
             const logoInput = document.getElementById('setting-school-logo');
+            const minInput = document.getElementById('setting-ministry-logo');
             const pinInput = document.getElementById('setting-pin-code');
 
             if (nameInput) appState.schoolName = nameInput.value.trim();
             if (logoInput) appState.schoolLogo = logoInput.value.trim();
+            if (minInput) appState.ministryLogo = minInput.value.trim();
             if (pinInput && pinInput.value.trim() !== "") appState.pinCode = pinInput.value.trim();
 
             saveAppState();
@@ -546,7 +687,7 @@
 
             const alertBox = document.createElement('div');
             alertBox.className = 'fixed bottom-5 left-5 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl font-bold z-50 transition transform duration-300 text-xs';
-            alertBox.innerText = '✅ تم حفظ اسم المدرسة والشعار ورمز الدخول بنجاح!';
+            alertBox.innerText = '✅ تم حفظ الهوية والشعارات ورمز الدخول بنجاح!';
             document.body.appendChild(alertBox);
             setTimeout(() => alertBox.remove(), 3000);
         }
@@ -1064,7 +1205,7 @@
         function switchTab(tabName) {
             document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-amber-500', 'text-white', 'shadow-md');
+                btn.classList.remove('bg-amber-500', 'text-slate-950', 'shadow-md');
                 btn.classList.add('text-slate-600', 'hover:bg-slate-100');
             });
 
@@ -1074,7 +1215,13 @@
             if (targetView) targetView.classList.remove('hidden');
             if (targetTabBtn) {
                 targetTabBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
-                targetTabBtn.classList.add('bg-amber-500', 'text-white', 'shadow-md');
+                targetTabBtn.classList.add('bg-amber-500', 'text-slate-950', 'shadow-md');
+            }
+
+            // Close sidebar on mobile after selecting tab
+            const sidebar = document.getElementById('app-sidebar');
+            if (sidebar && window.innerWidth < 1024) {
+                sidebar.classList.add('translate-x-full');
             }
 
             if (tabName === 'teachers') renderTeachers();
