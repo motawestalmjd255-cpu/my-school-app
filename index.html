@@ -28,6 +28,25 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
+    <!-- Screen Lock Overlay (Password Protection) -->
+    <div id="auth-overlay" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl border border-slate-200">
+            <div class="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 border border-amber-500/20">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-xl font-black text-slate-900 mb-1">المنظومة محمية</h2>
+            <p class="text-xs text-slate-500 mb-6">يرجى إدخال رمز الدخول السري لفتح النظام</p>
+            
+            <form onsubmit="verifyPin(event)" class="space-y-4">
+                <input type="password" id="input-pin-code" maxlength="15" placeholder="••••" required class="w-full text-center text-xl font-bold tracking-widest p-3 bg-slate-50 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-amber-400 outline-none">
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-2xl transition shadow-lg text-sm">
+                    دخول المنظومة
+                </button>
+            </form>
+            <p id="pin-error-msg" class="text-xs font-bold text-rose-600 mt-3 hidden">❌ رمز الدخول غير صحيح!</p>
+        </div>
+    </div>
+
     <!-- Navbar Header -->
     <header class="bg-slate-900 text-white shadow-xl sticky top-0 z-40 no-print border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -92,20 +111,20 @@
 
         <!-- 1. DASHBOARD VIEW -->
         <section id="view-dashboard" class="tab-view space-y-6">
-            <!-- Quick Daily Backup Banner -->
+            <!-- Manual Backup Banner -->
             <div class="bg-gradient-to-r from-slate-900 to-indigo-950 rounded-2xl p-6 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 border border-slate-800">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-400 text-2xl border border-amber-500/30">
                         <i class="fa-solid fa-cloud-arrow-down"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-amber-300">النسخ الاحتياطي التلقائي</h2>
-                        <p class="text-xs text-slate-300">يتم حفظ نسخة من كافة البيانات يومياً تلقائياً، يمكنك تنزيل نسخة الآن بضغطة زر لحفظها على Drive.</p>
+                        <h2 class="text-lg font-bold text-amber-300">النسخ الاحتياطي للبيانات</h2>
+                        <p class="text-xs text-slate-300">يمكنك تنزيل نسخة احتياطية من جميع بيانات المعلمين والزيارات بضغطة زر لحفظها على جهازك.</p>
                     </div>
                 </div>
                 <button onclick="triggerDailyBackup(true)" class="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm">
                     <i class="fa-solid fa-download"></i>
-                    <span>تنزيل نسخة اليوم ☁️</span>
+                    <span>تنزيل نسخة احتياطية ☁️</span>
                 </button>
             </div>
 
@@ -185,7 +204,6 @@
         <!-- 2. TEACHERS VIEW -->
         <section id="view-teachers" class="tab-view space-y-4 hidden">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
-                <!-- Header Actions -->
                 <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                     <div>
                         <h2 class="text-lg font-bold text-slate-800">سجل الكادر التعليمي</h2>
@@ -196,15 +214,6 @@
                             <i class="fa-solid fa-box-archive"></i>
                             <span id="selected-teachers-count-text">نقل المحددين للأرشيف (0)</span>
                         </button>
-                        <button onclick="downloadExcelTemplate()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition font-bold text-xs flex items-center gap-2">
-                            <i class="fa-solid fa-file-excel text-emerald-600"></i>
-                            <span>تحميل قالب Excel</span>
-                        </button>
-                        <label class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl transition font-bold text-xs cursor-pointer flex items-center gap-2">
-                            <i class="fa-solid fa-file-import"></i>
-                            <span>استيراد Excel</span>
-                            <input type="file" accept=".xlsx, .xls" onchange="handleFileUpload(event)" class="hidden">
-                        </label>
                         <button onclick="openTeacherModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2 rounded-xl transition font-bold text-xs flex items-center gap-2 shadow-md">
                             <i class="fa-solid fa-user-plus"></i>
                             <span>إضافة معلم جديد</span>
@@ -212,7 +221,6 @@
                     </div>
                 </div>
 
-                <!-- Table Container -->
                 <div class="overflow-x-auto rounded-xl border border-slate-200">
                     <table class="w-full text-right text-xs">
                         <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
@@ -244,7 +252,6 @@
                 </h2>
 
                 <form id="visit-form" onsubmit="saveVisit(event)" class="space-y-6">
-                    <!-- Basic Visit Information -->
                     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">المعلم الزائر *</label>
@@ -282,7 +289,6 @@
                         </div>
                     </div>
 
-                    <!-- Evaluation Criteria Grid -->
                     <div>
                         <h3 class="font-bold text-sm text-slate-800 mb-3">بنود عناصر التقويم وتحديد الدرجة:</h3>
                         <div id="visit-criteria-list" class="space-y-3">
@@ -290,7 +296,6 @@
                         </div>
                     </div>
 
-                    <!-- Evaluation Score Display & Save -->
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900 text-white p-4 rounded-xl">
                         <div>
                             <span class="text-xs text-slate-400">النتيجة والدرجة الإجمالية:</span>
@@ -320,7 +325,6 @@
                     </div>
                 </div>
 
-                <!-- Archive Cards Container -->
                 <div id="archive-cards-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <!-- Dynamic Archive Items -->
                 </div>
@@ -378,6 +382,10 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">رابط الشعار (Logo URL)</label>
                                 <input type="text" id="setting-school-logo" placeholder="https://example.com/logo.png" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-400 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">رمز الدخول السري (PIN)</label>
+                                <input type="text" id="setting-pin-code" placeholder="2403511922" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-400 outline-none">
                             </div>
                         </div>
                         <button onclick="updateSchoolInfo()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl transition text-xs flex items-center gap-2">
@@ -447,10 +455,10 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        // State Management & Storage
         const DEFAULT_STATE = {
             schoolName: "مدارس المجد الجديد الأهلية",
             schoolLogo: "",
+            pinCode: "2403511922",
             teachers: [
                 { id: "1", name: "أحمد محمود علي", subject: "الرياضيات", grades: "الأول المتوسط، الثاني المتوسط", phone: "0501234567", isDeleted: false },
                 { id: "2", name: "محمد عبدالله الشهراني", subject: "اللغة العربية", grades: "الثالث المتوسط", phone: "0559876543", isDeleted: false }
@@ -476,7 +484,8 @@
                         ...DEFAULT_STATE,
                         ...parsed,
                         schoolName: (parsed.schoolName && parsed.schoolName.trim() !== "") ? parsed.schoolName : DEFAULT_STATE.schoolName,
-                        schoolLogo: parsed.schoolLogo !== undefined ? parsed.schoolLogo : DEFAULT_STATE.schoolLogo
+                        schoolLogo: parsed.schoolLogo !== undefined ? parsed.schoolLogo : DEFAULT_STATE.schoolLogo,
+                        pinCode: "2403511922"
                     };
                 }
             } catch (e) {
@@ -485,65 +494,21 @@
             return DEFAULT_STATE;
         }
 
-        function saveAppState() {
-            try {
-                localStorage.setItem('school_visits_app_data', JSON.stringify(appState));
-            } catch (e) {
-                console.error("Error saving state", e);
+        // Authentication PIN Checker
+        function verifyPin(e) {
+            e.preventDefault();
+            const entered = document.getElementById('input-pin-code').value.trim();
+            const errorMsg = document.getElementById('pin-error-msg');
+            const overlay = document.getElementById('auth-overlay');
+
+            if (entered === (appState.pinCode || "2403511922")) {
+                overlay.classList.add('hidden');
+                if (errorMsg) errorMsg.classList.add('hidden');
+            } else {
+                if (errorMsg) errorMsg.classList.remove('hidden');
             }
         }
 
-        // Live Clock and Period Helper
-        function updateClockAndPeriod() {
-            const now = new Date();
-            const timeEl = document.getElementById('live-time');
-            const dateEl = document.getElementById('live-date');
-            const periodBadge = document.getElementById('current-period-badge');
-
-            if (timeEl) timeEl.innerText = now.toLocaleTimeString('ar-SA');
-            if (dateEl) dateEl.innerText = now.toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-            const hours = now.getHours();
-            const minutes = now.getMinutes();
-            const totalMinutes = hours * 60 + minutes;
-
-            let periodText = "خارج دوام الحصه";
-            if (totalMinutes >= 420 && totalMinutes < 465) periodText = "الحصة الأولى";
-            else if (totalMinutes >= 465 && totalMinutes < 510) periodText = "الحصة الثانية";
-            else if (totalMinutes >= 510 && totalMinutes < 555) periodText = "الحصة الثالثة";
-            else if (totalMinutes >= 555 && totalMinutes < 600) periodText = "الحصة الرابعة";
-            else if (totalMinutes >= 600 && totalMinutes < 645) periodText = "الحصة الخامسة";
-            else if (totalMinutes >= 645 && totalMinutes < 690) periodText = "الحصة السادسة";
-            else if (totalMinutes >= 690 && totalMinutes < 735) periodText = "الحصة السابعة";
-
-            if (periodBadge) periodBadge.innerText = `الحصة الحالية: ${periodText}`;
-        }
-
-        // Tabs Navigation Logic
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-amber-500', 'text-white', 'shadow-md');
-                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
-            });
-
-            const targetView = document.getElementById(`view-${tabId}`);
-            const targetBtn = document.getElementById(`tab-${tabId}`);
-
-            if (targetView) targetView.classList.remove('hidden');
-            if (targetBtn) {
-                targetBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
-                targetBtn.classList.add('bg-amber-500', 'text-white', 'shadow-md');
-            }
-
-            if (tabId === 'teachers') renderTeachers();
-            if (tabId === 'recycle-bin') renderDeletedTeachers();
-            if (tabId === 'archive') renderArchive();
-            if (tabId === 'new-visit') renderVisitCriteria();
-            if (tabId === 'settings') renderSettingsCriteria();
-        }
-
-        // UI School Info Renderer
         function applySchoolInfo() {
             const nameEls = document.querySelectorAll('.school-name-display');
             nameEls.forEach(el => el.innerText = appState.schoolName || DEFAULT_STATE.schoolName);
@@ -560,28 +525,32 @@
 
             const nameInput = document.getElementById('setting-school-name');
             const logoInput = document.getElementById('setting-school-logo');
+            const pinInput = document.getElementById('setting-pin-code');
+
             if (nameInput) nameInput.value = appState.schoolName || "";
             if (logoInput) logoInput.value = appState.schoolLogo || "";
+            if (pinInput) pinInput.value = appState.pinCode || "2403511922";
         }
 
         function updateSchoolInfo() {
             const nameInput = document.getElementById('setting-school-name');
             const logoInput = document.getElementById('setting-school-logo');
+            const pinInput = document.getElementById('setting-pin-code');
 
             if (nameInput) appState.schoolName = nameInput.value.trim();
             if (logoInput) appState.schoolLogo = logoInput.value.trim();
+            if (pinInput && pinInput.value.trim() !== "") appState.pinCode = pinInput.value.trim();
 
             saveAppState();
             applySchoolInfo();
 
             const alertBox = document.createElement('div');
             alertBox.className = 'fixed bottom-5 left-5 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl font-bold z-50 transition transform duration-300 text-xs';
-            alertBox.innerText = '✅ تم حفظ اسم المدرسة والشعار بنجاح!';
+            alertBox.innerText = '✅ تم حفظ اسم المدرسة والشعار ورمز الدخول بنجاح!';
             document.body.appendChild(alertBox);
             setTimeout(() => alertBox.remove(), 3000);
         }
 
-        // Teacher Modal Actions
         function openTeacherModal() {
             document.getElementById('teacher-edit-id').value = '';
             document.getElementById('teacher-name-input').value = '';
@@ -629,7 +598,6 @@
             updateStats();
         }
 
-        // Render Teachers Table
         function renderTeachers() {
             const tbody = document.getElementById('teachers-table-body');
             const selectTeacher = document.getElementById('visit-teacher-select');
@@ -640,7 +608,6 @@
 
             const activeTeachers = appState.teachers.filter(t => !t.isDeleted);
 
-            // Populate Form Select Options
             if (selectTeacher) {
                 selectTeacher.innerHTML = '<option value="">اختر المعلم من القائمة...</option>';
                 activeTeachers.forEach(t => {
@@ -695,7 +662,6 @@
             });
         }
 
-        // Render Visit Criteria Inputs
         function renderVisitCriteria() {
             const container = document.getElementById('visit-criteria-list');
             if (!container) return;
@@ -733,7 +699,6 @@
             if (subjectInput) subjectInput.value = teacher ? teacher.subject : '';
         }
 
-        // Save Visit Entry
         function saveVisit(e) {
             e.preventDefault();
             const teacherId = document.getElementById('visit-teacher-select').value;
@@ -782,7 +747,6 @@
             switchTab('archive');
         }
 
-        // Render Visit Archive
         function renderArchive() {
             const container = document.getElementById('archive-cards-list');
             const filterTeacherId = document.getElementById('archive-filter-teacher')?.value || 'ALL';
@@ -826,7 +790,6 @@
             });
         }
 
-        // Print Report Action
         function printVisitReport(visitId) {
             const v = appState.visits.find(item => String(item.id) === String(visitId));
             if (!v) return;
@@ -876,7 +839,6 @@
             window.print();
         }
 
-        // Checkboxes & Move to Recycle Bin (Trash) Operations
         function toggleSelectAllTeachers(master) {
             document.querySelectorAll('.teacher-select-checkbox').forEach(cb => cb.checked = master.checked);
             updateSelectedTeachersCount();
@@ -984,7 +946,6 @@
             }
         }
 
-        // Stats Tracker
         function updateStats() {
             const activeTeachers = appState.teachers.filter(t => !t.isDeleted);
             const teacherCountEl = document.getElementById('stat-teachers-count');
@@ -1007,7 +968,6 @@
             }
         }
 
-        // Settings Render & Actions
         function renderSettingsCriteria() {
             const list = document.getElementById('settings-criteria-list');
             if (!list) return;
@@ -1052,18 +1012,7 @@
             updateStats();
         }
 
-        // Daily Automatic Backup
-        function checkAndRunDailyBackup() {
-            const today = new Date().toISOString().split('T')[0];
-            const lastBackupDate = localStorage.getItem('last_daily_backup_date');
-
-            if (lastBackupDate !== today) {
-                triggerDailyBackup(false);
-                localStorage.setItem('last_daily_backup_date', today);
-            }
-        }
-
-        function triggerDailyBackup(manual = false) {
+        function triggerDailyBackup(manual = true) {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
             const downloadAnchor = document.createElement('a');
             const todayStr = new Date().toISOString().split('T')[0];
@@ -1079,8 +1028,76 @@
             }
         }
 
-        // Initializer
+        function updateClockAndPeriod() {
+            const now = new Date();
+            const timeEl = document.getElementById('live-time');
+            const dateEl = document.getElementById('live-date');
+            const periodBadge = document.getElementById('current-period-badge');
+
+            if (timeEl) {
+                timeEl.innerText = now.toLocaleTimeString('ar-SA', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+            if (dateEl) {
+                dateEl.innerText = now.toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            }
+
+            if (periodBadge) {
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+                const timeInMinutes = hours * 60 + minutes;
+
+                let periodText = "خارج دوام الحصص";
+
+                if (timeInMinutes >= 420 && timeInMinutes < 465) periodText = "الحصة الأولى";
+                else if (timeInMinutes >= 465 && timeInMinutes < 510) periodText = "الحصة الثانية";
+                else if (timeInMinutes >= 510 && timeInMinutes < 555) periodText = "الحصة الثالثة";
+                else if (timeInMinutes >= 555 && timeInMinutes < 600) periodText = "الفترة الاستراحة / الفسحة";
+                else if (timeInMinutes >= 600 && timeInMinutes < 645) periodText = "الحصة الرابعة";
+                else if (timeInMinutes >= 645 && timeInMinutes < 690) periodText = "الحصة الخامسة";
+                else if (timeInMinutes >= 690 && timeInMinutes < 735) periodText = "الحصة السادسة";
+                else if (timeInMinutes >= 735 && timeInMinutes < 780) periodText = "الحصة السابعة";
+
+                periodBadge.innerText = `الحصة الحالية: ${periodText}`;
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-amber-500', 'text-white', 'shadow-md');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+            });
+
+            const targetView = document.getElementById(`view-${tabName}`);
+            const targetTabBtn = document.getElementById(`tab-${tabName}`);
+
+            if (targetView) targetView.classList.remove('hidden');
+            if (targetTabBtn) {
+                targetTabBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+                targetTabBtn.classList.add('bg-amber-500', 'text-white', 'shadow-md');
+            }
+
+            if (tabName === 'teachers') renderTeachers();
+            if (tabName === 'new-visit') renderVisitCriteria();
+            if (tabName === 'archive') renderArchive();
+            if (tabName === 'recycle-bin') renderDeletedTeachers();
+            if (tabName === 'settings') renderSettingsCriteria();
+        }
+
+        function saveAppState() {
+            try {
+                localStorage.setItem('school_visits_app_data', JSON.stringify(appState));
+            } catch (e) {
+                console.error("Error saving state", e);
+            }
+        }
+
         window.onload = function() {
+            const overlay = document.getElementById('auth-overlay');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+            }
+
             updateClockAndPeriod();
             setInterval(updateClockAndPeriod, 1000);
             applySchoolInfo();
@@ -1088,7 +1105,6 @@
             renderVisitCriteria();
             renderSettingsCriteria();
             updateStats();
-            checkAndRunDailyBackup();
         };
     </script>
 </body>
