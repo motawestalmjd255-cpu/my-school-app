@@ -529,495 +529,416 @@
         };
 
         let defaultCriteria = [
-            { id: 'c1', category: 'التخطيط والتحضير', name: 'وضوح الأهداف السلوكية وصياغتها وتنوعها', maxScore: 5 },
-            { id: 'c2', category: 'التخطيط والتحضير', name: 'الربط بالواقع والمعرفة السابقة للمتعلمين', maxScore: 5 },
-            { id: 'c3', category: 'استراتيجيات التدريس', name: 'تنويع استراتيجيات التدريس النشط والتفاعلي', maxScore: 10 },
-            { id: 'c4', category: 'استراتيجيات التدريس', name: 'استخدام الوسائل والتقنيات والوسائط التعليمية', maxScore: 10 },
-            { id: 'c5', category: 'الإدارة الصفية', name: 'الانضباط والبيئة المحفزة للتعلم والتفاعل', maxScore: 10 },
-            { id: 'c6', category: 'الإدارة الصفية', name: 'مراعاة الفروق الفردية وتمكين كافة الطلاب', maxScore: 5 },
-            { id: 'c7', category: 'التقويم والأثر', name: 'تنويع أساليب التقويم التكويني والختامي', maxScore: 5 }
+            // التخطيط والتحضير
+            { id: 'c1', category: 'التخطيط والتحضير', name: 'التحضير الذهني والكتابي وتحديد الأهداف', maxScore: 5 },
+            { id: 'c2', category: 'التخطيط والتحضير', name: 'الربط بالتعلم السابق والتمهيد للدرس', maxScore: 5 },
+            
+            // إدارة الصف والبيئة التعليمية
+            { id: 'c3', category: 'إدارة الصف والبيئة التعليمية', name: 'إدارة وقت الحصة والانضباط الصفي', maxScore: 5 },
+            { id: 'c4', category: 'إدارة الصف والبيئة التعليمية', name: 'تشجيع المشاركة ومراعاة الفروق الفردية', maxScore: 10 },
+            
+            // طرق وتدريس المادة
+            { id: 'c5', category: 'طرق وتدريس المادة', name: 'استخدام استراتيجيات التدريس الحديثة والنشطة', maxScore: 10 },
+            { id: 'c6', category: 'طرق وتدريس المادة', name: 'توظيف التقنية والوسائل التعليمية المناسبة', maxScore: 10 },
+            { id: 'c7', category: 'طرق وتدريس المادة', name: 'التمكن من المادة العلمية وإيصال المفاهيم', maxScore: 10 },
+            
+            // التقويم والأثر
+            { id: 'c8', category: 'التقويم والأثر العلمي', name: 'التقويم التكويني والختامي ومتابعة كتاب الطالب', maxScore: 10 },
+            { id: 'c9', category: 'التقويم والأثر العلمي', name: 'تحقيق أهداف الدرس ومدى استيعاب الطلاب', maxScore: 10 }
         ];
 
         let criteriaData = JSON.parse(localStorage.getItem('almajd_criteria')) || defaultCriteria;
 
         let teachersData = JSON.parse(localStorage.getItem('almajd_teachers')) || [
-            { id: '1', name: 'أحمد محمود العلي', subject: 'الرياضيات', grades: 'أول متوسط / ثاني متوسط' },
-            { id: '2', name: 'خالد عبدالله السعيد', subject: 'العلوم', grades: 'ثالث متوسط' }
+            { id: 't1', name: 'أحمد محمود العلي', subject: 'الرياضيات', classes: 'الأول متوسط، الثاني متوسط' },
+            { id: 't2', name: 'خالد عبدالله الشمري', subject: 'العلوم', classes: 'الثالث متوسط' },
+            { id: 't3', name: 'محمد عبدالكريم', subject: 'اللغة العربية', classes: 'جميع المراحل' }
         ];
 
         let visitsData = JSON.parse(localStorage.getItem('almajd_visits')) || [];
-        let trashData = JSON.parse(localStorage.getItem('almajd_trash')) || [];
 
-        // تحضير الشعارات وضمان عدم وجود صورة مكسورة
-        function loadLogos() {
-            const savedSchoolLogo = localStorage.getItem('almajd_logo_school') || DEFAULT_SCHOOL_LOGO;
-            const savedMoeLogo = localStorage.getItem('almajd_logo_moe') || DEFAULT_MOE_LOGO;
+        // التهيئة عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLogos();
+            updateAcademicYearDisplay();
+            updateClock();
+            setInterval(updateClock, 1000);
+            renderTeachers();
+            populateTeachersSelect();
+            renderRubricForm();
+            renderArchive();
+            updateStats();
+        });
 
-            ['header-school-logo', 'sidebar-school-logo', 'login-school-logo'].forEach(id => {
-                const img = document.getElementById(id);
-                if (img) img.src = savedSchoolLogo;
-            });
-
-            ['header-moe-logo', 'login-moe-logo'].forEach(id => {
-                const img = document.getElementById(id);
-                if (img) img.src = savedMoeLogo;
-            });
-        }
-
-        // تحديث الساعة الحية
         function updateClock() {
             const clockEl = document.getElementById('live-clock');
-            if (!clockEl) return;
-            const now = new Date();
-            clockEl.innerHTML = `<i class="fa-regular fa-clock ml-1"></i> ${now.toLocaleTimeString('ar-SA')} - ${now.toLocaleDateString('ar-SA')}`;
+            if (clockEl) {
+                const now = new Date();
+                clockEl.innerHTML = `<i class="fa-regular fa-clock ml-1"></i> ${now.toLocaleTimeString('ar-SA')}`;
+            }
         }
 
-        // إدارة قفل الحماية وتسجيل الدخول
-        window.handleLogin = function(e) {
+        function loadLogos() {
+            const schoolLogo = localStorage.getItem('almajd_logo_school') || DEFAULT_SCHOOL_LOGO;
+            const moeLogo = localStorage.getItem('almajd_logo_moe') || DEFAULT_MOE_LOGO;
+
+            ['login-school-logo', 'header-school-logo', 'sidebar-school-logo'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.src = schoolLogo;
+            });
+
+            ['login-moe-logo', 'header-moe-logo'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.src = moeLogo;
+            });
+        }
+
+        function updateAcademicYearDisplay() {
+            const savedYear = localStorage.getItem('almajd_academic_year') || 'الفصل الدراسي الأول 1448هـ';
+            const savedSchool = localStorage.getItem('almajd_school_name') || 'متوسطة المجد الجديد الأهلية';
+
+            const schoolHeader = document.getElementById('header-school-name');
+            if (schoolHeader) schoolHeader.textContent = savedSchool;
+
+            ['header-academic-year', 'auth-year-text', 'dashboard-year-badge', 'form-academic-year'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = savedYear;
+            });
+
+            const yearInput = document.getElementById('setting-academic-year');
+            if (yearInput) yearInput.value = savedYear;
+
+            const schoolInput = document.getElementById('setting-school-name');
+            if (schoolInput) schoolInput.value = savedSchool;
+        }
+
+        function handleLogin(e) {
             e.preventDefault();
-            const pinInput = document.getElementById('pin-input').value;
+            const inputPin = document.getElementById('pin-input').value;
             const savedPin = localStorage.getItem('almajd_pin') || '2403511922';
             const errorEl = document.getElementById('pin-error');
-            const authModal = document.getElementById('auth-modal');
-            const mainApp = document.getElementById('main-app');
 
-            if (pinInput === savedPin) {
+            if (inputPin === savedPin) {
+                const authModal = document.getElementById('auth-modal');
+                const mainApp = document.getElementById('main-app');
                 if (authModal) authModal.classList.add('hidden');
                 if (mainApp) mainApp.classList.remove('hidden');
                 if (errorEl) errorEl.classList.add('hidden');
-                initAppData();
             } else {
                 if (errorEl) errorEl.classList.remove('hidden');
             }
-        };
+        }
 
-        window.logout = function() {
+        function logout() {
             const authModal = document.getElementById('auth-modal');
             const mainApp = document.getElementById('main-app');
-            if (mainApp) mainApp.classList.add('hidden');
             if (authModal) authModal.classList.remove('hidden');
-            const pinInput = document.getElementById('pin-input');
-            if (pinInput) pinInput.value = '';
-        };
-
-        window.logout = function() {
-            document.getElementById('main-app').classList.add('hidden');
-            document.getElementById('auth-modal').classList.remove('hidden');
+            if (mainApp) mainApp.classList.add('hidden');
             document.getElementById('pin-input').value = '';
-        };
+        }
 
-        // التحكم بالقائمة الجانبية والتبويبات
-        window.toggleSidebar = function() {
+        function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             if (sidebar) sidebar.classList.toggle('translate-x-full');
-        };
+        }
 
-        window.switchTab = function(tabName) {
+        function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            const targetTab = document.getElementById('tab-' + tabName);
-            if (targetTab) targetTab.classList.remove('hidden');
-
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-amber-100', 'text-amber-900', 'font-black');
             });
-            const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) targetTab.classList.remove('hidden');
+
+            const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
             if (activeBtn) activeBtn.classList.add('bg-amber-100', 'text-amber-900', 'font-black');
 
-            if (window.innerWidth < 1024) {
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar) sidebar.classList.add('translate-x-full');
-            }
-        };
-
-        // إحصائيات النظام
-        function updateStats() {
-            const tCount = document.getElementById('stat-teachers-count');
-            const vCount = document.getElementById('stat-visits-count');
-            if (tCount) tCount.textContent = teachersData.length;
-            if (vCount) vCount.textContent = visitsData.length;
+            // إغلاق الشاشة الجانبية في الهواتف
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && window.innerWidth < 1024) sidebar.classList.add('translate-x-full');
         }
 
-        // سجل المعلمين
         function renderTeachers() {
             const tbody = document.getElementById('teachers-table-body');
             if (!tbody) return;
-            tbody.innerHTML = teachersData.length === 0 ? `<tr><td colspan="4" class="p-4 text-center text-slate-400">لا يوجد معلمون مسجلون</td></tr>` :
-            teachersData.map(t => `
+
+            if (teachersData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">لا يوجد معلمون مسجلون حالياً</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = teachersData.map(t => `
                 <tr class="hover:bg-slate-50 transition-all">
                     <td class="p-4 font-bold text-slate-900">${t.name}</td>
                     <td class="p-4 text-slate-600">${t.subject}</td>
-                    <td class="p-4 text-slate-600">${t.grades}</td>
-                    <td class="p-4 flex gap-2">
-                        <button onclick="removeTeacher('${t.id}')" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg text-xs font-bold">
-                            <i class="fa-solid fa-trash"></i> حذف
+                    <td class="p-4 text-slate-500">${t.classes}</td>
+                    <td class="p-4">
+                        <button onclick="deleteTeacher('${t.id}')" class="text-rose-600 hover:text-rose-800 p-1 font-bold text-xs">
+                            <i class="fa-solid fa-trash ml-1"></i> حذف
                         </button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function populateTeacherDropdown() {
+        function populateTeachersSelect() {
             const select = document.getElementById('visit-teacher');
             if (!select) return;
-            select.innerHTML = teachersData.map(t => `<option value="${t.id}">${t.name} (${t.subject})</option>`).join('');
+            select.innerHTML = teachersData.map(t => `<option value="${t.name}">${t.name} - ${t.subject}</option>`).join('');
         }
 
-        window.openTeacherModal = function() {
-            const modal = document.getElementById('teacher-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
+        function deleteTeacher(id) {
+            if (confirm('هل أنت تأكد من حذف هذا المعلم؟')) {
+                teachersData = teachersData.filter(t => t.id !== id);
+                localStorage.setItem('almajd_teachers', JSON.stringify(teachersData));
+                renderTeachers();
+                populateTeachersSelect();
+                updateStats();
             }
-        };
+        }
 
-        window.closeTeacherModal = function() {
-            const modal = document.getElementById('teacher-modal');
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        };
+        function openTeacherModal() {
+            const name = prompt('أدخل اسم المعلم الجديد:');
+            if (!name) return;
+            const subject = prompt('المادة الدراسية:') || 'عام';
+            const classes = prompt('الصفوف والمراحل:') || 'المرحلة المتوسطة';
 
-        window.handleSaveTeacher = function(e) {
-            e.preventDefault();
-            const name = document.getElementById('modal-teacher-name').value;
-            const subject = document.getElementById('modal-teacher-subject').value;
-            const grades = document.getElementById('modal-teacher-grades').value;
-
-            teachersData.push({ id: Date.now().toString(), name, subject, grades });
-            saveAllLocalData();
-            renderTeachers();
-            populateTeacherDropdown();
-            closeTeacherModal();
-            e.target.reset();
-        };
-
-        window.removeTeacher = function(id) {
-            teachersData = teachersData.filter(t => t.id !== id);
-            saveAllLocalData();
-            renderTeachers();
-            populateTeacherDropdown();
-        };
-
-        // حفظ البيانات محلياً بسلاسة
-        function saveAllLocalData() {
+            const newTeacher = { id: 't_' + Date.now(), name, subject, classes };
+            teachersData.push(newTeacher);
             localStorage.setItem('almajd_teachers', JSON.stringify(teachersData));
-            localStorage.setItem('almajd_visits', JSON.stringify(visitsData));
-            localStorage.setItem('almajd_criteria', JSON.stringify(criteriaData));
+            renderTeachers();
+            populateTeachersSelect();
             updateStats();
         }
 
-        // بناء استمارة الزيارة الديناميكية
-        function renderEvaluationForm() {
+        function renderRubricForm() {
             const container = document.getElementById('rubric-evaluation-container');
             if (!container) return;
 
-            const categories = [...new Set(criteriaData.map(c => c.category))];
-            let maxTotal = criteriaData.reduce((sum, item) => sum + Number(item.maxScore), 0);
+            let maxTotal = criteriaData.reduce((sum, item) => sum + (Number(item.maxScore) || 0), 0);
             document.getElementById('visit-max-score').textContent = maxTotal;
 
-            container.innerHTML = categories.map(cat => {
-                const catItems = criteriaData.filter(c => c.category === cat);
-                return `
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-                        <h4 class="font-bold text-slate-800 text-sm border-r-4 border-amber-500 pr-2">${cat}</h4>
-                        <div class="space-y-2">
-                            ${catItems.map(item => `
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-3 rounded-lg border border-slate-200 gap-2">
-                                    <span class="text-xs font-semibold text-slate-700">${item.name}</span>
-                                    <div class="flex items-center gap-2 self-end sm:self-auto">
-                                        <input type="number" min="0" max="${item.maxScore}" value="${item.maxScore}" 
-                                            data-id="${item.id}" data-max="${item.maxScore}"
-                                            oninput="calculateTotalScore()"
-                                            class="rubric-score-input w-20 px-3 py-1 text-center font-bold text-amber-700 rounded-lg border border-slate-300 bg-amber-50/50 text-sm">
-                                        <span class="text-xs text-slate-400 font-bold">/ ${item.maxScore}</span>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            calculateTotalScore();
-        }
-
-        function calculateTotalScore() {
-            const inputs = document.querySelectorAll('.rubric-score-input');
-            let total = 0;
-            inputs.forEach(input => {
-                let val = parseFloat(input.value) || 0;
-                let max = parseFloat(input.dataset.max) || 0;
-                if (val > max) input.value = max;
-                if (val < 0) input.value = 0;
-                total += parseFloat(input.value) || 0;
+            // تجميع حسب المجال
+            const categories = {};
+            criteriaData.forEach(c => {
+                if (!categories[c.category]) categories[c.category] = [];
+                categories[c.category].push(c);
             });
-            const scoreEl = document.getElementById('visit-total-score');
-            if (scoreEl) scoreEl.textContent = total;
-        }
 
-        // بناء واجهة تعديل البنود في الإعدادات
-        function renderCriteriaEditor() {
-            const container = document.getElementById('criteria-editor-container');
-            if (!container) return;
-            container.innerHTML = criteriaData.map((item, idx) => `
-                <div class="flex flex-col md:flex-row items-center gap-2 bg-white p-3 rounded-xl border border-slate-200">
-                    <input type="text" value="${item.category}" onchange="updateCriterion(${idx}, 'category', this.value)" placeholder="المجال/القسم" class="w-full md:w-1/4 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700">
-                    <input type="text" value="${item.name}" onchange="updateCriterion(${idx}, 'name', this.value)" placeholder="اسم البند" class="w-full md:w-2/4 px-3 py-1.5 rounded-lg border border-slate-300 text-xs">
-                    <div class="flex items-center gap-2 w-full md:w-1/4">
-                        <input type="number" min="1" value="${item.maxScore}" onchange="updateCriterion(${idx}, 'maxScore', this.value)" placeholder="الدرجة" class="w-20 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-center">
-                        <button type="button" onclick="removeCriterion(${idx})" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
+            container.innerHTML = Object.keys(categories).map(cat => `
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h5 class="font-black text-amber-700 text-xs border-b border-slate-200 pb-2">${cat}</h5>
+                    <div class="space-y-3">
+                        ${categories[cat].map(item => `
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                <span class="text-xs font-bold text-slate-800">${item.name}</span>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" min="0" max="${item.maxScore}" value="${item.maxScore}" data-id="${item.id}" data-max="${item.maxScore}" onchange="calculateRubricScore()" class="rubric-score-input w-16 p-1.5 text-center bg-slate-100 rounded-lg border border-slate-300 font-bold text-xs focus:ring-2 focus:ring-amber-500 outline-none">
+                                    <span class="text-[10px] text-slate-400 font-bold">/ ${item.maxScore}</span>
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             `).join('');
+
+            calculateRubricScore();
         }
 
-        window.addNewCriterion = function() {
-            criteriaData.push({ id: 'c' + Date.now(), category: 'بنود عامة', name: 'بند تقييم جديد', maxScore: 5 });
-            renderCriteriaEditor();
-            renderEvaluationForm();
-        };
+        function calculateRubricScore() {
+            const inputs = document.querySelectorAll('.rubric-score-input');
+            let currentTotal = 0;
+            inputs.forEach(input => {
+                let val = Number(input.value) || 0;
+                let max = Number(input.dataset.max) || 0;
+                if (val > max) { val = max; input.value = max; }
+                if (val < 0) { val = 0; input.value = 0; }
+                currentTotal += val;
+            });
+            const totalEl = document.getElementById('visit-total-score');
+            if (totalEl) totalEl.textContent = currentTotal;
+        }
 
-        window.updateCriterion = function(index, field, value) {
-            if (field === 'maxScore') value = Number(value);
-            criteriaData[index][field] = value;
-            renderEvaluationForm();
-        };
-
-        window.removeCriterion = function(index) {
-            criteriaData.splice(index, 1);
-            renderCriteriaEditor();
-            renderEvaluationForm();
-        };
-
-        // حفظ وتطبيق كل الإعدادات
-        window.handleSaveAllSettings = function(e) {
+        function handleSaveVisit(e) {
             e.preventDefault();
-            const schoolName = document.getElementById('setting-school-name').value;
-            const academicYear = document.getElementById('setting-academic-year').value;
-            const pinCode = document.getElementById('setting-pin-code').value;
-            const logoSchool = document.getElementById('setting-logo-school').value;
-            const logoMoe = document.getElementById('setting-logo-moe').value;
-            const periodsText = document.getElementById('setting-periods-list').value;
-
-            // تحديث الواجهة فوراً
-            document.getElementById('header-school-name').textContent = schoolName;
-            document.getElementById('header-academic-year').textContent = academicYear;
-            const dashBadge = document.getElementById('dashboard-year-badge');
-            if (dashBadge) dashBadge.textContent = academicYear;
-            const formBadge = document.getElementById('form-academic-year');
-            if (formBadge) formBadge.textContent = academicYear;
-
-            document.getElementById('header-school-logo').src = logoSchool;
-            document.getElementById('sidebar-school-logo').src = logoSchool;
-            document.getElementById('header-moe-logo').src = logoMoe;
-
-            // حفظ الرمز السري والإعدادات
-            localStorage.setItem('almajd_pin', pinCode);
-            localStorage.setItem('almajd_school_name', schoolName);
-            localStorage.setItem('almajd_academic_year', academicYear);
-            localStorage.setItem('almajd_logo_school', logoSchool);
-            localStorage.setItem('almajd_logo_moe', logoMoe);
-
-            // تحديث قائمة الحصص في نموذج الزيارة
-            const periodSelect = document.getElementById('visit-period');
-            if (periodSelect && periodsText) {
-                const periods = periodsText.split(',').map(p => p.trim());
-                periodSelect.innerHTML = periods.map(p => `<option value="${p}">${p}</option>`).join('');
-                localStorage.setItem('almajd_periods', periodsText);
-            }
-
-            saveAllLocalData();
-            alert('تم حفظ وتطبيق جميع الإعدادات وبنود الاستمارة بنجاح!');
-        };
-
-        window.handleSaveVisit = function(e) {
-            e.preventDefault();
-            const teacherId = document.getElementById('visit-teacher').value;
+            const teacherName = document.getElementById('visit-teacher').value;
             const subject = document.getElementById('visit-subject').value;
             const className = document.getElementById('visit-class').value;
             const period = document.getElementById('visit-period').value;
             const notes = document.getElementById('visit-notes').value;
-            
-            const teacherObj = teachersData.find(t => t.id === teacherId);
+            const totalScore = Number(document.getElementById('visit-total-score').textContent) || 0;
+            const maxScore = Number(document.getElementById('visit-max-score').textContent) || 100;
 
-            const scores = [];
+            const scoresObj = {};
             document.querySelectorAll('.rubric-score-input').forEach(input => {
-                const item = criteriaData.find(c => c.id === input.dataset.id);
-                if (item) {
-                    scores.push({
-                        category: item.category,
-                        name: item.name,
-                        score: Number(input.value),
-                        maxScore: item.maxScore
-                    });
-                }
+                scoresObj[input.dataset.id] = Number(input.value) || 0;
             });
 
-            const totalScore = scores.reduce((sum, s) => sum + s.score, 0);
-            const maxScore = scores.reduce((sum, s) => sum + s.maxScore, 0);
-
-            visitsData.unshift({
-                id: Date.now().toString(),
-                teacherName: teacherObj ? teacherObj.name : 'غير محدد',
-                subject, className, period, notes, scores, totalScore, maxScore,
-                academicYear: localStorage.getItem('almajd_academic_year') || 'الفصل الدراسي الأول 1448هـ',
+            const newVisit = {
+                id: 'v_' + Date.now(),
+                teacherName,
+                subject,
+                className,
+                period,
+                notes,
+                totalScore,
+                maxScore,
+                scores: scoresObj,
                 date: new Date().toLocaleDateString('ar-SA')
-            });
+            };
 
-            saveAllLocalData();
+            visitsData.unshift(newVisit);
+            localStorage.setItem('almajd_visits', JSON.stringify(visitsData));
+            alert('تم تسجيل وتوثيق الزيارة بنجاح!');
             renderArchive();
-            alert('تم حفظ الزيارة بنجاح في السجل!');
+            updateStats();
             switchTab('archive');
-            e.target.reset();
-            renderEvaluationForm();
-        };
+        }
 
         function renderArchive() {
             const container = document.getElementById('archive-list');
             if (!container) return;
-            container.innerHTML = visitsData.length === 0 ? '<p class="text-slate-400 text-center col-span-2">لا توجد زيارات مسجلة حتى الآن</p>' :
-            visitsData.map(v => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+
+            if (visitsData.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center text-slate-400 py-8 bg-white rounded-2xl border border-slate-200">لا توجد زيارات محفوظة بالأرشيف حتى الآن</div>';
+                return;
+            }
+
+            container.innerHTML = visitsData.map(v => `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                     <div class="flex justify-between items-start">
                         <div>
-                            <span class="text-xs font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-lg">${v.date}</span>
-                            <span class="text-xs font-bold px-2 py-0.5 bg-amber-50 text-amber-700 rounded-lg mr-1">${v.academicYear || ''}</span>
-                            <h3 class="font-black text-slate-900 text-base mt-2">${v.teacherName}</h3>
+                            <h4 class="font-black text-slate-900 text-base">${v.teacherName}</h4>
+                            <p class="text-xs text-slate-500 font-semibold">${v.subject} - ${v.className} (${v.period})</p>
                         </div>
-                        <div class="text-left">
-                            <span class="text-xs font-bold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg block mb-1">${v.period}</span>
-                            <span class="text-xs font-black px-2.5 py-1 bg-amber-500 text-slate-950 rounded-lg">الدرجة: ${v.totalScore || 0} / ${v.maxScore || 100}</span>
-                        </div>
+                        <span class="text-xs font-black bg-amber-50 text-amber-700 px-3 py-1 rounded-xl border border-amber-200">
+                            ${v.totalScore} / ${v.maxScore || 100}
+                        </span>
                     </div>
-                    <div class="text-xs text-slate-600 grid grid-cols-2 gap-2 border-y border-slate-100 py-2">
-                        <p><strong>المادة:</strong> ${v.subject}</p>
-                        <p><strong>الصف:</strong> ${v.className}</p>
-                    </div>
-                    <div class="flex gap-2 pt-1">
-                        <button onclick="openPrintModal('${v.id}')" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 transition-all">
-                            <i class="fa-solid fa-file-pdf"></i> عرض / طباعة الاستمارة
+                    <p class="text-xs text-slate-400 font-bold"><i class="fa-regular fa-calendar ml-1"></i> ${v.date}</p>
+                    <div class="flex gap-2 pt-2 border-t border-slate-100">
+                        <button onclick="viewVisitModal('${v.id}')" class="flex-1 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all">
+                            <i class="fa-solid fa-print ml-1"></i> عرض وطباعة
                         </button>
-                        <button onclick="shareVisitWhatsAppDirect('${v.id}')" class="py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center transition-all">
-                            <i class="fa-brands fa-whatsapp"></i>
+                        <button onclick="deleteVisit('${v.id}')" class="px-3 py-2 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold hover:bg-rose-100 transition-all">
+                            <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
                 </div>
             `).join('');
-        // فتح نافذة المعاينة والطباعة لتملأ صفحة A4 بالكامل
-        window.openPrintModal = function(visitId) {
-            const visit = visitsData.find(v => v.id === visitId);
+        }
+
+        function deleteVisit(id) {
+            if (confirm('هل أنت تأكد من حذف هذه الزيارة من الأرشيف؟')) {
+                visitsData = visitsData.filter(v => v.id !== id);
+                localStorage.setItem('almajd_visits', JSON.stringify(visitsData));
+                renderArchive();
+                updateStats();
+            }
+        }
+
+        function viewVisitModal(id) {
+            const visit = visitsData.find(v => v.id === id);
             if (!visit) return;
             currentViewingVisit = visit;
 
-            const logoSchool = localStorage.getItem('almajd_logo_school') || DEFAULT_SCHOOL_LOGO;
-            const logoMoe = localStorage.getItem('almajd_logo_moe') || DEFAULT_MOE_LOGO;
-            const schoolName = localStorage.getItem('almajd_school_name') || 'متوسطة المجد الجديد الأهلية';
-
             const card = document.getElementById('printable-visit-card');
+            const schoolName = localStorage.getItem('almajd_school_name') || 'متوسطة المجد الجديد الأهلية';
+            const academicYear = localStorage.getItem('almajd_academic_year') || 'الفصل الدراسي الأول 1448هـ';
+            const schoolLogo = localStorage.getItem('almajd_logo_school') || DEFAULT_SCHOOL_LOGO;
+            const moeLogo = localStorage.getItem('almajd_logo_moe') || DEFAULT_MOE_LOGO;
+
             card.innerHTML = `
-                <div class="space-y-4 flex-1">
-                    <!-- الترويسة الرسمية -->
-                    <div class="flex justify-between items-center border-b-2 border-slate-900 pb-4 mb-4">
-                        <img src="${logoSchool}" class="h-16 object-contain">
-                        <div class="text-center">
-                            <h2 class="font-black text-slate-900 text-lg md:text-xl">${schoolName}</h2>
-                            <p class="font-bold text-amber-600 text-sm">استمارة تقييم زيارة صفية موثقة</p>
-                            <p class="text-xs text-slate-500 font-bold mt-0.5">${visit.academicYear || ''}</p>
-                        </div>
-                        <img src="${logoMoe}" class="h-16 object-contain">
+                <!-- الترويسة -->
+                <div class="flex justify-between items-center border-b-2 border-slate-900 pb-4">
+                    <img src="${schoolLogo}" class="h-16 object-contain">
+                    <div class="text-center space-y-1">
+                        <h2 class="font-black text-lg text-slate-900">${schoolName}</h2>
+                        <h3 class="font-bold text-sm text-slate-700">استمارة تقويم زيارة صفية</h3>
+                        <span class="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-0.5 rounded-full border border-amber-200">${academicYear}</span>
                     </div>
-
-                    <!-- معلومات الزيارة والمعلم -->
-                    <div class="grid grid-cols-4 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-300 font-bold text-xs">
-                        <div><span class="text-slate-500">اسم المعلم:</span> <br><span class="text-slate-900 text-sm font-black">${visit.teacherName}</span></div>
-                        <div><span class="text-slate-500">المادة والصف:</span> <br><span class="text-slate-900 text-sm">${visit.subject} (${visit.className})</span></div>
-                        <div><span class="text-slate-500">الحصة والتاريخ:</span> <br><span class="text-slate-900">${visit.period} - ${visit.date}</span></div>
-                        <div class="text-center bg-slate-900 text-white p-2 rounded-xl font-black flex flex-col justify-center">
-                            <span class="text-[10px] text-amber-400">النتيجة النهائية</span>
-                            <span class="text-base">${visit.totalScore} / ${visit.maxScore || 100}</span>
-                        </div>
-                    </div>
-
-                    <!-- تفاصيل البنود والتقييمات -->
-                    <div class="space-y-2 pt-2">
-                        <h4 class="font-black text-slate-900 text-xs border-r-4 border-amber-500 pr-2">تفاصيل بنود التقييم</h4>
-                        <table class="w-full text-right border-collapse border border-slate-300 text-xs">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-900 font-black">
-                                    <th class="border border-slate-300 p-2">المجال / القسم</th>
-                                    <th class="border border-slate-300 p-2">بند التقييم</th>
-                                    <th class="border border-slate-300 p-2 text-center w-24">الدرجة المستحقة</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200">
-                                ${(visit.scores || []).map(s => `
-                                    <tr>
-                                        <td class="border border-slate-300 p-2 font-bold text-slate-700 bg-slate-50/50">${s.category}</td>
-                                        <td class="border border-slate-300 p-2 text-slate-800 font-semibold">${s.name}</td>
-                                        <td class="border border-slate-300 p-2 text-center font-black text-amber-700 bg-amber-50/30">${s.score} / ${s.maxScore}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- الملاحظات والتوصيات -->
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-300 space-y-1.5 mt-3">
-                        <h4 class="font-black text-slate-900 text-xs">الملاحظات والتوصيات المباشرة:</h4>
-                        <p class="text-slate-800 text-xs leading-relaxed font-semibold">${visit.notes || 'لا توجد ملاحظات إضافية'}</p>
-                    </div>
+                    <img src="${moeLogo}" class="h-16 object-contain">
                 </div>
 
-                <!-- التواقيع الرسمية في أسفل الصفحة -->
-                <div class="grid grid-cols-2 gap-8 pt-6 mt-6 border-t-2 border-slate-300 text-center font-bold text-xs">
-                    <div>
-                        <p class="text-slate-600">توقيع المعلم المعني</p>
-                        <p class="mt-6 text-slate-400">......................................................</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-600">توقيع المشرف التربوي / مدير المدرسة</p>
-                        <p class="mt-6 text-slate-400">......................................................</p>
-                    </div>
+                <!-- معلومات الزيارة -->
+                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-300 font-bold text-xs">
+                    <div><span class="text-slate-500">اسم المعلم:</span> ${visit.teacherName}</div>
+                    <div><span class="text-slate-500">المادة الدراسية:</span> ${visit.subject}</div>
+                    <div><span class="text-slate-500">الصف / الفصل:</span> ${visit.className}</div>
+                    <div><span class="text-slate-500">الحصة والتاريخ:</span> ${visit.period} - (${visit.date})</div>
+                </div>
+
+                <!-- جدول الدرجات -->
+                <table class="w-full border-collapse border border-slate-400 text-xs text-right">
+                    <thead>
+                        <tr class="bg-slate-200 text-slate-900 border-b border-slate-400">
+                            <th class="border border-slate-400 p-2">البند المعياري للتقييم</th>
+                            <th class="border border-slate-400 p-2 w-24 text-center">الدرجة المستحقة</th>
+                            <th class="border border-slate-400 p-2 w-24 text-center">الدرجة العظمى</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${criteriaData.map(c => `
+                            <tr>
+                                <td class="border border-slate-300 p-2 font-bold text-slate-800">${c.name}</td>
+                                <td class="border border-slate-300 p-2 text-center font-black text-amber-700">${visit.scores && visit.scores[c.id] !== undefined ? visit.scores[c.id] : '-'}</td>
+                                <td class="border border-slate-300 p-2 text-center font-bold text-slate-500">${c.maxScore}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-amber-100 font-black text-slate-900 border-t-2 border-slate-900">
+                            <td class="border border-slate-400 p-2">المجموع الكلي والنسبة المئوية</td>
+                            <td class="border border-slate-400 p-2 text-center text-amber-800 text-sm">${visit.totalScore}</td>
+                            <td class="border border-slate-400 p-2 text-center text-slate-700 text-sm">${visit.maxScore || 100}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <!-- التوصيات والتوقيعات -->
+                <div class="space-y-2">
+                    <h4 class="font-black text-slate-900 text-xs">التوصيات والملاحظات:</h4>
+                    <p class="p-3 bg-slate-50 rounded-xl border border-slate-300 min-h-[60px] text-xs font-semibold text-slate-700">${visit.notes || 'لا توجد ملاحظات إضافية'}</p>
+                </div>
+
+                <div class="grid grid-cols-2 text-center font-black pt-4 border-t border-slate-300">
+                    <div>توقيع المشرف التربوي / الزائر</div>
+                    <div>توقيع مدير المدرسة</div>
                 </div>
             `;
 
-            document.getElementById('print-modal').classList.remove('hidden');
-            document.getElementById('print-modal').classList.add('flex');
-        };
+            const modal = document.getElementById('print-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
 
-        window.closePrintModal = function() {
-            document.getElementById('print-modal').classList.add('hidden');
-            document.getElementById('print-modal').classList.remove('flex');
-        };
+        function closePrintModal() {
+            const modal = document.getElementById('print-modal');
+            if (modal) modal.classList.add('hidden');
+        }
 
-        // مشاركة التقرير عبر واتساب
-        window.shareVisitWhatsApp = function() {
+        function shareVisitWhatsApp() {
             if (!currentViewingVisit) return;
-            shareVisitWhatsAppDirect(currentViewingVisit.id);
-        };
+            const text = `تحية طيبة معلمنا الفاضل: ${currentViewingVisit.teacherName}\n` +
+                         `تم توثيق زيارتكم الصفية في مادة (${currentViewingVisit.subject}) للصف (${currentViewingVisit.className}).\n` +
+                         `النتيجة الحاصل عليها: ${currentViewingVisit.totalScore} من ${currentViewingVisit.maxScore || 100}\n` +
+                         `الملاحظات: ${currentViewingVisit.notes || 'لا توجد'}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
 
-        window.shareVisitWhatsAppDirect = function(visitId) {
-            const v = visitsData.find(item => item.id === visitId);
-            if (!v) return;
-            const text = `*تقرير زيارة صفية - متوسطة المجد الجديد الأهلية*%0A` +
-                         `*المعلم:* ${v.teacherName}%0A` +
-                         `*المادة والصف:* ${v.subject} (${v.className})%0A` +
-                         `*التاريخ والحصة:* ${v.date} - ${v.period}%0A` +
-                         `*النتيجة النهائية:* ${v.totalScore} من ${v.maxScore || 100}%0A` +
-                         `*الملاحظات:* ${v.notes || 'لا توجد'}%0A%0A` +
-                         `نتمنى لكم مزيداً من التوفيق والتألق الدائم! ✨`;
-            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-        };
+        function handleSaveAllSettings(e) {
+            e.preventDefault();
+            const schoolName = document.getElementById('setting-school-name').value;
+            const academicYear = document.getElementById('setting-academic-year').value;
+            const pinCode = document.getElementById('setting-pin-code').value;
 
-        function initAppData() {
-            loadLogos();
-            renderTeachers();
-            populateTeacherDropdown();
-            renderEvaluationForm();
-            renderCriteriaEditor();
-            renderArchive();
-            updateStats();
+            if (schoolName) localStorage.setItem('almajd_school_name', schoolName);
+            if (academicYear) localStorage.setItem('almajd_academic_year', academicYear);
+            if (pinCode) localStorage.setItem('almajd_pin', pinCode);
+
+            updateAcademicYearDisplay();
+            alert('تم حفظ وتطبيق التغييرات بنجاح!');
         }
     </script>
-<!-- ... existing code -->
+</body>
+</html>
