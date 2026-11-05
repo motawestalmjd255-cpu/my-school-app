@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js للرسوم البيانية -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; color: #1e293b; }
@@ -38,7 +37,6 @@
         const db = getFirestore(app);
         window.db = db;
         window.FirebaseSDK = { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc };
-        
         window.dispatchEvent(new Event('firebase-ready'));
     </script>
 </head>
@@ -47,16 +45,17 @@
     <div id="app" class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <aside class="w-64 bg-slate-900 text-slate-100 flex flex-col shadow-xl z-20 transition-all duration-300 no-print" id="sidebar">
-            <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+            <div class="p-5 border-b border-slate-800 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shadow-md">مـج</div>
                 <div>
-                    <h1 class="font-black text-lg text-emerald-400">منظومة الزيارات</h1>
-                    <p class="text-xs text-slate-400">متوسطة المجد الجديد الأهلية</p>
+                    <h1 class="font-black text-sm text-emerald-400">متوسطة المجد الجديد</h1>
+                    <p class="text-[11px] text-slate-400">منظومة الزيارات الصفية</p>
                 </div>
-                <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white md:hidden"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white md:hidden mr-auto"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
-                <a href="#" onclick="switchTab('visits')" id="nav-visits" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium active-tab bg-emerald-600 text-white shadow-md shadow-emerald-900/30">
-                    <i class="fa-solid fa-clipboard-check w-5"></i> الزيارات الصفية
+            <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+                <a href="#" onclick="switchTab('visits')" id="nav-visits" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium bg-emerald-600 text-white shadow-md shadow-emerald-900/30">
+                    <i class="fa-solid fa-house w-5"></i> الرئيسية والزيارات
                 </a>
                 <a href="#" onclick="switchTab('teachers')" id="nav-teachers" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium">
                     <i class="fa-solid fa-chalkboard-user w-5"></i> دليل المعلمين
@@ -69,7 +68,7 @@
                 </a>
             </nav>
             <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
-                الإصدار السحابي المتطور 2.5 &bull; متصل بـ Firebase
+                متوسطة المجد الجديد الأهلية &bull; سحابي
             </div>
         </aside>
 
@@ -79,20 +78,20 @@
             <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shadow-sm z-10 no-print">
                 <div class="flex items-center gap-4">
                     <button onclick="toggleSidebar()" class="text-slate-600 hover:text-slate-900 md:hidden"><i class="fa-solid fa-bars text-xl"></i></button>
-                    <h2 id="page-title" class="text-xl font-bold text-slate-800">إدارة الزيارات الصفية</h2>
+                    <h2 id="page-title" class="text-xl font-bold text-slate-800">الرئيسية - إدارة الزيارات الصفية</h2>
                 </div>
                 <div class="flex items-center gap-3">
                     <span id="sync-status" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> متصل بالسحابة
                     </span>
-                    <div class="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold shadow">مجـد</div>
+                    <div class="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold shadow">المجد</div>
                 </div>
             </header>
 
             <!-- Content Body -->
             <div class="p-6 max-w-7xl mx-auto w-full flex-1">
                 
-                <!-- TAB 1: VISITS -->
+                <!-- TAB 1: VISITS (HOME) -->
                 <div id="tab-visits" class="tab-content space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                         <div>
@@ -118,7 +117,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="visits-table-body" class="divide-y divide-slate-100 text-sm text-slate-700">
-                                    <!-- Dynamic rows -->
                                 </tbody>
                             </table>
                         </div>
@@ -159,7 +157,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="teachers-table-body" class="divide-y divide-slate-100 text-sm text-slate-700">
-                                    <!-- Dynamic teachers -->
                                 </tbody>
                             </table>
                         </div>
@@ -179,7 +176,6 @@
                     </div>
 
                     <div id="criteria-container" class="space-y-4">
-                        <!-- Dynamic Criteria List -->
                     </div>
                 </div>
 
@@ -195,7 +191,6 @@
                         </button>
                     </div>
 
-                    <!-- Stats Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 text-center shadow-sm">
                             <span class="text-slate-500 text-xs block mb-1 font-bold">إجمالي الزيارات</span>
@@ -211,19 +206,14 @@
                         </div>
                     </div>
 
-                    <!-- Charts Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                             <h4 class="font-bold text-slate-800 mb-4 text-base">معدل الأداء حسب المجالات الرئيسية</h4>
-                            <div class="relative h-64">
-                                <canvas id="domainsChart"></canvas>
-                            </div>
+                            <div class="relative h-64"><canvas id="domainsChart"></canvas></div>
                         </div>
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                             <h4 class="font-bold text-slate-800 mb-4 text-base">توزيع مستويات أداء المعلمين</h4>
-                            <div class="relative h-64">
-                                <canvas id="levelsChart"></canvas>
-                            </div>
+                            <div class="relative h-64"><canvas id="levelsChart"></canvas></div>
                         </div>
                     </div>
                 </div>
@@ -243,29 +233,25 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">المعلم الزائر</label>
-                        <select id="visit-teacher" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
-                        </select>
+                        <select id="visit-teacher" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none"></select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">المادة الدراسية / الصف</label>
-                        <input type="text" id="visit-subject" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="مثال: لغتي الخالدة - أول متوسط">
+                        <input type="text" id="visit-subject" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none" placeholder="مثال: لغتي الخالدة - أول متوسط">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">تاريخ الزيارة</label>
-                        <input type="date" id="visit-date" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <input type="date" id="visit-date" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none">
                     </div>
                 </div>
-
                 <hr class="border-slate-200">
-
-                <div id="evaluation-form-container" class="space-y-6">
-                </div>
+                <div id="evaluation-form-container" class="space-y-6"></div>
             </div>
             <div class="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
                 <div class="text-base font-bold text-slate-800">الدرجة الإجمالية: <span id="modal-total-score" class="text-emerald-600 font-black text-xl">0</span> / 100</div>
                 <div class="flex gap-3">
                     <button onclick="closeVisitModal()" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-100">إلغاء</button>
-                    <button onclick="saveVisit()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium shadow-md shadow-emerald-600/20">حفظ وحفظ سحابي</button>
+                    <button onclick="saveVisit()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium shadow-md">حفظ وحفظ سحابي</button>
                 </div>
             </div>
         </div>
@@ -282,20 +268,20 @@
                 <input type="hidden" id="teacher-id">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اسم المعلم الثلاثي</label>
-                    <input type="text" id="teacher-name" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="اسم المعلم">
+                    <input type="text" id="teacher-name" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="اسم المعلم">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">المادة الدراسية</label>
-                    <input type="text" id="teacher-subject" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="التخصص / المادة">
+                    <input type="text" id="teacher-subject" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="التخصص / المادة">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">رقم الجوال</label>
-                    <input type="text" id="teacher-phone" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="05xxxxxxxx">
+                    <input type="text" id="teacher-phone" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="05xxxxxxxx">
                 </div>
             </div>
             <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
-                <button onclick="closeTeacherModal()" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-100">إلغاء</button>
-                <button onclick="saveTeacher()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium shadow-md">حفظ المعلم</button>
+                <button onclick="closeTeacherModal()" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium">إلغاء</button>
+                <button onclick="saveTeacher()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium shadow-md">حفظ المعلم</button>
             </div>
         </div>
     </div>
@@ -310,20 +296,20 @@
             <div class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اسم المجال الرئيسي</label>
-                    <input type="text" id="crit-domain" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="مثال: المجال الثاني: إجراءات التدريس">
+                    <input type="text" id="crit-domain" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="المجال الأول...">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">نص المؤشر / البند</label>
-                    <input type="text" id="crit-name" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="وصف المؤشر بدقة">
+                    <input type="text" id="crit-name" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="وصف المؤشر...">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">الدرجة المخصصة</label>
-                    <input type="number" id="crit-max" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="مثال: 5">
+                    <input type="number" id="crit-max" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="5">
                 </div>
             </div>
             <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
                 <button onclick="closeCriteriaModal()" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium">إلغاء</button>
-                <button onclick="saveCriteria()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium shadow-md">حفظ البند</button>
+                <button onclick="saveCriteria()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium">حفظ البند</button>
             </div>
         </div>
     </div>
@@ -334,12 +320,11 @@
             <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 no-print">
                 <h3 class="font-bold text-slate-800">تفاصيل الزيارة الصفية الرسمية</h3>
                 <div class="flex gap-2">
-                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2"><i class="fa-solid fa-print"></i> طباعة التقرير</button>
-                    <button onclick="closePrintModal()" class="text-slate-400 hover:text-slate-700 px-3 py-1"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2"><i class="fa-solid fa-print"></i> طباعة التقرير</button>
+                    <button onclick="closePrintModal()" class="text-slate-400 px-3 py-1"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
             </div>
-            <div id="print-content" class="p-8 overflow-y-auto flex-1 space-y-6 text-slate-800 bg-white">
-            </div>
+            <div id="print-content" class="p-8 overflow-y-auto flex-1 space-y-6 text-slate-800 bg-white"></div>
         </div>
     </div>
 
@@ -406,10 +391,9 @@
                 renderVisits();
                 renderCriteria();
                 updateStats();
-                document.getElementById('sync-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span> متصل بالسحابة بنجاح';
+                document.getElementById('sync-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span> متصل بالسحابة';
             } catch (err) {
                 console.error("Firebase sync error:", err);
-                document.getElementById('sync-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span> وضع محلي (تخزين مؤقت)';
             }
         });
 
@@ -425,7 +409,12 @@
             activeNav.classList.add('bg-emerald-600', 'text-white', 'shadow-md', 'shadow-emerald-900/30');
             activeNav.classList.remove('text-slate-300', 'hover:bg-slate-800', 'hover:text-white');
 
-            const titles = { visits: 'إدارة الزيارات الصفية', teachers: 'دليل المعلمين', settings: 'إعدادات البنود والمعايير', archive: 'الأرشيف والتقارير والرسوم البيانية' };
+            const titles = { 
+                visits: 'الرئيسية - إدارة الزيارات الصفية', 
+                teachers: 'دليل المعلمين', 
+                settings: 'الإعدادات وبنود التقييم', 
+                archive: 'الأرشيف والتقارير الإحصائية' 
+            };
             document.getElementById('page-title').innerText = titles[tabId];
 
             if (tabId === 'archive') {
@@ -434,21 +423,20 @@
         }
 
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
         }
 
         function renderTeachers() {
             const tbody = document.getElementById('teachers-table-body');
             tbody.innerHTML = '';
             if (teachers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">لا يوجد معلمون مسجلون حتى الآن</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">لا يوجد معلمون مسجلون</td></tr>`;
                 return;
             }
             teachers.forEach(t => {
                 const count = visits.filter(v => v.teacherId === t.id).length;
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/80 transition">
+                    <tr class="hover:bg-slate-50 transition">
                         <td class="p-4 font-bold text-slate-800">${t.name}</td>
                         <td class="p-4">${t.subject}</td>
                         <td class="p-4">${t.phone || '-'}</td>
@@ -481,9 +469,7 @@
             document.getElementById('teacher-modal').classList.remove('hidden');
         }
 
-        function closeTeacherModal() {
-            document.getElementById('teacher-modal').classList.add('hidden');
-        }
+        function closeTeacherModal() { document.getElementById('teacher-modal').classList.add('hidden'); }
 
         async function saveTeacher() {
             const id = document.getElementById('teacher-id').value;
@@ -491,10 +477,7 @@
             const subject = document.getElementById('teacher-subject').value;
             const phone = document.getElementById('teacher-phone').value;
 
-            if (!name) {
-                alert('يرجى إدخال اسم المعلم');
-                return;
-            }
+            if (!name) { alert('يرجى إدخال اسم المعلم'); return; }
 
             const teacherData = { name, subject, phone };
             const { doc, setDoc } = window.FirebaseSDK || {};
@@ -518,9 +501,7 @@
         async function deleteTeacher(id) {
             if (confirm('هل أنت متأكد من حذف هذا المعلم؟')) {
                 teachers = teachers.filter(x => x.id !== id);
-                if (window.db) {
-                    await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "teachers", id));
-                }
+                if (window.db) await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "teachers", id));
                 renderTeachers();
                 updateStats();
             }
@@ -557,9 +538,7 @@
                             const newId = 't_imp_' + Date.now() + Math.random();
                             const tData = { name, subject, phone };
                             teachers.push({ id: newId, ...tData });
-                            if (window.db) {
-                                await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "teachers", newId), tData);
-                            }
+                            if (window.db) await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "teachers", newId), tData);
                         }
                     }
                 }
@@ -574,21 +553,21 @@
             const tbody = document.getElementById('visits-table-body');
             tbody.innerHTML = '';
             if (visits.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">لا توجد زيارات صفية مسجلة حتى الآن</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">لا توجد زيارات صفية مسجلة</td></tr>`;
                 return;
             }
             visits.forEach(v => {
                 const teacher = teachers.find(t => t.id === v.teacherId);
                 const teacherName = teacher ? teacher.name : 'معلم محذوف';
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/80 transition">
+                    <tr class="hover:bg-slate-50 transition">
                         <td class="p-4 font-bold text-slate-800">${teacherName}</td>
                         <td class="p-4">${v.subject || '-'}</td>
                         <td class="p-4">${v.visitorName || 'إدارة المدرسة'}</td>
                         <td class="p-4">${v.date}</td>
                         <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">${v.totalScore} / 100</span></td>
                         <td class="p-4 text-center space-x-2 space-x-reverse">
-                            <button onclick="viewVisitPrint('${v.id}')" class="text-slate-600 hover:text-blue-600 p-1" title="معاينة وطباعة"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="viewVisitPrint('${v.id}')" class="text-slate-600 hover:text-blue-600 p-1" title="طباعة"><i class="fa-solid fa-print"></i></button>
                             <button onclick="deleteVisit('${v.id}')" class="text-red-600 hover:text-red-800 p-1" title="حذف"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>`;
@@ -616,16 +595,14 @@
                 container.innerHTML += `
                     <div class="flex items-center justify-between gap-4 py-2 border-b border-slate-100 text-sm">
                         <span class="flex-1 text-slate-700 font-medium">${c.name} <span class="text-xs text-slate-400">(الدرجة: ${c.max})</span></span>
-                        <input type="number" min="0" max="${c.max}" value="" data-max="${c.max}" data-id="${c.id}" oninput="calculateVisitScore()" class="visit-score-input w-20 border border-slate-300 rounded-xl px-3 py-1.5 text-center focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50/50" placeholder="من ${c.max}">
+                        <input type="number" min="0" max="${c.max}" value="" data-max="${c.max}" data-id="${c.id}" oninput="calculateVisitScore()" class="visit-score-input w-20 border border-slate-300 rounded-xl px-3 py-1.5 text-center focus:outline-none bg-slate-50" placeholder="من ${c.max}">
                     </div>`;
             });
             document.getElementById('modal-total-score').innerText = '0';
             document.getElementById('visit-modal').classList.remove('hidden');
         }
 
-        function closeVisitModal() {
-            document.getElementById('visit-modal').classList.add('hidden');
-        }
+        function closeVisitModal() { document.getElementById('visit-modal').classList.add('hidden'); }
 
         function calculateVisitScore() {
             let total = 0;
@@ -644,10 +621,7 @@
             const subject = document.getElementById('visit-subject').value;
             const date = document.getElementById('visit-date').value;
 
-            if (!teacherId) {
-                alert('يرجى اختيار المعلم');
-                return;
-            }
+            if (!teacherId) { alert('يرجى اختيار المعلم'); return; }
 
             let scores = {};
             let totalScore = 0;
@@ -658,34 +632,22 @@
                 totalScore += val;
             });
 
-            const visitData = {
-                teacherId,
-                subject,
-                date,
-                visitorName: "إدارة متوسطة المجد الجديد",
-                scores,
-                totalScore
-            };
-
+            const visitData = { teacherId, subject, date, visitorName: "إدارة متوسطة المجد الجديد", scores, totalScore };
             const newId = 'v_' + Date.now();
             visits.push({ id: newId, ...visitData });
 
-            if (window.db) {
-                await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "visits", newId), visitData);
-            }
+            if (window.db) await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "visits", newId), visitData);
 
             closeVisitModal();
             renderVisits();
             updateStats();
-            alert('تم حفظ الزيارة الصفية ومزامنتها سحابياً بنجاح!');
+            alert('تم حفظ الزيارة الصفية ومحفظتها سحابياً بنجاح!');
         }
 
         async function deleteVisit(id) {
-            if (confirm('هل أنت متأكد من حذف سجل هذه الزيارة؟')) {
+            if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
                 visits = visits.filter(x => x.id !== id);
-                if (window.db) {
-                    await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "visits", id));
-                }
+                if (window.db) await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "visits", id));
                 renderVisits();
                 updateStats();
             }
@@ -715,32 +677,25 @@
             document.getElementById('crit-max').value = '';
             document.getElementById('criteria-modal').classList.remove('hidden');
         }
-        function closeCriteriaModal() {
-            document.getElementById('criteria-modal').classList.add('hidden');
-        }
+        function closeCriteriaModal() { document.getElementById('criteria-modal').classList.add('hidden'); }
+
         async function saveCriteria() {
             const domain = document.getElementById('crit-domain').value;
             const name = document.getElementById('crit-name').value;
             const max = parseFloat(document.getElementById('crit-max').value) || 5;
 
-            if (!domain || !name) {
-                alert('يرجى تعبئة الحقول المطلوبة');
-                return;
-            }
+            if (!domain || !name) { alert('يرجى تعبئة الحقول المطلوبة'); return; }
 
             const newId = 'c_' + Date.now();
             criteria.push({ id: newId, domain, name, max });
-            if (window.db) {
-                await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "criteria", newId), { domain, name, max });
-            }
+            if (window.db) await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "criteria", newId), { domain, name, max });
             closeCriteriaModal();
             renderCriteria();
         }
+
         async function deleteCriteria(id) {
             criteria = criteria.filter(x => x.id !== id);
-            if (window.db) {
-                await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "criteria", String(id)));
-            }
+            if (window.db) await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "criteria", String(id)));
             renderCriteria();
         }
 
@@ -757,14 +712,9 @@
         }
 
         function renderCharts() {
-            // 1. Calculate scores per domain across all visits
             let domainTotals = {};
-            let domainCounts = {};
-
             criteria.forEach(c => {
-                if (!domainTotals[c.domain]) {
-                    domainTotals[c.domain] = { earned: 0, max: 0 };
-                }
+                if (!domainTotals[c.domain]) domainTotals[c.domain] = { earned: 0, max: 0 };
                 domainTotals[c.domain].max += c.max;
             });
 
@@ -773,9 +723,7 @@
                     for (let [cId, score] of Object.entries(v.scores)) {
                         let crit = criteria.find(x => String(x.id) === String(cId));
                         if (crit) {
-                            if (!domainTotals[crit.domain]) {
-                                domainTotals[crit.domain] = { earned: 0, max: 0 };
-                            }
+                            if (!domainTotals[crit.domain]) domainTotals[crit.domain] = { earned: 0, max: 0 };
                             domainTotals[crit.domain].earned += parseFloat(score) || 0;
                         }
                     }
@@ -784,37 +732,22 @@
 
             let domainLabels = [];
             let domainPercentages = [];
-
             for (let [domain, data] of Object.entries(domainTotals)) {
-                // Simplify domain name for chart
-                let shortName = domain.split(':')[1] || domain;
-                domainLabels.push(shortName.trim());
-                let pct = data.max > 0 ? Math.round((data.earned / (data.max * (visits.length || 1))) * 100) : 0;
-                domainPercentages.push(pct);
+                domainLabels.push((domain.split(':')[1] || domain).trim());
+                domainPercentages.push(data.max > 0 ? Math.round((data.earned / (data.max * (visits.length || 1))) * 100) : 0);
             }
 
-            // Render Domains Chart
             const ctx1 = document.getElementById('domainsChart').getContext('2d');
             if (domainsChartInstance) domainsChartInstance.destroy();
             domainsChartInstance = new Chart(ctx1, {
                 type: 'bar',
                 data: {
                     labels: domainLabels.length ? domainLabels : ['المجال الأول', 'المجال الثاني', 'المجال الثالث', 'المجال الرابع'],
-                    datasets: [{
-                        label: 'نسبة الأداء المئوية (%)',
-                        data: domainPercentages.length ? domainPercentages : [0, 0, 0, 0],
-                        backgroundColor: '#10b981',
-                        borderRadius: 8
-                    }]
+                    datasets: [{ label: 'نسبة الأداء (%)', data: domainPercentages, backgroundColor: '#10b981', borderRadius: 8 }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, max: 100 } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
             });
 
-            // 2. Levels Distribution Chart (Excellent: 90-100, Very Good: 80-89, Good: 70-79, Needs Support: <70)
             let lvlExcellent = 0, lvlVGood = 0, lvlGood = 0, lvlSupport = 0;
             visits.forEach(v => {
                 let s = v.totalScore;
@@ -830,15 +763,9 @@
                 type: 'doughnut',
                 data: {
                     labels: ['متميز (90-100)', 'جيد جداً (80-89)', 'جيد (70-79)', 'يحتاج دعم (<70)'],
-                    datasets: [{
-                        data: [lvlExcellent, lvlVGood, lvlGood, lvlSupport],
-                        backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#ef4444']
-                    }]
+                    datasets: [{ data: [lvlExcellent, lvlVGood, lvlGood, lvlSupport], backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#ef4444'] }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
 
@@ -849,9 +776,9 @@
 
             let html = `
                 <div class="text-center border-b pb-4 mb-4">
-                    <h2 class="text-lg font-black">المملكة العربية السعودية</h2>
-                    <h3 class="font-bold text-slate-700">متوسطة المجد الجديد الأهلية</h3>
-                    <h1 class="text-xl font-black text-emerald-700 mt-2">تقرير الزيارة الصفية</h1>
+                    <h2 class="text-sm font-bold text-slate-500">المملكة العربية السعودية</h2>
+                    <h3 class="text-lg font-black text-slate-800">متوسطة المجد الجديد الأهلية</h3>
+                    <h1 class="text-xl font-black text-emerald-700 mt-1">تقرير الزيارة الصفية</h1>
                 </div>
                 <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl text-sm mb-6">
                     <div><strong>اسم المعلم:</strong> ${t ? t.name : '-'}</div>
@@ -877,9 +804,7 @@
             document.getElementById('print-modal').classList.remove('hidden');
         }
 
-        function closePrintModal() {
-            document.getElementById('print-modal').classList.add('hidden');
-        }
+        function closePrintModal() { document.getElementById('print-modal').classList.add('hidden'); }
     </script>
 </body>
 </html>
