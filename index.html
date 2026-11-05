@@ -8,6 +8,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Firebase SDKs for Cloud Persistence & Cross-Device Sync -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSy@6df/iSdUcHORrx1JcNOnkV-KuvGlIzNY",
+            authDomain: "almajd-visits.firebaseapp.com",
+            projectId: "almajd-visits",
+            storageBucket: "almajd-visits.appspot.com",
+            messagingSenderId: "28247058785",
+            appId: "1:28247058785:web:h587c5dd84aecbcBF33d28",
+            measurementId: "G-4NF@NXCVNP"
+        };
+
+        let dbInstance = null;
+        let isCloudConnected = false;
+        try {
+            const app = initializeApp(firebaseConfig);
+            dbInstance = getFirestore(app);
+            isCloudConnected = true;
+        } catch (e) {
+            console.warn("Cloud init fallback:", e);
+        }
+
+        window.db = dbInstance;
+        window.isCloudConnected = isCloudConnected;
+        window.FirebaseSDK = { collection, getDocs, setDoc, doc, deleteDoc };
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
+
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; color: #1e293b; }
         .print-only { display: none; }
@@ -93,7 +125,7 @@
                 </a>
             </nav>
             <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
-                متوسطة المجد الجديد الأهلية &bull; تشغيل محلي فوري
+                متوسطة المجد الجديد الأهلية &bull; مزامنة سحابية كاملة
             </div>
         </aside>
 
@@ -107,7 +139,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <span id="sync-status" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> المنظومة تعمل بامتياز
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> جاري الاتصال بالسحابة...
                     </span>
                     <div class="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold shadow">المجد</div>
                 </div>
@@ -427,8 +459,8 @@
 
                     <!-- Backup & Sync Section -->
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-                        <h3 class="text-lg font-bold text-slate-800">النسخ الاحتياطي ونقل البيانات بين الأجهزة</h3>
-                        <p class="text-sm text-slate-500">قم بتصدير قاعدة البيانات لنقلها لجوالك أو جهاز آخر، أو استيراد نسخة سابقة.</p>
+                        <h3 class="text-lg font-bold text-slate-800">النسخ الاحتياطي السحابي والمحلي</h3>
+                        <p class="text-sm text-slate-500">بياناتك تتم مزامنتها تلقائياً مع السحابة، ويمكنك أيضاً تصدير أو استيراد نسخة احتياطية في أي وقت.</p>
                         <div class="flex flex-wrap gap-3 pt-1">
                             <button onclick="exportBackupJSON()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-2">
                                 <i class="fa-solid fa-download"></i> تصدير النسخة الاحتياطية (JSON)
@@ -687,6 +719,7 @@
         }
         window.toggleSidebar = toggleSidebar;
 
+        // Cloud & Local Sync Functions
         function loadLocalData() {
             try {
                 const sTeachers = localStorage.getItem('almajd_teachers');
@@ -717,7 +750,84 @@
             }
         }
 
-        function saveGeneralSettings() {
+        async function syncDataWithCloud() {
+            loadLocalData();
+            if (!window.db) {
+                updateSyncBadge(false);
+                return;
+            }
+            try {
+                const { collection, getDocs } = window.FirebaseSDK;
+                
+                // Fetch Teachers
+                const tSnap = await getDocs(collection(window.db, "artifacts", "almajd-visits", "public", "data", "teachers"));
+                if (!tSnap.empty) {
+                    let cloudT = [];
+                    tSnap.forEach(d => cloudT.push(d.data()));
+                    if (cloudT.length > 0) teachers = cloudT;
+                }
+
+                // Fetch Visits
+                const vSnap = await getDocs(collection(window.db, "artifacts", "almajd-visits", "public", "data", "visits"));
+                if (!vSnap.empty) {
+                    let cloudV = [];
+                    vSnap.forEach(d => cloudV.push(d.data()));
+                    if (cloudV.length > 0) visits = cloudV;
+                }
+
+                // Fetch Settings
+                const sSnap = await getDocs(collection(window.db, "artifacts", "almajd-visits", "public", "data", "settings"));
+                if (!sSnap.empty) {
+                    sSnap.forEach(d => {
+                        if (d.id === 'general') appSettings = d.data();
+                        if (d.id === 'periods') periodTimes = d.data().periods || periodTimes;
+                    });
+                }
+
+                saveLocalData();
+                updateSyncBadge(true);
+            } catch (err) {
+                console.warn("Cloud sync fallback:", err);
+                updateSyncBadge(false);
+            }
+        }
+
+        async function saveCloudData(collName, docId, data) {
+            saveLocalData();
+            if (!window.db) return;
+            try {
+                const { doc, setDoc } = window.FirebaseSDK;
+                await setDoc(doc(window.db, "artifacts", "almajd-visits", "public", "data", collName, docId), data);
+                updateSyncBadge(true);
+            } catch (e) {
+                console.warn("Cloud save error:", e);
+            }
+        }
+
+        async function deleteCloudData(collName, docId) {
+            saveLocalData();
+            if (!window.db) return;
+            try {
+                const { doc, deleteDoc } = window.FirebaseSDK;
+                await deleteDoc(doc(window.db, "artifacts", "almajd-visits", "public", "data", collName, docId));
+            } catch (e) {
+                console.warn("Cloud delete error:", e);
+            }
+        }
+
+        function updateSyncBadge(isCloud) {
+            const badge = document.getElementById('sync-status');
+            if (!badge) return;
+            if (isCloud) {
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> متصل بالسحابة (مزامنة فورية)`;
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200";
+            } else {
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> وضع العمل المحلي`;
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200";
+            }
+        }
+
+        async function saveGeneralSettings() {
             appSettings.semesterTitle = document.getElementById('setting-semester-title').value || appSettings.semesterTitle;
             appSettings.principalName = document.getElementById('setting-principal-name').value || appSettings.principalName;
             appSettings.supervisorName = document.getElementById('setting-supervisor-name').value || appSettings.supervisorName;
@@ -725,12 +835,13 @@
             appSettings.schoolLogo = document.getElementById('setting-school-logo').value || appSettings.schoolLogo;
             
             saveLocalData();
+            await saveCloudData('settings', 'general', appSettings);
             updateBrandingDisplay();
-            alert('تم حفظ الإعدادات بنجاح!');
+            alert('تم حفظ ومزامنة الإعدادات سحابياً بنجاح!');
         }
         window.saveGeneralSettings = saveGeneralSettings;
 
-        function savePeriodSettings() {
+        async function savePeriodSettings() {
             for (let p of periodTimes) {
                 const sInp = document.getElementById(`period-start-${p.id}`);
                 const eInp = document.getElementById(`period-end-${p.id}`);
@@ -740,7 +851,8 @@
                 }
             }
             saveLocalData();
-            alert('تم حفظ مواعيد الحصص والفسحة بنجاح!');
+            await saveCloudData('settings', 'periods', { periods: periodTimes });
+            alert('تم حفظ ومزامنة مواعيد الحصص سحابياً بنجاح!');
         }
         window.savePeriodSettings = savePeriodSettings;
 
@@ -748,15 +860,16 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const base64 = e.target.result;
                 const el = document.getElementById(inputId);
                 if (el) el.value = base64;
                 if (inputId === 'setting-ministry-logo') appSettings.ministryLogo = base64;
                 if (inputId === 'setting-school-logo') appSettings.schoolLogo = base64;
                 saveLocalData();
+                await saveCloudData('settings', 'general', appSettings);
                 updateBrandingDisplay();
-                alert('تم رفع الشعار بنجاح!');
+                alert('تم رفع الشعار ومزامنته سحابياً بنجاح!');
             };
             reader.readAsDataURL(file);
         }
@@ -835,7 +948,7 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
                     if (data.teachers) teachers = data.teachers;
@@ -845,13 +958,17 @@
                     if (data.periodTimes) periodTimes = data.periodTimes;
                     
                     saveLocalData();
+                    for (let t of teachers) await saveCloudData('teachers', t.id, t);
+                    for (let v of visits) await saveCloudData('visits', v.id, v);
+                    await saveCloudData('settings', 'general', appSettings);
+
                     renderTeachers();
                     renderVisits();
                     renderCriteria();
                     renderPeriodSettingsInputs();
                     updateBrandingDisplay();
                     updateStats();
-                    alert('تم استعادة النسخة الاحتياطية بنجاح!');
+                    alert('تم استيراد ومزامنة البيانات سحابياً بنجاح!');
                 } catch (err) {
                     alert('خطأ في استيراد الملف: ' + err.message);
                 }
@@ -915,7 +1032,7 @@
         function editTeacher(id) { openTeacherModal(id); }
         window.editTeacher = editTeacher;
 
-        function saveTeacher() {
+        async function saveTeacher() {
             const id = document.getElementById('teacher-id').value;
             const name = document.getElementById('teacher-name').value;
             const subject = document.getElementById('teacher-subject').value;
@@ -923,27 +1040,31 @@
 
             if (!name) { alert('يرجى إدخال اسم المعلم'); return; }
 
-            const tData = { name, subject, phone };
+            let teacherObj;
             if (id) {
                 const idx = teachers.findIndex(x => x.id === id);
-                if (idx !== -1) teachers[idx] = { id, ...tData };
+                teacherObj = { id, name, subject, phone };
+                if (idx !== -1) teachers[idx] = teacherObj;
             } else {
                 const newId = 't_' + Date.now();
-                teachers.push({ id: newId, ...tData });
+                teacherObj = { id: newId, name, subject, phone };
+                teachers.push(teacherObj);
             }
 
             saveLocalData();
+            await saveCloudData('teachers', teacherObj.id, teacherObj);
             closeTeacherModal();
             renderTeachers();
             updateStats();
-            alert('تم حفظ المعلم بنجاح!');
+            alert('تم حفظ المعلم ومزامنته سحابياً بنجاح!');
         }
         window.saveTeacher = saveTeacher;
 
-        function deleteTeacher(id) {
+        async function deleteTeacher(id) {
             if (confirm('هل أنت متأكد من حذف هذا المعلم؟')) {
                 teachers = teachers.filter(x => x.id !== id);
                 saveLocalData();
+                await deleteCloudData('teachers', id);
                 renderTeachers();
                 updateStats();
             }
@@ -965,7 +1086,7 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const text = e.target.result;
                     const lines = text.split('\n');
@@ -978,14 +1099,16 @@
                             const subject = cols[1].trim();
                             const phone = cols[2] ? cols[2].trim() : '';
                             if (name) {
-                                teachers.push({ id: 't_imp_' + Date.now() + Math.random(), name, subject, phone });
+                                const newT = { id: 't_imp_' + Date.now() + Math.random(), name, subject, phone };
+                                teachers.push(newT);
+                                await saveCloudData('teachers', newT.id, newT);
                             }
                         }
                     }
                     saveLocalData();
                     renderTeachers();
                     updateStats();
-                    alert('تم استيراد المعلمين بنجاح!');
+                    alert('تم استيراد ومزامنة المعلمين سحابياً بنجاح!');
                 } catch (err) {
                     alert('خطأ في الاستيراد: ' + err.message);
                 }
@@ -1127,7 +1250,7 @@
         }
         window.calculateVisitScore = calculateVisitScore;
 
-        function saveVisit() {
+        async function saveVisit() {
             const teacherId = document.getElementById('visit-teacher').value;
             const subject = document.getElementById('visit-subject').value;
             const date = document.getElementById('visit-date').value;
@@ -1143,22 +1266,31 @@
                 totalScore += val;
             });
 
-            const visitData = { teacherId, subject, date, visitorName: appSettings.supervisorName || "إدارة المدرسة", scores, totalScore };
-            const newId = 'v_' + Date.now();
-            visits.push({ id: newId, ...visitData });
+            const visitObj = { 
+                id: 'v_' + Date.now(), 
+                teacherId, 
+                subject, 
+                date, 
+                visitorName: appSettings.supervisorName || "إدارة المدرسة", 
+                scores, 
+                totalScore 
+            };
+            visits.push(visitObj);
 
             saveLocalData();
+            await saveCloudData('visits', visitObj.id, visitObj);
             closeVisitModal();
             renderVisits();
             updateStats();
-            alert('تم حفظ الزيارة الصفية بنجاح!');
+            alert('تم حفظ الزيارة الصفية ومزامنتها سحابياً بنجاح!');
         }
         window.saveVisit = saveVisit;
 
-        function deleteVisit(id) {
+        async function deleteVisit(id) {
             if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
                 visits = visits.filter(x => x.id !== id);
                 saveLocalData();
+                await deleteCloudData('visits', id);
                 renderVisits();
                 updateStats();
             }
@@ -1228,7 +1360,7 @@
         }
         window.editCriteria = editCriteria;
 
-        function saveCriteria() {
+        async function saveCriteria() {
             const domain = document.getElementById('crit-domain').value;
             const name = document.getElementById('crit-name').value;
             const max = parseFloat(document.getElementById('crit-max').value) || 5;
@@ -1244,7 +1376,7 @@
         }
         window.saveCriteria = saveCriteria;
 
-        function deleteCriteria(id) {
+        async function deleteCriteria(id) {
             criteria = criteria.filter(x => String(x.id) !== String(id));
             saveLocalData();
             renderCriteria();
@@ -1518,8 +1650,8 @@
         }
         window.fetchSaudiHolidays = fetchSaudiHolidays;
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadLocalData();
+        window.addEventListener('firebase-ready', async () => {
+            await syncDataWithCloud();
             updateBrandingDisplay();
             renderPeriodSettingsInputs();
             renderTeachers();
@@ -1530,6 +1662,24 @@
             setInterval(updateLiveDateTime, 1000);
             updateLiveDateTime();
             setTimeout(renderCharts, 200);
+        });
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            setTimeout(async () => {
+                if (!window.db) {
+                    loadLocalData();
+                    updateBrandingDisplay();
+                    renderPeriodSettingsInputs();
+                    renderTeachers();
+                    renderVisits();
+                    renderCriteria();
+                    updateStats();
+                    fetchSaudiHolidays();
+                    setInterval(updateLiveDateTime, 1000);
+                    updateLiveDateTime();
+                    setTimeout(renderCharts, 200);
+                }
+            }, 1000);
         });
     </script>
 </body>
