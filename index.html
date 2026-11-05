@@ -4,90 +4,376 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منظومة الزيارات الصفية - متوسطة المجد الجديد الأهلية</title>
-    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: #f3f4f6; color: #1f2937; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background-color: #312e81; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header-title h1 { font-size: 20px; font-weight: 700; }
+        .header-title p { font-size: 12px; color: #c7d2fe; }
+        .clock-box { background-color: #3730a3; padding: 8px 15px; border-radius: 8px; text-align: left; font-family: monospace; font-size: 18px; font-weight: bold; }
+        nav { background-color: white; border-bottom: 1px solid #e5e7eb; padding: 0 30px; display: flex; gap: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tab-btn { background: none; border: none; padding: 15px 20px; font-size: 15px; font-weight: bold; cursor: pointer; color: #6b7280; transition: 0.3s; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+        main { flex-grow: 1; padding: 30px; max-width: 1200px; width: 100%; margin: 0 auto; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .card h2 { font-size: 18px; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; color: #374151; display: flex; align-items: center; gap: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        label { font-size: 14px; font-weight: 600; color: #4b5563; }
+        input, select, textarea { width: 100%; padding: 10px 15px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; transition: 0.3s; }
+        input:focus, select:focus, textarea:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        button.btn-primary { background-color: #4f46e5; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; font-size: 15px; }
+        button.btn-primary:hover { background-color: #4338ca; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px 15px; text-align: right; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+        th { background-color: #e0e7ff; color: #312e81; font-weight: bold; }
+        tr:hover { background-color: #f9fafb; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal.active { display: flex; }
+        .modal-box { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .flex-row { display: flex; gap: 10px; align-items: center; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body>
 
-    <!-- رأس الصفحة -->
-    <header class="bg-indigo-900 text-white shadow-lg py-4 px-6 flex justify-between items-center">
-        <div class="flex items-center space-x-4 space-x-reverse">
-            <img id="headerLogo" src="" alt="شعار المدرسة" class="h-12 w-12 object-contain bg-white rounded-full p-1 shadow">
-            <div>
-                <h1 id="schoolTitleDisplay" class="text-xl font-bold">متوسطة المجد الجديد الأهلية</h1>
-                <p class="text-xs text-indigo-200">منظومة الزيارات الصفية المتقدمة</p>
+    <header>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="background: white; padding: 5px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 45px; height: 45px;">
+                <i class="fas fa-school" style="color: #312e81; font-size: 22px;"></i>
+            </div>
+            <div class="header-title">
+                <h1 id="schoolTitleDisplay">متوسطة المجد الجديد الأهلية</h1>
+                <p>منظومة الزيارات الصفية المتقدمة</p>
             </div>
         </div>
-        <div class="text-left bg-indigo-800 px-4 py-2 rounded-lg shadow-inner">
-            <div id="liveClock" class="text-lg font-mono font-bold tracking-wider">00:00:00</div>
-            <div id="currentPeriodDisplay" class="text-xs text-yellow-300 font-semibold">جارِ تحديد الحصة...</div>
+        <div class="clock-box">
+            <div id="liveClock">00:00:00</div>
         </div>
     </header>
 
-    <!-- التنقل بين التبويبات -->
-    <nav class="bg-white shadow border-b px-6 flex space-x-4 space-x-reverse overflow-x-auto">
-        <button onclick="switchTab('visits')" class="tab-btn py-3 px-4 font-bold text-indigo-600 border-b-2 border-indigo-600 focus:outline-none transition"><i class="fas fa-clipboard-check ml-2"></i>الزيارات الصفية</button>
-        <button onclick="switchTab('teachers')" class="tab-btn py-3 px-4 font-bold text-gray-500 hover:text-indigo-600 focus:outline-none transition"><i class="fas fa-chalkboard-teacher ml-2"></i>دليل المعلمين</button>
-        <button onclick="switchTab('settings')" class="tab-btn py-3 px-4 font-bold text-gray-500 hover:text-indigo-600 focus:outline-none transition"><i class="fas fa-cogs ml-2"></i>الإعدادات والبنود</button>
-        <button onclick="switchTab('archive')" class="tab-btn py-3 px-4 font-bold text-gray-500 hover:text-indigo-600 focus:outline-none transition"><i class="fas fa-archive ml-2"></i>الأرشيف والتقارير</button>
+    <nav>
+        <button onclick="switchTab('visits', event)" class="tab-btn active"><i class="fas fa-clipboard-check"></i> الزيارات الصفية</button>
+        <button onclick="switchTab('teachers', event)" class="tab-btn"><i class="fas fa-chalkboard-teacher"></i> دليل المعلمين</button>
+        <button onclick="switchTab('settings', event)" class="tab-btn"><i class="fas fa-cogs"></i> الإعدادات والبنود</button>
+        <button onclick="switchTab('archive', event)" class="tab-btn"><i class="fas fa-archive"></i> الأرشيف</button>
     </nav>
 
-    <!-- المحتوى الرئيسي -->
-    <main class="flex-grow p-6 max-w-7xl mx-auto w-full">
-        
+    <main>
         <!-- تبويب الزيارات -->
-        <div id="visits" class="tab-content active space-y-6">
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-edit text-indigo-600 ml-2"></i>تسجيل زيارة صفية جديدة</h2>
-                <form id="visitForm" onsubmit="saveVisit(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">المعلم</label>
-                        <select id="visitTeacher" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500" required></select>
+        <div id="visits" class="tab-content active">
+            <div class="card">
+                <h2><i class="fas fa-edit" style="color: #4f46e5;"></i> تسجيل زيارة صفية جديدة</h2>
+                <form id="visitForm" onsubmit="saveVisit(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>المعلم</label>
+                            <select id="visitTeacher" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>المادة</label>
+                            <input type="text" id="visitSubject" placeholder="أدخل المادة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الحصة الدراسية</label>
+                            <select id="visitPeriod" required>
+                                <option value="الحصة الأولى">الحصة الأولى</option>
+                                <option value="الحصة الثانية">الحصة الثانية</option>
+                                <option value="الحصة الثالثة">الحصة الثالثة</option>
+                                <option value="الحصة الرابعة">الحصة الرابعة</option>
+                                <option value="الحصة الخامسة">الحصة الخامسة</option>
+                                <option value="الحصة السادسة">الحصة السادسة</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">المادة</label>
-                        <input type="text" id="visitSubject" class="w-full border rounded-lg p-2.5" placeholder="أدخل المادة" required>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label style="font-size: 16px; color: #1f2937;">بنود التقييم (الدرجة النهائية: 100)</label>
+                        <div id="criteriaInputsContainer" class="form-grid" style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 10px;"></div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">الحصة الدراسية</label>
-                        <select id="visitPeriod" class="w-full border rounded-lg p-2.5" required>
-                            <option value="الحصة الأولى">الحصة الأولى</option>
-                            <option value="الحصة الثانية">الحصة الثانية</option>
-                            <option value="الحصة الثالثة">الحصة الثالثة</option>
-                            <option value="الحصة الرابعة">الحصة الرابعة</option>
-                            <option value="الحصة الخامسة">الحصة الخامسة</option>
-                            <option value="الحصة السادسة">الحصة السادسة</option>
-                        </select>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label>ملاحظات عامة وتوصيات</label>
+                        <textarea id="visitNotes" rows="3" placeholder="اكتب الملاحظات والتوصيات هنا..."></textarea>
                     </div>
-                    <div class="md:col-span-3">
-                        <h3 class="font-bold text-gray-700 mt-4 mb-2">بنود التقييم (الدرجة النهائية: 100)</h3>
-                        <div id="criteriaInputsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border"></div>
-                    </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">ملاحظات عامة وتوصيات</label>
-                        <textarea id="visitNotes" rows="3" class="w-full border rounded-lg p-2.5" placeholder="اكتب الملاحظات والتوصيات هنا..."></textarea>
-                    </div>
-                    <div class="md:col-span-3">
-                        <button type="submit" class="bg-indigo-600 text-white font-bold px-6 py-3 rounded-lg shadow hover:bg-indigo-700 transition w-full"><i class="fas fa-save ml-2"></i>حفظ واعتماد الزيارة</button>
-                    </div>
+                    <button type="submit" class="btn-primary" style="margin-top: 15px;"><i class="fas fa-save"></i> حفظ واعتماد الزيارة</button>
                 </form>
             </div>
         </div>
 
         <!-- تبويب المعلمين -->
-        <div id="teachers" class="tab-content space-y-6">
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-chalkboard-teacher text-indigo-600 ml-2"></i>إدارة المعلمين ودليل التواصل</h2>
-                    <button onclick="openAddTeacherModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 transition"><i class="fas fa-plus ml-1"></i>إضافة معلم جديد</button>
+        <div id="teachers" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2><i class="fas fa-chalkboard-teacher" style="color: #4f46e5;"></i> إدارة المعلمين ودليل التواصل</h2>
+                    <button onclick="openAddTeacherModal()" style="background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;"><i class="fas fa-plus"></i> إضافة معلم</button>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right border-collapse">
-                        <thead>
-                            <tr class="bg-indigo-50 text-indigo-900
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم المعلم</th>
+                            <th>المادة</th>
+                            <th>رقم الجوال / واتساب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teachersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- تبويب الإعدادات -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-cogs" style="color: #4f46e5;"></i> إعدادات المنظومة وبنود التقييم</h2>
+                <div class="form-group" style="max-width: 500px; margin-bottom: 25px;">
+                    <label>اسم المدرسة</label>
+                    <input type="text" id="settingSchoolName" value="متوسطة المجد الجديد الأهلية">
+                </div>
+                <div style="margin-top: 20px;">
+                    <label style="font-size: 16px; font-weight: bold; display: block; margin-bottom: 10px;">تخصيص بنود التقييم ودرجاتها</label>
+                    <div id="criteriaSettingsList" style="display: flex; flex-direction: column; gap: 10px; max-width: 600px;"></div>
+                </div>
+                <button onclick="saveSettings()" class="btn-primary" style="margin-top: 25px; max-width: 200px;"><i class="fas fa-check"></i> حفظ الإعدادات</button>
+            </div>
+        </div>
+
+        <!-- تبويب الأرشيف -->
+        <div id="archive" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-archive" style="color: #4f46e5;"></i> أرشيف الزيارات المسجلة</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>المعلم</th>
+                            <th>المادة</th>
+                            <th>الحصة</th>
+                            <th>الدرجة النهائية</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="archiveTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- نافذة إضافة معلم -->
+    <div id="teacherModal" class="modal">
+        <div class="modal-box">
+            <h3 style="margin-bottom: 15px; font-size: 18px; font-weight: bold; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">إضافة معلم جديد</h3>
+            <form id="teacherForm" onsubmit="saveTeacher(event)">
+                <div class="form-group">
+                    <label>اسم المعلم</label>
+                    <input type="text" id="modalTeacherName" required>
+                </div>
+                <div class="form-group">
+                    <label>المادة</label>
+                    <input type="text" id="modalTeacherSubject" required>
+                </div>
+                <div class="form-group">
+                    <label>رقم الجوال (واتساب)</label>
+                    <input type="text" id="modalTeacherPhone" placeholder="9665xxxxxxxx" required>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" onclick="closeAddTeacherModal()" style="background: #e5e7eb; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;">إلغاء</button>
+                    <button type="submit" style="background: #4f46e5; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const defaultSettings = {
+            schoolName: "متوسطة المجد الجديد الأهلية",
+            criteria: [
+                { name: "التخطيط والتحضير", max: 20 },
+                { name: "إدارة الصف والبيئة التعليمية", max: 20 },
+                { name: "استراتيجيات التدريس الحديثة", max: 25 },
+                { name: "التقويم ومتابعة الطلاب", max: 25 },
+                { name: "المظهر العام والالتزام", max: 10 }
+            ]
+        };
+
+        const defaultTeachers = [
+            { id: 1, name: "أحمد العتيبي", subject: "رياضيات", phone: "966500000001" },
+            { id: 2, name: "خالد الشمري", subject: "لغتي", phone: "966500000002" }
+        ];
+
+        if (!localStorage.getItem('school_settings')) localStorage.setItem('school_settings', JSON.stringify(defaultSettings));
+        if (!localStorage.getItem('school_teachers')) localStorage.setItem('school_teachers', JSON.stringify(defaultTeachers));
+        if (!localStorage.getItem('school_visits')) localStorage.setItem('school_visits', JSON.stringify([]));
+
+        function getSettings() { return JSON.parse(localStorage.getItem('school_settings')); }
+        function getTeachers() { return JSON.parse(localStorage.getItem('school_teachers')); }
+        function getVisits() { return JSON.parse(localStorage.getItem('school_visits')); }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAppSettings();
+            renderTeachersTable();
+            renderVisitTeachersDropdown();
+            renderCriteriaForm();
+            renderCriteriaSettings();
+            renderArchiveTable();
+            startLiveClock();
+        });
+
+        function loadAppSettings() {
+            const settings = getSettings();
+            document.getElementById('schoolTitleDisplay').innerText = settings.schoolName;
+            document.getElementById('settingSchoolName').value = settings.schoolName;
+        }
+
+        function startLiveClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('liveClock').innerText = now.toLocaleTimeString('en-US', { hour12: false });
+            }, 1000);
+        }
+
+        function switchTab(tabId, e) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            e.currentTarget.classList.add('active');
+        }
+
+        function renderTeachersTable() {
+            const teachers = getTeachers();
+            const tbody = document.getElementById('teachersTableBody');
+            tbody.innerHTML = '';
+            teachers.forEach(t => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight: 600;">${t.name}</td>
+                        <td>${t.subject}</td>
+                        <td><a href="https://wa.me/${t.phone}" target="_blank" style="color: #059669; text-decoration: none; font-weight: bold;"><i class="fab fa-whatsapp"></i> ${t.phone}</a></td>
+                        <td><button onclick="deleteTeacher(${t.id})" style="color: #dc2626; background: none; border: none; cursor: pointer;"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderVisitTeachersDropdown() {
+            const teachers = getTeachers();
+            const select = document.getElementById('visitTeacher');
+            select.innerHTML = '<option value="">اختر المعلم...</option>';
+            teachers.forEach(t => { select.innerHTML += `<option value="${t.name}">${t.name} (${t.subject})</option>`; });
+        }
+
+        function renderCriteriaForm() {
+            const settings = getSettings();
+            const container = document.getElementById('criteriaInputsContainer');
+            container.innerHTML = '';
+            settings.criteria.forEach((c, idx) => {
+                container.innerHTML += `
+                    <div class="form-group">
+                        <label>${c.name} (من ${c.max} درجة)</label>
+                        <input type="number" min="0" max="${c.max}" value="${c.max}" class="criterion-score" required>
+                    </div>
+                `;
+            });
+        }
+
+        function renderCriteriaSettings() {
+            const settings = getSettings();
+            const list = document.getElementById('criteriaSettingsList');
+            list.innerHTML = '';
+            settings.criteria.forEach((c) => {
+                list.innerHTML += `
+                    <div class="flex-row">
+                        <input type="text" value="${c.name}" class="crit-name-input">
+                        <input type="number" value="${c.max}" class="crit-max-input" style="width: 100px;">
+                    </div>
+                `;
+            });
+        }
+
+        function saveSettings() {
+            const schoolName = document.getElementById('settingSchoolName').value;
+            const nameInputs = document.querySelectorAll('.crit-name-input');
+            const maxInputs = document.querySelectorAll('.crit-max-input');
+            let newCriteria = [];
+            for(let i=0; i<nameInputs.length; i++) {
+                newCriteria.push({ name: nameInputs[i].value, max: Number(maxInputs[i].value) });
+            }
+            localStorage.setItem('school_settings', JSON.stringify({ schoolName, criteria: newCriteria }));
+            loadAppSettings();
+            renderCriteriaForm();
+            alert('تم حفظ الإعدادات بنجاح!');
+        }
+
+        function openAddTeacherModal() { document.getElementById('teacherModal').classList.add('active'); }
+        function closeAddTeacherModal() { document.getElementById('teacherModal').classList.remove('active'); }
+
+        function saveTeacher(e) {
+            e.preventDefault();
+            const name = document.getElementById('modalTeacherName').value;
+            const subject = document.getElementById('modalTeacherSubject').value;
+            const phone = document.getElementById('modalTeacherPhone').value;
+            let teachers = getTeachers();
+            teachers.push({ id: Date.now(), name, subject, phone });
+            localStorage.setItem('school_teachers', JSON.stringify(teachers));
+            closeAddTeacherModal();
+            renderTeachersTable();
+            renderVisitTeachersDropdown();
+            document.getElementById('teacherForm').reset();
+        }
+
+        function deleteTeacher(id) {
+            if(confirm('هل أنت متأكد من حذف هذا المعلم؟')) {
+                let teachers = getTeachers().filter(t => t.id !== id);
+                localStorage.setItem('school_teachers', JSON.stringify(teachers));
+                renderTeachersTable();
+                renderVisitTeachersDropdown();
+            }
+        }
+
+        function saveVisit(e) {
+            e.preventDefault();
+            const teacher = document.getElementById('visitTeacher').value;
+            const subject = document.getElementById('visitSubject').value;
+            const period = document.getElementById('visitPeriod').value;
+            const notes = document.getElementById('visitNotes').value;
+            const scoreInputs = document.querySelectorAll('.criterion-score');
+            let totalScore = 0;
+            scoreInputs.forEach(input => { totalScore += Number(input.value); });
+
+            let visits = getVisits();
+            visits.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), teacher, subject, period, totalScore, notes });
+            localStorage.setItem('school_visits', JSON.stringify(visits));
+            renderArchiveTable();
+            alert('تم حفظ واعتماد الزيارة الصفية بنجاح!');
+            document.getElementById('visitForm').reset();
+        }
+
+        function renderArchiveTable() {
+            const visits = getVisits();
+            const tbody = document.getElementById('archiveTableBody');
+            tbody.innerHTML = '';
+            visits.forEach(v => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${v.date}</td>
+                        <td style="font-weight: 600;">${v.teacher}</td>
+                        <td>${v.subject}</td>
+                        <td>${v.period}</td>
+                        <td style="font-weight: bold; color: #4f46e5;">${v.totalScore} / 100</td>
+                        <td><button onclick="deleteVisit(${v.id})" style="color: #dc2626; background: none; border: none; cursor: pointer;"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deleteVisit(id) {
+            if(confirm('هل تريد حذف هذه الزيارة من الأرشيف؟')) {
+                let visits = getVisits().filter(v => v.id !== id);
+                localStorage.setItem('school_visits', JSON.stringify(visits));
+                renderArchiveTable();
+            }
+        }
+    </script>
+</body>
+</html>
