@@ -286,35 +286,35 @@
                         </div>
 
                         <!-- 2. الشعارات -->
-                        <div class="space-y-4 border-t border-slate-100 pt-4">
-                            <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">روابط الشعارات</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">رابط شعار المدرسة</label>
-                                    <input type="text" id="setting-logo-school" value="https://placehold.co/120x60/0284c7/ffffff?text=المجد+الجديد" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">رابط شعار وزارة التعليم</label>
-                                    <input type="text" id="setting-logo-moe" value="https://placehold.co/120x60/059669/ffffff?text=وزارة+التعليم" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs">
-                                </div>
-                            </div>
-                        </div>
+            <div class="space-y-4 border-t border-slate-100 pt-4">
+                <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">رفع وتخصيص الشعارات</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <label class="block text-xs font-bold text-slate-700 mb-2">شعار المدرسة</label>
+                        <input type="file" id="setting-file-school" accept="image/*" onchange="handleFileUpload(event, 'almajd_logo_school')" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <label class="block text-xs font-bold text-slate-700 mb-2">شعار وزارة التعليم</label>
+                        <input type="file" id="setting-file-moe" accept="image/*" onchange="handleFileUpload(event, 'almajd_logo_moe')" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                    </div>
+                </div>
+            </div>
 
-                        <!-- 3. أوقات وأسماء الحصص -->
-                        <div class="space-y-4 border-t border-slate-100 pt-4">
-                            <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">قائمة الحصص المتاحة (افصل بينها بفاصلة)</h4>
-                            <textarea id="setting-periods-list" rows="2" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">الحصة الأولى, الحصة الثانية, الحصة الثالثة, الحصة الرابعة, الحصة الخامسة, الحصة السادسة, الحصة السابعة</textarea>
-                        </div>
+            <!-- 3. نقل البيانات بين الأجهزة -->
+            <div class="space-y-4 border-t border-slate-100 pt-4">
+                <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">مزامنة ونقل البيانات بين الجوال والكمبيوتر</h4>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="button" onclick="exportDataBackup()" class="flex-1 py-2.5 bg-slate-800 text-white font-bold rounded-xl text-xs hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-download"></i> تصدير نسخة احتياطية (تنزيل من الجوال)
+                    </button>
+                    <label class="flex-1 py-2.5 bg-amber-500 text-slate-950 font-black rounded-xl text-xs hover:bg-amber-600 transition-all flex items-center justify-center gap-2 cursor-pointer text-center">
+                        <i class="fa-solid fa-upload"></i> استعادة نسخة (رفع في الكمبيوتر)
+                        <input type="file" accept=".json" onchange="importDataBackup(event)" class="hidden">
+                    </label>
+                </div>
+            </div>
 
-                        <!-- 4. محرر بنود التقييم -->
-                        <div class="space-y-4 border-t border-slate-100 pt-4">
-                            <div class="flex justify-between items-center">
-                                <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">مُحرر بنود استمارة التقييم (إضافة / تعديل / حذف)</h4>
-                                <button type="button" onclick="addNewCriterion()" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-all">
-                                    <i class="fa-solid fa-plus ml-1"></i> إضافة بند جديد
-                                </button>
-                            </div>
-                            <div id="criteria-editor-container" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar p-1">
+            <!-- 4. أوقات وأسماء الحصص -->
                                 <!-- يتم التوليد عبر JavaScript -->
                             </div>
                         </div>
@@ -360,8 +360,69 @@
 
     <script>
         // المنطق البرمجي وحفظ البيانات
-        const DEFAULT_SCHOOL_LOGO = 'https://placehold.co/120x120/1e293b/ffffff?text=المجد+الجديد';
-        const DEFAULT_MOE_LOGO = 'https://placehold.co/120x120/0d9488/ffffff?text=وزارة+التعليم';
+        const DEFAULT_SCHOOL_LOGO = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%231e293b"/><text x="50%" y="55%" text-anchor="middle" fill="%23fbbf24" font-size="20" font-weight="bold" font-family="sans-serif">المجد</text></svg>';
+        const DEFAULT_MOE_LOGO = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%230d9488"/><text x="50%" y="55%" text-anchor="middle" fill="%23ffffff" font-size="18" font-weight="bold" font-family="sans-serif">التعليم</text></svg>';
+
+        // معالجة رفع الصور وتخزينها بصيغة Base64
+        window.handleFileUpload = function(event, key) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Image = e.target.result;
+                localStorage.setItem(key, base64Image);
+                loadLogos();
+                alert('تم حفظ الشعار بنجاح وتحديثه في النظام!');
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // تصدير نسخة احتياطية لملف JSON
+        window.exportDataBackup = function() {
+            const backup = {
+                teachers: teachersData,
+                visits: visitsData,
+                criteria: criteriaData,
+                pin: localStorage.getItem('almajd_pin'),
+                schoolName: localStorage.getItem('almajd_school_name'),
+                academicYear: localStorage.getItem('almajd_academic_year'),
+                logoSchool: localStorage.getItem('almajd_logo_school'),
+                logoMoe: localStorage.getItem('almajd_logo_moe')
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `تعديلات_منظومة_المجد_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        };
+
+        // استعادة النسخة الاحتياطية من الجوال للكمبيوتر
+        window.importDataBackup = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.teachers) localStorage.setItem('almajd_teachers', JSON.stringify(data.teachers));
+                    if (data.visits) localStorage.setItem('almajd_visits', JSON.stringify(data.visits));
+                    if (data.criteria) localStorage.setItem('almajd_criteria', JSON.stringify(data.criteria));
+                    if (data.pin) localStorage.setItem('almajd_pin', data.pin);
+                    if (data.schoolName) localStorage.setItem('almajd_school_name', data.schoolName);
+                    if (data.academicYear) localStorage.setItem('almajd_academic_year', data.academicYear);
+                    if (data.logoSchool) localStorage.setItem('almajd_logo_school', data.logoSchool);
+                    if (data.logoMoe) localStorage.setItem('almajd_logo_moe', data.logoMoe);
+
+                    alert('تم استعادة جميع البيانات والزيارات والشعارات بنجاح!');
+                    location.reload();
+                } catch(err) {
+                    alert('عفواً، الملف غير صالح لاستعادة البيانات.');
+                }
+            };
+            reader.readAsText(file);
+        };
 
         let defaultCriteria = [
             { id: 'c1', category: 'التخطيط والتحضير', name: 'وضوح الأهداف السلوكية وصياغتها وتنوعها', maxScore: 5 },
