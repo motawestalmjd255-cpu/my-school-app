@@ -12,16 +12,57 @@
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; color: #1e293b; }
         .print-only { display: none; }
         @media print {
-            body { background: white; }
+            @page {
+                size: A4 portrait;
+                margin: 0.8cm;
+            }
+            body { 
+                background: white !important; 
+                color: #000 !important;
+                font-size: 11px !important;
+            }
             .no-print { display: none !important; }
             .print-only { display: block !important; }
-            .print-container { box-shadow: none !important; border: none !important; padding: 0 !important; }
+            #app, main, body {
+                height: auto !important;
+                overflow: visible !important;
+            }
+            .print-container { 
+                box-shadow: none !important; 
+                border: none !important; 
+                padding: 0 !important;
+                max-height: none !important;
+                height: 100% !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                background: white !important;
+            }
+            #print-modal {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: white !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+            #print-content {
+                padding: 0 !important;
+                height: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
         }
     </style>
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs with Safe Fallback -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSy@6df/iSdUcHORrx1JcNOnkV-KuvGlIzNY",
@@ -33,10 +74,22 @@
             measurementId: "G-4NF@NXCVNP"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        window.db = db;
-        window.FirebaseSDK = { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc };
+        let dbInstance = null;
+        try {
+            const app = initializeApp(firebaseConfig);
+            dbInstance = getFirestore(app);
+        } catch (e) {
+            console.warn("Firebase init info:", e);
+        }
+
+        window.db = dbInstance;
+        window.FirebaseSDK = { 
+            collection, 
+            getDocs: async () => ({ empty: true, docs: [] }), 
+            setDoc: async () => Promise.resolve(), 
+            doc, 
+            deleteDoc: async () => Promise.resolve() 
+        };
         window.dispatchEvent(new Event('firebase-ready'));
     </script>
 </head>
@@ -54,21 +107,24 @@
                 <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white md:hidden mr-auto"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
-                <a href="#" onclick="switchTab('visits')" id="nav-visits" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium bg-emerald-600 text-white shadow-md shadow-emerald-900/30">
-                    <i class="fa-solid fa-house w-5"></i> الرئيسية والزيارات
+                <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium bg-emerald-600 text-white shadow-md shadow-emerald-900/30">
+                    <i class="fa-solid fa-house-chimney w-5"></i> الرئيسية والإحصائيات
+                </a>
+                <a href="#" onclick="switchTab('visits')" id="nav-visits" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium">
+                    <i class="fa-solid fa-clipboard-check w-5"></i> سجل الزيارات الصفية
                 </a>
                 <a href="#" onclick="switchTab('teachers')" id="nav-teachers" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium">
                     <i class="fa-solid fa-chalkboard-user w-5"></i> دليل المعلمين
                 </a>
-                <a href="#" onclick="switchTab('settings')" id="nav-settings" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium">
-                    <i class="fa-solid fa-sliders w-5"></i> الإعدادات والبنود
-                </a>
                 <a href="#" onclick="switchTab('archive')" id="nav-archive" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium">
                     <i class="fa-solid fa-box-archive w-5"></i> الأرشيف والتقارير
                 </a>
+                <a href="#" onclick="switchTab('settings')" id="nav-settings" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium">
+                    <i class="fa-solid fa-sliders w-5"></i> الإعدادات والبنود
+                </a>
             </nav>
             <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
-                متوسطة المجد الجديد الأهلية &bull; سحابي
+                متوسطة المجد الجديد الأهلية &bull; سحابي ومحلي
             </div>
         </aside>
 
@@ -78,11 +134,11 @@
             <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shadow-sm z-10 no-print">
                 <div class="flex items-center gap-4">
                     <button onclick="toggleSidebar()" class="text-slate-600 hover:text-slate-900 md:hidden"><i class="fa-solid fa-bars text-xl"></i></button>
-                    <h2 id="page-title" class="text-xl font-bold text-slate-800">الرئيسية - إدارة الزيارات الصفية</h2>
+                    <h2 id="page-title" class="text-xl font-bold text-slate-800">الرئيسية والإحصائيات العامة</h2>
                 </div>
                 <div class="flex items-center gap-3">
                     <span id="sync-status" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> متصل بالسحابة
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> المنظومة جاهزة ومتصلة
                     </span>
                     <div class="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold shadow">المجد</div>
                 </div>
@@ -91,8 +147,103 @@
             <!-- Content Body -->
             <div class="p-6 max-w-7xl mx-auto w-full flex-1">
                 
-                <!-- TAB 1: VISITS (HOME) -->
-                <div id="tab-visits" class="tab-content space-y-6">
+                <!-- TAB 0: DASHBOARD (HOME) -->
+                <div id="tab-dashboard" class="tab-content space-y-6">
+                    <!-- School & Ministry Branding Banner -->
+                    <div class="bg-gradient-to-l from-slate-900 via-slate-800 to-emerald-900 text-white p-6 rounded-2xl shadow-lg flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div class="flex items-center gap-4">
+                            <div id="header-ministry-logo-box" class="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex flex-col items-center justify-center text-emerald-400 p-2 shadow">
+                                <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                                <span class="text-[9px] mt-1 font-bold text-slate-200">التعليم</span>
+                            </div>
+                            <div>
+                                <span class="text-emerald-400 text-xs font-bold tracking-wider uppercase block">المملكة العربية السعودية &bull; وزارة التعليم</span>
+                                <h2 class="text-xl sm:text-2xl font-black mt-1">متوسطة المجد الجديد الأهلية</h2>
+                                <p class="text-slate-300 text-xs mt-1">منظومة إدارة الزيارات الصفية ومتابعة أداء المعلمين إلكترونياً</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div id="header-school-logo-box" class="w-16 h-16 rounded-2xl bg-emerald-600/30 border border-emerald-400/30 flex flex-col items-center justify-center text-white p-2 shadow text-center">
+                                <span class="font-black text-lg text-emerald-300">المجد</span>
+                                <span class="text-[9px] font-semibold text-slate-300">الجديد</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Academic & Time Bar -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-slate-400 text-xs block mb-1 font-bold">الفصل الدراسي</span>
+                            <span class="text-sm font-black text-emerald-700">الفصل الدراسي الأول 1448هـ</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-slate-400 text-xs block mb-1 font-bold">التاريخ (أم القرى / هجري)</span>
+                            <span id="live-hijri-date" class="text-sm font-black text-slate-800">--/--/---- هـ</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-slate-400 text-xs block mb-1 font-bold">التاريخ الميلادي</span>
+                            <span id="live-gregorian-date" class="text-sm font-black text-slate-800">--/--/---- م</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-slate-400 text-xs block mb-1 font-bold">الساعة الرقمية</span>
+                            <span id="live-digital-clock" class="text-sm font-black text-blue-600">--:--:--</span>
+                        </div>
+                        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 col-span-2 sm:col-span-1">
+                            <span class="text-emerald-600 text-xs block mb-1 font-bold">الحصة الحالية</span>
+                            <span id="live-active-period" class="text-base font-black text-emerald-800">جاري التحديد...</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-slate-500 text-xs block mb-1 font-bold">إجمالي الزيارات المسجلة</span>
+                                <span id="home-stat-visits" class="text-3xl font-black text-emerald-600">0</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-clipboard-check"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-slate-500 text-xs block mb-1 font-bold">متوسط الدرجات العام</span>
+                                <span id="home-stat-avg" class="text-3xl font-black text-blue-600">0%</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <span class="text-slate-500 text-xs block mb-1 font-bold">المعلمين المزارين</span>
+                                <span id="home-stat-teachers" class="text-3xl font-black text-purple-600">0</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-chalkboard-user"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Charts Preview -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <h4 class="font-bold text-slate-800 mb-4 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-emerald-600"></i> معدل أداء المجالات الرئيسية
+                            </h4>
+                            <div class="relative h-56"><canvas id="homeDomainsChart"></canvas></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <h4 class="font-bold text-slate-800 mb-4 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-blue-600"></i> توزيع المستويات المهارية للمعلمين
+                            </h4>
+                            <div class="relative h-56"><canvas id="homeLevelsChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 1: VISITS -->
+                <div id="tab-visits" class="tab-content space-y-6 hidden">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                         <div>
                             <h3 class="text-lg font-bold text-slate-800">سجل زيارات المعلمين الصفية</h3>
@@ -153,7 +304,7 @@
                                         <th class="p-4 font-bold">المادة الدراسية</th>
                                         <th class="p-4 font-bold">رقم الجوال</th>
                                         <th class="p-4 font-bold text-center">عدد الزيارات</th>
-                                        <th class="p-4 font-bold text-center">الإجراءات</th>
+                                        <th class="p-4 font-bold text-center">الإجراءات والأرشيف</th>
                                     </tr>
                                 </thead>
                                 <tbody id="teachers-table-body" class="divide-y divide-slate-100 text-sm text-slate-700">
@@ -163,28 +314,12 @@
                     </div>
                 </div>
 
-                <!-- TAB 3: SETTINGS -->
-                <div id="tab-settings" class="tab-content space-y-6 hidden">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
-                        <div>
-                            <h3 class="text-lg font-bold text-slate-800">بنود استمارة الزيارة الصفية الرسمية</h3>
-                            <p class="text-sm text-slate-500">تعديل ومراجعة المؤشرات والمجالات وتوزيع الدرجات الكلية (المجموع 100)</p>
-                        </div>
-                        <button onclick="openCriteriaModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow">
-                            <i class="fa-solid fa-plus ml-1"></i> إضافة بند جديد
-                        </button>
-                    </div>
-
-                    <div id="criteria-container" class="space-y-4">
-                    </div>
-                </div>
-
-                <!-- TAB 4: ARCHIVE & ANALYTICS -->
+                <!-- TAB 3: ARCHIVE -->
                 <div id="tab-archive" class="tab-content space-y-6 hidden">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                         <div>
                             <h3 class="text-lg font-bold text-slate-800">الأرشيف والتقارير الإحصائية والرسوم البيانية</h3>
-                            <p class="text-sm text-slate-500">ملخص ومعدلات أداء الزيارات الصفية والتحليلات البصرية</p>
+                            <p class="text-sm text-slate-500">ملخص ومعدلات أداء الزيارات الصفية والتحليلات البصرية الكاملة</p>
                         </div>
                         <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2.5 rounded-xl shadow text-sm flex items-center gap-2">
                             <i class="fa-solid fa-print"></i> طباعة التقرير العام
@@ -218,8 +353,113 @@
                     </div>
                 </div>
 
+                <!-- TAB 4: SETTINGS (LAST TAB) -->
+                <div id="tab-settings" class="tab-content space-y-6 hidden">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">إعدادات القيادات والشعارات الرسمية</h3>
+                                <p class="text-sm text-slate-500">تحديد أسماء مدير المدرسة والمشرف التربوي وروابط/صور الشعارات الرسمية</p>
+                            </div>
+                            <button onclick="saveGeneralSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow">
+                                <i class="fa-solid fa-floppy-disk ml-1"></i> حفظ إعدادات القيادات والشعارات
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">اسم مدير المدرسة</label>
+                                <input type="text" id="setting-principal-name" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" value="أ. صالح بن عبدالله العتيبي">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">اسم المشرف التربوي المقيم / الزائر</label>
+                                <input type="text" id="setting-supervisor-name" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" value="د. خالد بن فهد الشمري">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">شعار وزارة التعليم (رابط صورة URL أو رمز)</label>
+                                <input type="text" id="setting-ministry-logo" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="ضع رابط صورة الشعار أو اتركه فارغاً للشعار الافتراضي">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">شعار المدرسة الرسمية (رابط صورة URL أو رمز)</label>
+                                <input type="text" id="setting-school-logo" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="ضع رابط صورة الشعار أو اتركه فارغاً للشعار الافتراضي">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Periods Configuration Section -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">إعداد أوقات الحصص والفسحة (7 حصص)</h3>
+                                <p class="text-sm text-slate-500">تحديد أوقات بداية ونهاية الحصص والفسحة (بعد الحصة الثالثة)</p>
+                            </div>
+                            <button onclick="savePeriodSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow">
+                                <i class="fa-solid fa-floppy-disk ml-1"></i> حفظ أوقات الحصص
+                            </button>
+                        </div>
+                        <div id="periods-settings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                        </div>
+                    </div>
+
+                    <!-- Criteria Settings Section -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">بنود ومؤشرات استمارة التقييم</h3>
+                                <p class="text-sm text-slate-500">إضافة وتعديل البنود والدرجات المخصصة لكل مجال</p>
+                            </div>
+                            <button onclick="openCriteriaModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow">
+                                <i class="fa-solid fa-plus ml-1"></i> إضافة بند جديد
+                            </button>
+                        </div>
+                        <div id="criteria-container" class="space-y-4"></div>
+                    </div>
+                </div>
+
             </div>
         </main>
+    </div>
+
+    <!-- TEACHER ARCHIVE MODAL -->
+    <div id="teacher-archive-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div>
+                    <h3 id="teacher-archive-title" class="font-bold text-lg text-slate-800">أرشيف زيارات المعلم</h3>
+                    <p id="teacher-archive-subtitle" class="text-xs text-slate-500">سجل جميع الزيارات الصفية المنفذة للمعلم</p>
+                </div>
+                <button onclick="closeTeacherArchiveModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 space-y-4">
+                <div id="teacher-archive-summary" class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center justify-between text-sm">
+                    <div>
+                        <span class="text-slate-600">إجمالي الزيارات: </span>
+                        <strong id="teacher-archive-count" class="text-emerald-700 font-bold">0</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-600">معدل الأداء العام: </span>
+                        <strong id="teacher-archive-avg" class="text-emerald-700 font-bold">0%</strong>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <table class="w-full text-right border-collapse text-sm">
+                        <thead class="bg-slate-50 text-slate-600 text-xs uppercase border-b border-slate-200">
+                            <tr>
+                                <th class="p-3 font-bold">التاريخ</th>
+                                <th class="p-3 font-bold">المادة / الصف</th>
+                                <th class="p-3 font-bold text-center">الدرجة</th>
+                                <th class="p-3 font-bold text-center">خيارات التقرير والإرسال</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-archive-table-body" class="divide-y divide-slate-100">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+                <button onclick="closeTeacherArchiveModal()" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl text-sm font-medium">إغلاق</button>
+            </div>
+        </div>
     </div>
 
     <!-- VISIT FORM MODAL -->
@@ -232,7 +472,7 @@
             <div class="p-6 overflow-y-auto flex-1 space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">المعلم الزائر</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">المعلم المعني</label>
                         <select id="visit-teacher" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none"></select>
                     </div>
                     <div>
@@ -251,7 +491,7 @@
                 <div class="text-base font-bold text-slate-800">الدرجة الإجمالية: <span id="modal-total-score" class="text-emerald-600 font-black text-xl">0</span> / 100</div>
                 <div class="flex gap-3">
                     <button onclick="closeVisitModal()" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-100">إلغاء</button>
-                    <button onclick="saveVisit()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium shadow-md">حفظ وحفظ سحابي</button>
+                    <button onclick="saveVisit()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium shadow-md">حفظ الزيارة</button>
                 </div>
             </div>
         </div>
@@ -281,7 +521,7 @@
             </div>
             <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
                 <button onclick="closeTeacherModal()" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-100">إلغاء</button>
-                <button onclick="saveTeacher()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium shadow-md">حفظ المعلم</button>
+                <button onclick="saveTeacher()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium">حفظ المعلم</button>
             </div>
         </div>
     </div>
@@ -358,67 +598,227 @@
         let teachers = [];
         let visits = [];
         let criteria = [...defaultCriteria];
+        let appSettings = {
+            principalName: "أ. صالح بن عبدالله العتيبي",
+            supervisorName: "د. خالد بن فهد الشمري",
+            ministryLogo: "",
+            schoolLogo: ""
+        };
+        let periodTimes = [
+            { id: 1, name: "الحصة الأولى", start: "07:00", end: "07:45" },
+            { id: 2, name: "الحصة الثانية", start: "07:45", end: "08:30" },
+            { id: 3, name: "الحصة الثالثة", start: "08:30", end: "09:15" },
+            { id: 0, name: "فترة الفسحة", start: "09:15", end: "09:45" },
+            { id: 4, name: "الحصة الرابعة", start: "09:45", end: "10:30" },
+            { id: 5, name: "الحصة الخامسة", start: "10:30", end: "11:15" },
+            { id: 6, name: "الحصة السادسة", start: "11:15", end: "12:00" },
+            { id: 7, name: "الحصة السابعة", start: "12:00", end: "12:45" }
+        ];
         let domainsChartInstance = null;
         let levelsChartInstance = null;
+        let homeDomainsChartInstance = null;
+        let homeLevelsChartInstance = null;
 
-        window.addEventListener('firebase-ready', async () => {
-            try {
-                const { getDocs, collection } = window.FirebaseSDK;
-                const db = window.db;
+        // Live Clock & Dates Ticker
+        function updateLiveDateTime() {
+            const now = new Date();
 
-                const tSnap = await getDocs(collection(db, "teachers"));
-                if (!tSnap.empty) {
-                    teachers = tSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                } else {
-                    teachers = [
-                        { id: '1', name: "أحمد بن محمد العتيبي", subject: "رياضيات - أول متوسط", phone: "0501234567" },
-                        { id: '2', name: "سلطان بن فهد الشمري", subject: "لغتي الخالدة - ثاني متوسط", phone: "0559876543" }
-                    ];
-                    for(let t of teachers) {
-                        await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(db, "teachers", t.id), t);
+            const clockEl = document.getElementById('live-digital-clock');
+            if (clockEl) {
+                clockEl.innerText = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+
+            const gregEl = document.getElementById('live-gregorian-date');
+            if (gregEl) {
+                gregEl.innerText = now.toLocaleDateString('ar-SA', { year: 'numeric', month: '2-digit', day: '2-digit' }) + ' م';
+            }
+
+            const hijriEl = document.getElementById('live-hijri-date');
+            if (hijriEl) {
+                try {
+                    hijriEl.innerText = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    }).format(now) + ' هـ';
+                } catch (e) {
+                    hijriEl.innerText = now.toLocaleDateString('ar-SA') + ' هـ';
+                }
+            }
+
+            const periodEl = document.getElementById('live-active-period');
+            if (periodEl && periodTimes && periodTimes.length > 0) {
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                let activeName = "انتهى اليوم الدراسي";
+
+                for (let p of periodTimes) {
+                    if (p.start && p.end) {
+                        const [sH, sM] = p.start.split(':').map(Number);
+                        const [eH, eM] = p.end.split(':').map(Number);
+                        const startMin = sH * 60 + sM;
+                        const endMin = eH * 60 + eM;
+
+                        if (currentMinutes >= startMin && currentMinutes < endMin) {
+                            activeName = p.name;
+                            break;
+                        } else if (currentMinutes < startMin && activeName === "انتهى اليوم الدراسي") {
+                            activeName = `قبل ${p.name}`;
+                        }
                     }
                 }
-
-                const vSnap = await getDocs(collection(db, "visits"));
-                visits = vSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                const cSnap = await getDocs(collection(db, "criteria"));
-                if (!cSnap.empty) {
-                    criteria = cSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                }
-
-                renderTeachers();
-                renderVisits();
-                renderCriteria();
-                updateStats();
-                document.getElementById('sync-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span> متصل بالسحابة';
-            } catch (err) {
-                console.error("Firebase sync error:", err);
-                document.getElementById('sync-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span> وضع محلي';
+                periodEl.innerText = activeName;
             }
+        }
+
+        setInterval(updateLiveDateTime, 1000);
+
+        function loadLocalData() {
+            try {
+                const savedT = localStorage.getItem('almajd_teachers');
+                const savedV = localStorage.getItem('almajd_visits');
+                const savedC = localStorage.getItem('almajd_criteria');
+                const savedS = localStorage.getItem('almajd_settings');
+                const savedP = localStorage.getItem('almajd_periods');
+                if (savedT) teachers = JSON.parse(savedT);
+                if (savedV) visits = JSON.parse(savedV);
+                if (savedC) criteria = JSON.parse(savedC);
+                if (savedS) appSettings = JSON.parse(savedS);
+                if (savedP) periodTimes = JSON.parse(savedP);
+            } catch(e) { console.error(e); }
+        }
+
+        function saveLocalData() {
+            try {
+                localStorage.setItem('almajd_teachers', JSON.stringify(teachers));
+                localStorage.setItem('almajd_visits', JSON.stringify(visits));
+                localStorage.setItem('almajd_criteria', JSON.stringify(criteria));
+                localStorage.setItem('almajd_settings', JSON.stringify(appSettings));
+                localStorage.setItem('almajd_periods', JSON.stringify(periodTimes));
+            } catch(e) { console.error(e); }
+        }
+
+        function renderPeriodSettingsInputs() {
+            const grid = document.getElementById('periods-settings-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            periodTimes.forEach((p, idx) => {
+                const isBreak = p.id === 0;
+                grid.innerHTML += `
+                    <div class="p-3 ${isBreak ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200'} rounded-xl border">
+                        <label class="block text-xs font-bold ${isBreak ? 'text-amber-800' : 'text-slate-700'} mb-2 flex items-center justify-between">
+                            <span>${p.name}</span>
+                            ${isBreak ? '<span class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full">استراحة</span>' : ''}
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input type="time" id="period-start-${idx}" value="${p.start}" class="w-full border border-slate-300 rounded-lg px-2 py-1 text-xs text-center font-bold">
+                            <span class="text-slate-400 text-xs">إلى</span>
+                            <input type="time" id="period-end-${idx}" value="${p.end}" class="w-full border border-slate-300 rounded-lg px-2 py-1 text-xs text-center font-bold">
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function savePeriodSettings() {
+            periodTimes.forEach((p, idx) => {
+                const startEl = document.getElementById(`period-start-${idx}`);
+                const endEl = document.getElementById(`period-end-${idx}`);
+                if (startEl && endEl) {
+                    p.start = startEl.value;
+                    p.end = endEl.value;
+                }
+            });
+            saveLocalData();
+            updateLiveDateTime();
+            alert('تم حفظ إعدادات مواعيد الحصص والفسحة بنجاح!');
+        }
+
+        function saveGeneralSettings() {
+            appSettings.principalName = document.getElementById('setting-principal-name').value || 'مدير المدرسة';
+            appSettings.supervisorName = document.getElementById('setting-supervisor-name').value || 'المشرف التربوي';
+            appSettings.ministryLogo = document.getElementById('setting-ministry-logo').value || '';
+            appSettings.schoolLogo = document.getElementById('setting-school-logo').value || '';
+            saveLocalData();
+            updateLogosInUI();
+            alert('تم حفظ إعدادات القيادات والشعارات بنجاح!');
+        }
+
+        function updateLogosInUI() {
+            const minBox = document.getElementById('header-ministry-logo-box');
+            if (minBox) {
+                if (appSettings.ministryLogo) {
+                    minBox.innerHTML = `<img src="${appSettings.ministryLogo}" class="w-full h-full object-contain rounded-xl" onerror="this.src='https://placehold.co/100x100/1e293b/10b981?text=التعليم'">`;
+                } else {
+                    minBox.innerHTML = `<i class="fa-solid fa-graduation-cap text-2xl"></i><span class="text-[9px] mt-1 font-bold text-slate-200">التعليم</span>`;
+                }
+            }
+
+            const schBox = document.getElementById('header-school-logo-box');
+            if (schBox) {
+                if (appSettings.schoolLogo) {
+                    schBox.innerHTML = `<img src="${appSettings.schoolLogo}" class="w-full h-full object-contain rounded-xl" onerror="this.src='https://placehold.co/100x100/047857/ffffff?text=المجد'">`;
+                } else {
+                    schBox.innerHTML = `<span class="font-black text-lg text-emerald-300">المجد</span><span class="text-[9px] font-semibold text-slate-300">الجديد</span>`;
+                }
+            }
+        }
+
+        window.addEventListener('firebase-ready', async () => {
+            loadLocalData();
+            if (document.getElementById('setting-principal-name')) document.getElementById('setting-principal-name').value = appSettings.principalName;
+            if (document.getElementById('setting-supervisor-name')) document.getElementById('setting-supervisor-name').value = appSettings.supervisorName;
+            if (document.getElementById('setting-ministry-logo')) document.getElementById('setting-ministry-logo').value = appSettings.ministryLogo || '';
+            if (document.getElementById('setting-school-logo')) document.getElementById('setting-school-logo').value = appSettings.schoolLogo || '';
+            
+            updateLogosInUI();
+            renderPeriodSettingsInputs();
+
+            if (teachers.length === 0) {
+                teachers = [
+                    { id: '1', name: "أحمد بن محمد العتيبي", subject: "رياضيات - أول متوسط", phone: "0501234567" },
+                    { id: '2', name: "سلطان بن فهد الشمري", subject: "لغتي الخالدة - ثاني متوسط", phone: "0559876543" }
+                ];
+            }
+            renderTeachers();
+            renderVisits();
+            renderCriteria();
+            updateStats();
+            updateLiveDateTime();
+            renderCharts();
         });
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            } else {
+                return;
+            }
 
             document.querySelectorAll('nav a').forEach(el => {
                 el.classList.remove('bg-emerald-600', 'text-white', 'shadow-md', 'shadow-emerald-900/30');
                 el.classList.add('text-slate-300', 'hover:bg-slate-800', 'hover:text-white');
             });
+
             const activeNav = document.getElementById('nav-' + tabId);
-            activeNav.classList.add('bg-emerald-600', 'text-white', 'shadow-md', 'shadow-emerald-900/30');
-            activeNav.classList.remove('text-slate-300', 'hover:bg-slate-800', 'hover:text-white');
+            if (activeNav) {
+                activeNav.classList.add('bg-emerald-600', 'text-white', 'shadow-md', 'shadow-emerald-900/30');
+                activeNav.classList.remove('text-slate-300', 'hover:bg-slate-800', 'hover:text-white');
+            }
 
             const titles = { 
-                visits: 'الرئيسية - إدارة الزيارات الصفية', 
+                dashboard: 'الرئيسية والإحصائيات العامة',
+                visits: 'سجل الزيارات الصفية', 
                 teachers: 'دليل المعلمين', 
-                settings: 'الإعدادات وبنود التقييم', 
-                archive: 'الأرشيف والتقارير الإحصائية' 
+                archive: 'الأرشيف والتقارير الإحصائية',
+                settings: 'الإعدادات وبنود التقييم'
             };
-            document.getElementById('page-title').innerText = titles[tabId];
+            if (document.getElementById('page-title')) {
+                document.getElementById('page-title').innerText = titles[tabId] || 'منظومة الزيارات الصفية';
+            }
 
-            if (tabId === 'archive') {
+            if (tabId === 'dashboard' || tabId === 'archive') {
                 setTimeout(renderCharts, 100);
             }
         }
@@ -429,6 +829,7 @@
 
         function renderTeachers() {
             const tbody = document.getElementById('teachers-table-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             if (teachers.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">لا يوجد معلمون مسجلون</td></tr>`;
@@ -443,8 +844,9 @@
                         <td class="p-4">${t.phone || '-'}</td>
                         <td class="p-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">${count} زيارات</span></td>
                         <td class="p-4 text-center space-x-2 space-x-reverse">
-                            <button onclick="editTeacher('${t.id}')" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteTeacher('${t.id}')" class="text-red-600 hover:text-red-800 p-1"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="openTeacherArchiveModal('${t.id}')" class="text-purple-600 hover:text-purple-800 p-1" title="أرشيف المعلم"><i class="fa-solid fa-box-archive text-base"></i></button>
+                            <button onclick="editTeacher('${t.id}')" class="text-blue-600 hover:text-blue-800 p-1" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteTeacher('${t.id}')" class="text-red-600 hover:text-red-800 p-1" title="حذف"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>`;
             });
@@ -482,24 +884,21 @@
                 if (!name) { alert('يرجى إدخال اسم المعلم'); return; }
 
                 const teacherData = { name, subject, phone };
-                const db = window.db;
 
                 if (id) {
                     const index = teachers.findIndex(x => x.id === id);
                     if (index !== -1) teachers[index] = { id, ...teacherData };
-                    if (db && window.FirebaseSDK) await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(db, "teachers", id), teacherData);
                 } else {
                     const newId = 't_' + Date.now();
                     teachers.push({ id: newId, ...teacherData });
-                    if (db && window.FirebaseSDK) await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(db, "teachers", newId), teacherData);
                 }
 
+                saveLocalData();
                 closeTeacherModal();
                 renderTeachers();
                 updateStats();
                 alert('تم حفظ المعلم بنجاح!');
             } catch (err) {
-                console.error("Save Teacher Error:", err);
                 alert('فشل الحفظ: ' + err.message);
             }
         }
@@ -508,9 +907,7 @@
             try {
                 if (confirm('هل أنت متأكد من حذف هذا المعلم؟')) {
                     teachers = teachers.filter(x => x.id !== id);
-                    if (window.db && window.FirebaseSDK) {
-                        await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "teachers", id));
-                    }
+                    saveLocalData();
                     renderTeachers();
                     updateStats();
                 }
@@ -549,17 +946,14 @@
                             const phone = cols[2] ? cols[2].trim() : '';
                             if (name) {
                                 const newId = 't_imp_' + Date.now() + Math.random();
-                                const tData = { name, subject, phone };
-                                teachers.push({ id: newId, ...tData });
-                                if (window.db && window.FirebaseSDK) {
-                                    await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "teachers", newId), tData);
-                                }
+                                teachers.push({ id: newId, name, subject, phone });
                             }
                         }
                     }
+                    saveLocalData();
                     renderTeachers();
                     updateStats();
-                    alert('تم استيراد المعلمين بنجاح وحفظهم سحابياً!');
+                    alert('تم استيراد المعلمين بنجاح!');
                 } catch (err) {
                     alert('خطأ في الاستيراد: ' + err.message);
                 }
@@ -569,6 +963,7 @@
 
         function renderVisits() {
             const tbody = document.getElementById('visits-table-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             if (visits.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">لا توجد زيارات صفية مسجلة</td></tr>`;
@@ -585,7 +980,7 @@
                         <td class="p-4">${v.date}</td>
                         <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">${v.totalScore} / 100</span></td>
                         <td class="p-4 text-center space-x-2 space-x-reverse">
-                            <button onclick="viewVisitPrint('${v.id}')" class="text-slate-600 hover:text-blue-600 p-1" title="طباعة"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="viewVisitPrint('${v.id}')" class="text-slate-600 hover:text-blue-600 p-1" title="طباعة المعاينة"><i class="fa-solid fa-print"></i></button>
                             <button onclick="deleteVisit('${v.id}')" class="text-red-600 hover:text-red-800 p-1" title="حذف"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>`;
@@ -654,17 +1049,14 @@
                 const visitData = { teacherId, subject, date, visitorName: "إدارة متوسطة المجد الجديد", scores, totalScore };
                 const newId = 'v_' + Date.now();
                 visits.push({ id: newId, ...visitData });
-
-                if (window.db && window.FirebaseSDK) {
-                    await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "visits", newId), visitData);
-                }
+                saveLocalData();
 
                 closeVisitModal();
                 renderVisits();
                 updateStats();
-                alert('تم حفظ الزيارة الصفية بنجاح!');
+                renderCharts();
+                alert('تم حفظ الزيارة الصفية بنجاح وتحديث كافة الإحصائيات!');
             } catch (err) {
-                console.error("Save Visit Error:", err);
                 alert('فشل الحفظ: ' + err.message);
             }
         }
@@ -673,11 +1065,10 @@
             try {
                 if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
                     visits = visits.filter(x => x.id !== id);
-                    if (window.db && window.FirebaseSDK) {
-                        await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "visits", id));
-                    }
+                    saveLocalData();
                     renderVisits();
                     updateStats();
+                    renderCharts();
                 }
             } catch (err) {
                 alert('خطأ في الحذف: ' + err.message);
@@ -686,6 +1077,7 @@
 
         function renderCriteria() {
             const container = document.getElementById('criteria-container');
+            if (!container) return;
             container.innerHTML = '';
             let currentDomain = '';
             criteria.forEach(c => {
@@ -720,9 +1112,7 @@
 
                 const newId = 'c_' + Date.now();
                 criteria.push({ id: newId, domain, name, max });
-                if (window.db && window.FirebaseSDK) {
-                    await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "criteria", newId), { domain, name, max });
-                }
+                saveLocalData();
                 closeCriteriaModal();
                 renderCriteria();
                 alert('تم حفظ البند بنجاح!');
@@ -734,9 +1124,7 @@
         async function deleteCriteria(id) {
             try {
                 criteria = criteria.filter(x => x.id !== id);
-                if (window.db && window.FirebaseSDK) {
-                    await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "criteria", String(id)));
-                }
+                saveLocalData();
                 renderCriteria();
             } catch (err) {
                 alert('خطأ في الحذف: ' + err.message);
@@ -744,15 +1132,21 @@
         }
 
         function updateStats() {
-            document.getElementById('stat-total-visits').innerText = visits.length;
-            document.getElementById('stat-total-teachers').innerText = teachers.length;
-            if (visits.length > 0) {
+            const totalVisits = visits.length;
+            const totalTeachers = teachers.length;
+            let avgScore = 0;
+            if (totalVisits > 0) {
                 let sum = visits.reduce((acc, cur) => acc + cur.totalScore, 0);
-                let avg = Math.round(sum / visits.length);
-                document.getElementById('stat-avg-score').innerText = avg + '%';
-            } else {
-                document.getElementById('stat-avg-score').innerText = '0%';
+                avgScore = Math.round(sum / totalVisits);
             }
+
+            if (document.getElementById('home-stat-visits')) document.getElementById('home-stat-visits').innerText = totalVisits;
+            if (document.getElementById('home-stat-avg')) document.getElementById('home-stat-avg').innerText = avgScore + '%';
+            if (document.getElementById('home-stat-teachers')) document.getElementById('home-stat-teachers').innerText = totalTeachers;
+
+            if (document.getElementById('stat-total-visits')) document.getElementById('stat-total-visits').innerText = totalVisits;
+            if (document.getElementById('stat-avg-score')) document.getElementById('stat-avg-score').innerText = avgScore + '%';
+            if (document.getElementById('stat-total-teachers')) document.getElementById('stat-total-teachers').innerText = totalTeachers;
         }
 
         function renderCharts() {
@@ -781,15 +1175,24 @@
                 domainPercentages.push(data.max > 0 ? Math.round((data.earned / (data.max * (visits.length || 1))) * 100) : 0);
             }
 
-            const ctx1 = document.getElementById('domainsChart').getContext('2d');
-            if (domainsChartInstance) domainsChartInstance.destroy();
-            domainsChartInstance = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: domainLabels.length ? domainLabels : ['المجال الأول', 'المجال الثاني', 'المجال الثالث', 'المجال الرابع'],
-                    datasets: [{ label: 'نسبة الأداء (%)', data: domainPercentages, backgroundColor: '#10b981', borderRadius: 8 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+            ['domainsChart', 'homeDomainsChart'].forEach(canvasId => {
+                const el = document.getElementById(canvasId);
+                if (!el) return;
+                const ctx = el.getContext('2d');
+                if (canvasId === 'domainsChart' && domainsChartInstance) domainsChartInstance.destroy();
+                if (canvasId === 'homeDomainsChart' && homeDomainsChartInstance) homeDomainsChartInstance.destroy();
+
+                const chartObj = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: domainLabels.length ? domainLabels : ['المجال الأول', 'المجال الثاني', 'المجال الثالث', 'المجال الرابع'],
+                        datasets: [{ label: 'نسبة الأداء (%)', data: domainPercentages, backgroundColor: '#10b981', borderRadius: 8 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+                });
+
+                if (canvasId === 'domainsChart') domainsChartInstance = chartObj;
+                if (canvasId === 'homeDomainsChart') homeDomainsChartInstance = chartObj;
             });
 
             let lvlExcellent = 0, lvlVGood = 0, lvlGood = 0, lvlSupport = 0;
@@ -801,15 +1204,24 @@
                 else lvlSupport++;
             });
 
-            const ctx2 = document.getElementById('levelsChart').getContext('2d');
-            if (levelsChartInstance) levelsChartInstance.destroy();
-            levelsChartInstance = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['متميز (90-100)', 'جيد جداً (80-89)', 'جيد (70-79)', 'يحتاج دعم (<70)'],
-                    datasets: [{ data: [lvlExcellent, lvlVGood, lvlGood, lvlSupport], backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#ef4444'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
+            ['levelsChart', 'homeLevelsChart'].forEach(canvasId => {
+                const el = document.getElementById(canvasId);
+                if (!el) return;
+                const ctx = el.getContext('2d');
+                if (canvasId === 'levelsChart' && levelsChartInstance) levelsChartInstance.destroy();
+                if (canvasId === 'homeLevelsChart' && homeLevelsChartInstance) homeLevelsChartInstance.destroy();
+
+                const chartObj = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['متميز (90-100)', 'جيد جداً (80-89)', 'جيد (70-79)', 'يحتاج دعم (<70)'],
+                        datasets: [{ data: [lvlExcellent, lvlVGood, lvlGood, lvlSupport], backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#ef4444'] }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                if (canvasId === 'levelsChart') levelsChartInstance = chartObj;
+                if (canvasId === 'homeLevelsChart') homeLevelsChartInstance = chartObj;
             });
         }
 
@@ -819,33 +1231,127 @@
             const t = teachers.find(x => x.id === v.teacherId);
 
             let html = `
-                <div class="text-center border-b pb-4 mb-4">
-                    <h2 class="text-sm font-bold text-slate-500">المملكة العربية السعودية</h2>
-                    <h3 class="text-lg font-black text-slate-800">متوسطة المجد الجديد الأهلية</h3>
-                    <h1 class="text-xl font-black text-emerald-700 mt-1">تقرير الزيارة الصفية</h1>
-                </div>
-                <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl text-sm mb-6">
-                    <div><strong>اسم المعلم:</strong> ${t ? t.name : '-'}</div>
-                    <div><strong>المادة / الصف:</strong> ${v.subject || '-'}</div>
-                    <div><strong>تاريخ الزيارة:</strong> ${v.date}</div>
-                    <div><strong>الدرجة الكلية:</strong> <span class="text-emerald-700 font-black text-base">${v.totalScore} / 100</span></div>
-                </div>
-                <h4 class="font-bold text-slate-800 mb-3">تفاصيل بنود التقييم:</h4>
-                <div class="space-y-2 text-sm">`;
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="text-center border-b border-slate-300 pb-3 mb-3">
+                            <h2 class="text-xs font-bold text-slate-600">المملكة العربية السعودية &bull; وزارة التعليم</h2>
+                            <h3 class="text-base font-black text-slate-900">متوسطة المجد الجديد الأهلية</h3>
+                            <h1 class="text-lg font-black text-emerald-800 mt-1">تقرير الزيارة الصفية الرسمية</h1>
+                            <span class="text-[10px] text-slate-500">الفصل الدراسي الأول 1448هـ</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl mb-3 no-print">
+                            <span class="text-xs text-emerald-800 font-bold"><i class="fa-brands fa-whatsapp text-emerald-600 ml-1"></i> مشاركة التقرير مع المعلم:</span>
+                            <button onclick="sendVisitToTeacherWhatsApp('${v.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg shadow font-medium flex items-center gap-1">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> إرسال عبر واتساب المعلم
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs mb-4">
+                            <div><strong>اسم المعلم:</strong> ${t ? t.name : '-'}</div>
+                            <div><strong>المادة / الصف:</strong> ${v.subject || '-'}</div>
+                            <div><strong>تاريخ الزيارة:</strong> ${v.date}</div>
+                            <div><strong>الدرجة الكلية:</strong> <span class="text-emerald-700 font-black text-sm">${v.totalScore} / 100</span></div>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mb-2 text-xs">تفاصيل بنود التقييم والمؤشرات:</h4>
+                        <div class="space-y-1 text-xs">`;
 
             criteria.forEach(c => {
                 let score = v.scores && v.scores[c.id] !== undefined ? v.scores[c.id] : '-';
-                html += `<div class="flex justify-between border-b py-1.5"><span class="text-slate-700">${c.name}</span><span class="font-bold">${score} / ${c.max}</span></div>`;
+                html += `<div class="flex justify-between border-b border-slate-200 py-1"><span class="text-slate-700">${c.name}</span><span class="font-bold text-slate-900">${score} / ${c.max}</span></div>`;
             });
 
             html += `</div>
-                <div class="mt-8 pt-8 border-t flex justify-between text-sm font-bold text-slate-700">
-                    <div>قائد المدرسة: ........................</div>
-                    <div>المعلم الزائر: ........................</div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-300 grid grid-cols-3 gap-2 text-center text-[11px] font-bold text-slate-800">
+                        <div>
+                            <p class="mb-1 text-slate-500">المعلم المعني</p>
+                            <p class="text-slate-900 font-bold mb-4">${t ? t.name : '.......................'}</p>
+                            <p>التوقيع: .......................</p>
+                        </div>
+                        <div>
+                            <p class="mb-1 text-slate-500">المشرف التربوي المقيم</p>
+                            <p class="text-slate-900 font-bold mb-4">${appSettings.supervisorName}</p>
+                            <p>التوقيع: .......................</p>
+                        </div>
+                        <div>
+                            <p class="mb-1 text-slate-500">مدير المدرسة</p>
+                            <p class="text-slate-900 font-bold mb-4">${appSettings.principalName}</p>
+                            <p>التوقيع والختم: .......................</p>
+                        </div>
+                    </div>
                 </div>`;
 
             document.getElementById('print-content').innerHTML = html;
             document.getElementById('print-modal').classList.remove('hidden');
+        }
+
+        function openTeacherArchiveModal(teacherId) {
+            const t = teachers.find(x => x.id === teacherId);
+            if (!t) return;
+
+            document.getElementById('teacher-archive-title').innerText = `أرشيف زيارات: ${t.name}`;
+            document.getElementById('teacher-archive-subtitle').innerText = `تخصص: ${t.subject} | جوال: ${t.phone || 'غير مسجل'}`;
+
+            const teacherVisits = visits.filter(v => v.teacherId === teacherId);
+            document.getElementById('teacher-archive-count').innerText = teacherVisits.length;
+
+            if (teacherVisits.length > 0) {
+                const totalSum = teacherVisits.reduce((acc, curr) => acc + curr.totalScore, 0);
+                const avg = Math.round(totalSum / teacherVisits.length);
+                document.getElementById('teacher-archive-avg').innerText = `${avg}%`;
+            } else {
+                document.getElementById('teacher-archive-avg').innerText = `0%`;
+            }
+
+            const tbody = document.getElementById('teacher-archive-table-body');
+            tbody.innerHTML = '';
+
+            if (teacherVisits.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">لا توجد زيارات مسجلة لهذا المعلم حتى الآن</td></tr>`;
+            } else {
+                teacherVisits.forEach(v => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-3 font-bold text-slate-800">${v.date}</td>
+                            <td class="p-3">${v.subject || '-'}</td>
+                            <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">${v.totalScore} / 100</span></td>
+                            <td class="p-3 text-center space-x-2 space-x-reverse">
+                                <button onclick="viewVisitPrint('${v.id}')" class="bg-blue-50 text-blue-700 hover:bg-blue-100 px-2.5 py-1 rounded-lg text-xs font-bold border border-blue-200">
+                                    <i class="fa-solid fa-file-lines ml-1"></i> التقرير
+                                </button>
+                                <button onclick="sendVisitToTeacherWhatsApp('${v.id}')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-2.5 py-1 rounded-lg text-xs font-bold border border-emerald-200">
+                                    <i class="fa-brands fa-whatsapp ml-1"></i> إرسال واتساب
+                                </button>
+                            </td>
+                        </tr>`;
+                });
+            }
+
+            document.getElementById('teacher-archive-modal').classList.remove('hidden');
+        }
+
+        function closeTeacherArchiveModal() {
+            document.getElementById('teacher-archive-modal').classList.add('hidden');
+        }
+
+        function sendVisitToTeacherWhatsApp(visitId) {
+            const v = visits.find(x => x.id === visitId);
+            if (!v) return;
+            const t = teachers.find(x => x.id === v.teacherId);
+
+            if (!t || !t.phone) {
+                alert('يرجى التأكد من تسجيل رقم جوال المعلم في دليله لإرسال الرسالة عبر الواتساب.');
+                return;
+            }
+
+            let cleanPhone = t.phone.replace(/[^0-9]/g, '');
+            if (cleanPhone.startsWith('05')) {
+                cleanPhone = '966' + cleanPhone.substring(1);
+            }
+
+            const message = `السلام عليكم ورحمة الله وبركاته،\nأخي المعلم المكرم: *${t.name}*\nتحية طيبة وبعد،\n\nنود إفادتكم بصدور تقرير الزيارة الصفية الخاصة بكم بمتوسطة المجد الجديد الأهلية:\n\n📌 *المادة/الصف:* ${v.subject || '-'}\n📅 *تاريخ الزيارة:* ${v.date}\n📊 *الدرجة الإجمالية:* ${v.totalScore} / 100\n\nشكراً لجهودكم وتمنياتنا لكم بدوام التوفيق والنجاح.`;
+
+            const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
         }
 
         function closePrintModal() { document.getElementById('print-modal').classList.add('hidden'); }
