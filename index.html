@@ -1,351 +1,17 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة الزيارات الصفية - متوسطة المجد الجديد الأهلية</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Cairo -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Cairo', sans-serif; }
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white !important; color: black !important; }
-        }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+<!-- ... existing code ... -->
+        // المنطق البرمجي وحفظ البيانات
+        let defaultCriteria = [
+            { id: 'c1', category: 'التخطيط والتحضير', name: 'وضوح الأهداف السلوكية وصياغتها وتنوعها', maxScore: 5 },
+            { id: 'c2', category: 'التخطيط والتحضير', name: 'الربط بالواقع والمعرفة السابقة للمتعلمين', maxScore: 5 },
+            { id: 'c3', category: 'استراتيجيات التدريس', name: 'تنويع استراتيجيات التدريس النشط والتفاعلي', maxScore: 10 },
+            { id: 'c4', category: 'استراتيجيات التدريس', name: 'استخدام الوسائل والتقنيات والوسائط التعليمية', maxScore: 10 },
+            { id: 'c5', category: 'الإدارة الصفية', name: 'الانضباط والبيئة المحفزة للتعلم والتفاعل', maxScore: 10 },
+            { id: 'c6', category: 'الإدارة الصفية', name: 'مراعاة الفروق الفردية وتمكين كافة الطلاب', maxScore: 5 },
+            { id: 'c7', category: 'التقويم والأثر', name: 'تنويع أساليب التقويم التكويني والختامي', maxScore: 5 }
+        ];
 
-    <!-- شاشة قفل الحماية السري -->
-    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center border border-slate-100">
-            <div class="w-20 h-20 bg-amber-500/10 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner">
-                <i class="fa-solid fa-shield-halved"></i>
-            </div>
-            <h2 class="text-2xl font-black text-slate-900 mb-2">متوسطة المجد الجديد الأهلية</h2>
-            <p class="text-slate-500 text-sm mb-6">منظومة الإشراف والزيارات الصفية السحابية</p>
-            <form onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <input type="password" id="pin-input" placeholder="أدخل الرقم السري للمنظومة" required
-                        class="w-full px-4 py-3 text-center tracking-widest text-xl rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-slate-50">
-                </div>
-                <button type="submit" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/30 transition-all">
-                    دخول المنظومة <i class="fa-solid fa-arrow-left mr-2"></i>
-                </button>
-            </form>
-            <p id="pin-error" class="text-red-500 text-xs mt-3 hidden">الرقم السري غير صحيح. حاول مرة أخرى.</p>
-        </div>
-    </div>
+        let criteriaData = JSON.parse(localStorage.getItem('almajd_criteria')) || defaultCriteria;
 
-    <!-- المحتوى الرئيسي (مخفي حتى يتم تسجيل الدخول) -->
-    <div id="main-app" class="hidden flex-1 flex flex-col">
-        
-        <!-- الترويسة العلوية -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs no-print">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-4 space-x-reverse">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
-                <div class="flex items-center space-x-3 space-x-reverse">
-                    <!-- شعارات الهيدر -->
-                    <div class="flex items-center gap-2">
-                        <img id="header-school-logo" src="https://i.ibb.co/vz44Zf4/almajd-logo.jpg" onerror="this.src='https://placehold.co/100x100/1e293b/ffffff?text=المجد'" alt="شعار المدرسة" class="h-10 w-auto object-contain rounded-lg">
-                        <img id="header-moe-logo" src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Ministry_of_Education_%28Saudi_Arabia%29_logo.svg" alt="شعار وزارة التعليم" class="h-10 w-auto object-contain hidden sm:block">
-                    </div>
-                    <div>
-                        <h1 id="header-school-name" class="font-black text-lg text-slate-900">متوسطة المجد الجديد الأهلية</h1>
-                        <p class="text-xs text-amber-600 font-semibold flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span> متصل بالسحابة الآمنة
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="flex items-center space-x-3 space-x-reverse">
-                <div id="live-clock" class="hidden md:block text-xs font-bold px-3 py-1.5 bg-slate-100 rounded-lg text-slate-600 border border-slate-200"></div>
-                <button onclick="logout()" class="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all" title="قفل المنظومة">
-                    <i class="fa-solid fa-lock text-lg"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- هيكل التطبيق (القائمة الجانبية والمحتوى) -->
-    <div class="flex-1 flex max-w-7xl w-full mx-auto">
-        
-        <!-- القائمة الجانبية المحدثة بالشعارات والأزرار السلسة -->
-        <aside id="sidebar" class="fixed inset-y-0 right-0 z-40 w-64 bg-white border-l border-slate-200 transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col no-print shadow-lg lg:shadow-none">
-            <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <img id="sidebar-school-logo" src="https://i.ibb.co/vz44Zf4/almajd-logo.jpg" onerror="this.src='https://placehold.co/100x100/1e293b/ffffff?text=المجد'" class="h-9 w-auto rounded">
-                    <span class="font-bold text-slate-800 text-sm">لوحة الإشراف</span>
-                </div>
-                <button onclick="toggleSidebar()" class="p-2 text-slate-500 lg:hidden"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
-                <button onclick="switchTab('dashboard')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-amber-50 hover:text-amber-700" data-tab="dashboard">
-                    <i class="fa-solid fa-chart-pie w-6 text-amber-600 text-base"></i> <span>الرئيسية واللوحة</span>
-                </button>
-                <button onclick="switchTab('teachers')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-blue-50 hover:text-blue-700" data-tab="teachers">
-                    <i class="fa-solid fa-chalkboard-user w-6 text-blue-600 text-base"></i> <span>سجل المعلمين</span>
-                </button>
-                <button onclick="switchTab('new-visit')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-emerald-50 hover:text-emerald-700" data-tab="new-visit">
-                    <i class="fa-solid fa-file-circle-plus w-6 text-emerald-600 text-base"></i> <span>تسجيل زيارة صفية</span>
-                </button>
-                <button onclick="switchTab('archive')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-indigo-50 hover:text-indigo-700" data-tab="archive">
-                    <i class="fa-solid fa-box-archive w-6 text-indigo-600 text-base"></i> <span>أرشيف الزيارات</span>
-                </button>
-                <button onclick="switchTab('trash')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-rose-50 hover:text-rose-700" data-tab="trash">
-                    <i class="fa-solid fa-trash-arrow-up w-6 text-rose-600 text-base"></i> <span>سلة المحذوفات</span>
-                </button>
-                <button onclick="switchTab('settings')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-slate-100 hover:text-slate-900" data-tab="settings">
-                    <i class="fa-solid fa-gears w-6 text-slate-600 text-base"></i> <span>إعدادات المنظومة</span>
-                </button>
-            </nav>
-            <div class="p-4 border-t border-slate-100 text-center text-xs text-slate-400 bg-slate-50">
-                جميع البيانات محفوظة سحابياً ☁️
-            </div>
-        </aside>
-
-        <!-- محتوى التبويبات -->
-        <main class="flex-1 p-4 lg:p-8 lg:mr-64 max-w-full overflow-x-hidden">
-            <!-- تبويب لوحة التحكم الرئيسية -->
-            <div id="tab-dashboard" class="tab-content space-y-6">
-                <div class="bg-gradient-to-r from-slate-900 to-amber-900 text-white p-6 lg:p-8 rounded-2xl shadow-xl relative overflow-hidden">
-                    <h2 class="text-2xl font-black mb-2">أهلاً بك في منظومة الزيارات الصفية</h2>
-                    <p class="text-amber-200 text-sm max-w-xl">لوحة الإشراف والمتابعة الصفية لمتوسطة المجد الجديد الأهلية - جميع البيانات والإحصائيات محفوظة ومحدثة.</p>
-                    <div class="absolute -left-10 -bottom-10 opacity-10 text-9xl">
-                        <i class="fa-solid fa-school"></i>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
-                        <div>
-                            <p class="text-slate-500 text-sm font-semibold">إجمالي المعلمين</p>
-                            <h3 id="stat-teachers-count" class="text-3xl font-black text-slate-900 mt-1">0</h3>
-                        </div>
-                        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                            <i class="fa-solid fa-chalkboard-user"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
-                        <div>
-                            <p class="text-slate-500 text-sm font-semibold">إجمالي الزيارات المسجلة</p>
-                            <h3 id="stat-visits-count" class="text-3xl font-black text-slate-900 mt-1">0</h3>
-                        </div>
-                        <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                            <i class="fa-solid fa-clipboard-check"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
-                        <div>
-                            <p class="text-slate-500 text-sm font-semibold">الحالة السحابية</p>
-                            <h3 class="text-lg font-black text-emerald-600 mt-1 flex items-center gap-2">
-                                <i class="fa-solid fa-cloud text-xl"></i> متصل فوري
-                            </h3>
-                        </div>
-                        <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                            <i class="fa-solid fa-database"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- تبويب سجل المعلمين -->
-            <div id="tab-teachers" class="tab-content hidden space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                        <div>
-                            <h2 class="text-xl font-black text-slate-900">سجل المعلمين</h2>
-                            <p class="text-slate-500 text-sm">إضافة وإدارة بيانات المعلمين في المدرسة</p>
-                        </div>
-                        <button onclick="openTeacherModal()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
-                            <i class="fa-solid fa-plus"></i> إضافة معلم جديد
-                        </button>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-right border-collapse">
-                                <thead>
-                                    <tr class="bg-slate-100 text-slate-700 text-xs uppercase font-bold border-b border-slate-200">
-                                        <th class="p-4">اسم المعلم</th>
-                                        <th class="p-4">التخصص</th>
-                                        <th class="p-4">المرحلة / الصفوف</th>
-                                        <th class="p-4">الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="teachers-table-body" class="divide-y divide-slate-100 text-sm">
-                                    <!-- يتم تعبئتها ديناميكياً -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- تبويب تسجيل زيارة جديدة -->
-                <div id="tab-new-visit" class="tab-content hidden space-y-6">
-                    <div class="bg-white p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-200 max-w-3xl mx-auto">
-                        <h2 class="text-xl font-black text-slate-900 mb-1">نموذج زيارة صفية جديدة</h2>
-                        <p class="text-slate-500 text-sm mb-6">رصد تقييم الزيارة الصفية وحفظها سحابياً للرجوع إليها في أي وقت</p>
-                        
-                        <form onsubmit="handleSaveVisit(event)" class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">المعلم الزائر</label>
-                                    <select id="visit-teacher" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 bg-slate-50 text-sm">
-                                        <!-- المعلمون -->
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">المادة الدراسية</label>
-                                    <input type="text" id="visit-subject" required placeholder="مثال: رياضيات" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 bg-slate-50 text-sm">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">الصف / الفصل</label>
-                                    <input type="text" id="visit-class" required placeholder="مثال: أول متوسط أ" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 bg-slate-50 text-sm">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">الحصة الدراسية</label>
-                                    <select id="visit-period" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 bg-slate-50 text-sm">
-                                        <option value="الحصة الأولى">الحصة الأولى</option>
-                                        <option value="الحصة الثانية">الحصة الثانية</option>
-                                        <option value="الحصة الثالثة">الحصة الثالثة</option>
-                                        <option value="الحصة الرابعة">الحصة الرابعة</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">ملاحظات ومرئيات المشرف</label>
-                                <textarea id="visit-notes" rows="4" placeholder="اكتب الملاحظات التربوية والإيجابيات ونقاط التطوير..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 bg-slate-50 text-sm"></textarea>
-                            </div>
-                            <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition-all">
-                                <i class="fa-solid fa-cloud-arrow-up ml-2"></i> حفظ الزيارة في السحابة
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- تبويب أرشيف الزيارات -->
-                <div id="tab-archive" class="tab-content hidden space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                        <div>
-                            <h2 class="text-xl font-black text-slate-900">أرشيف الزيارات الصفية</h2>
-                            <p class="text-slate-500 text-sm">سجل الزيارات السحابية الموثقة مع إمكانية الطباعة وتصدير التقرير</p>
-                        </div>
-                    </div>
-                    <div id="archive-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- زيارات الأرشيف -->
-                    </div>
-                </div>
-
-                <!-- تبويب سلة المحذوفات -->
-                <div id="tab-trash" class="tab-content hidden space-y-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                        <h2 class="text-xl font-black text-slate-900 mb-1">سلة المحذوفات السحابية</h2>
-                        <p class="text-slate-500 text-sm mb-4">العناصر المحذوفة مؤقتاً مع إمكانية استعادتها</p>
-                        <div id="trash-list" class="space-y-3">
-                            <!-- المحذوفات -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- تبويب إعدادات المنظومة المطور -->
-                <div id="tab-settings" class="tab-content hidden space-y-6">
-                    <div class="bg-white p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-200 max-w-3xl mx-auto space-y-6">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                            <div>
-                                <h2 class="text-xl font-black text-slate-900 mb-1">إعدادات المنظومة والشكل</h2>
-                                <p class="text-slate-500 text-sm">تعديل كافة نصوص وعناصر المنظومة بدون تعديل الأكواد</p>
-                            </div>
-                            <i class="fa-solid fa-sliders text-2xl text-amber-600"></i>
-                        </div>
-                        
-                        <form onsubmit="handleSaveAllSettings(event)" class="space-y-6">
-                            <!-- بيانات المدرسة الأساسية -->
-                            <div class="space-y-4">
-                                <h3 class="text-sm font-bold text-slate-800 border-r-4 border-amber-500 pr-2">البيانات الرسمية والتحقق</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 mb-1">اسم المدرسة الرسمي</label>
-                                        <input type="text" id="setting-school-name" value="متوسطة المجد الجديد الأهلية" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 mb-1">الرمز السري لدخول المنظومة</label>
-                                        <input type="text" id="setting-pin-code" value="2403511922" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- الشعارات والصور -->
-                            <div class="space-y-4">
-                                <h3 class="text-sm font-bold text-slate-800 border-r-4 border-blue-500 pr-2">روابط الشعارات والأنماط البصرية</h3>
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 mb-1">رابط شعار المدرسة (Image URL)</label>
-                                        <input type="text" id="setting-logo-school" value="https://i.ibb.co/vz44Zf4/almajd-logo.jpg" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 mb-1">رابط شعار وزارة التعليم</label>
-                                        <input type="text" id="setting-logo-moe" value="https://upload.wikimedia.org/wikipedia/commons/5/5f/Ministry_of_Education_%28Saudi_Arabia%29_logo.svg" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- مواعيد الحصص -->
-                            <div class="space-y-4">
-                                <h3 class="text-sm font-bold text-slate-800 border-r-4 border-emerald-500 pr-2">تخصيص الحصص الدراسية</h3>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">الحصص المتاحة (افصل بين كل حصة بفاصلة)</label>
-                                    <input type="text" id="setting-periods-list" value="الحصة الأولى, الحصة الثانية, الحصة الثالثة, الحصة الرابعة, الحصة الخامسة, الحصة السادسة, الحصة السابعة" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
-                                </div>
-                            </div>
-
-                            <button type="submit" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-cloud-arrow-up"></i> حفظ وتطبيق كل الإعدادات سحابياً
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-            </main>
-        </div>
-    </div>
-
-    <!-- نافذة إضافة معلم -->
-    <div id="teacher-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="text-lg font-black text-slate-900 mb-4">إضافة معلم جديد</h3>
-            <form onsubmit="handleSaveTeacher(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المعلم الثلاثي</label>
-                    <input type="text" id="modal-teacher-name" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">التخصص</label>
-                    <input type="text" id="modal-teacher-subject" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">المرحلة / الصفوف</label>
-                    <input type="text" id="modal-teacher-grades" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeTeacherModal()" class="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl text-sm">إلغاء</button>
-                    <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-md">حفظ المعلم</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- المنطق البرمجي وحفظ البيانات -->
-    <script>
-        // الذاكرة التلقائية للنظام
         let teachersData = JSON.parse(localStorage.getItem('almajd_teachers')) || [
             { id: '1', name: 'أحمد محمود العلي', subject: 'الرياضيات', grades: 'أول متوسط / ثاني متوسط' },
             { id: '2', name: 'خالد عبدالله السعيد', subject: 'العلوم', grades: 'ثالث متوسط' }
@@ -354,99 +20,106 @@
         let visitsData = JSON.parse(localStorage.getItem('almajd_visits')) || [];
         let trashData = JSON.parse(localStorage.getItem('almajd_trash')) || [];
 
-        // حفظ البيانات محلياً بسلاسة
-        function saveAllLocalData() {
-            localStorage.setItem('almajd_teachers', JSON.stringify(teachersData));
-            localStorage.setItem('almajd_visits', JSON.stringify(visitsData));
-            localStorage.setItem('almajd_trash', JSON.stringify(trashData));
-            updateStats();
+        // تحديث الساعة الحية
+        function updateClock() {
+            const clockEl = document.getElementById('live-clock');
+            if (!clockEl) return;
+            const now = new Date();
+            clockEl.innerHTML = `<i class="fa-regular fa-clock ml-1"></i> ${now.toLocaleTimeString('ar-SA')} - ${now.toLocaleDateString('ar-SA')}`;
         }
 
-        // حفظ وتطبيق كل الإعدادات
-        window.handleSaveAllSettings = function(e) {
-            e.preventDefault();
-            const schoolName = document.getElementById('setting-school-name').value;
-            const pinCode = document.getElementById('setting-pin-code').value;
-            const logoSchool = document.getElementById('setting-logo-school').value;
-            const logoMoe = document.getElementById('setting-logo-moe').value;
-            const periodsText = document.getElementById('setting-periods-list').value;
-
-            // تحديث الواجهة فوراً
-            document.getElementById('header-school-name').textContent = schoolName;
-            document.getElementById('header-school-logo').src = logoSchool;
-            document.getElementById('sidebar-school-logo').src = logoSchool;
-            document.getElementById('header-moe-logo').src = logoMoe;
-
-            // حفظ الرمز السري في الإعدادات
-            localStorage.setItem('almajd_pin', pinCode);
-            localStorage.setItem('almajd_school_name', schoolName);
-            localStorage.setItem('almajd_logo_school', logoSchool);
-            localStorage.setItem('almajd_logo_moe', logoMoe);
-
-            // تحديث قائمة الحصص في نموذج الزيارة
-            const periodSelect = document.getElementById('visit-period');
-            if (periodSelect && periodsText) {
-                const periods = periodsText.split(',').map(p => p.trim());
-                periodSelect.innerHTML = periods.map(p => `<option value="${p}">${p}</option>`).join('');
-                localStorage.setItem('almajd_periods', periodsText);
-            }
-
-            alert('تم حفظ وتطبيق جميع الإعدادات بنجاح في المنظومة!');
-        };
-
+        // إدارة قفل الحماية وتسجيل الدخول
         window.handleLogin = function(e) {
             e.preventDefault();
-            const pin = document.getElementById('pin-input').value;
+            const pinInput = document.getElementById('pin-input').value;
             const savedPin = localStorage.getItem('almajd_pin') || '2403511922';
-            
-            if (pin === savedPin) {
+            const errorEl = document.getElementById('pin-error');
+
+            if (pinInput === savedPin) {
                 document.getElementById('auth-modal').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
-                switchTab('dashboard');
                 initAppData();
             } else {
-                document.getElementById('pin-error').classList.remove('hidden');
+                if (errorEl) errorEl.classList.remove('hidden');
             }
         };
 
         window.logout = function() {
-            document.getElementById('auth-modal').classList.remove('hidden');
             document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('auth-modal').classList.remove('hidden');
             document.getElementById('pin-input').value = '';
         };
 
-        window.switchTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('bg-amber-50', 'text-amber-700', 'font-black'));
-            
-            const targetTab = document.getElementById(`tab-${tabId}`);
-            if (targetTab) {
-                targetTab.classList.remove('hidden');
-            }
-            
-            const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-amber-50', 'text-amber-700', 'font-black');
-            }
-            
+        // التحكم بالقائمة الجانبية والتبويبات
+        window.toggleSidebar = function() {
             const sidebar = document.getElementById('sidebar');
-            if (sidebar && window.innerWidth < 1024) {
-                sidebar.classList.add('translate-x-full');
+            if (sidebar) sidebar.classList.toggle('translate-x-full');
+        };
+
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const targetTab = document.getElementById('tab-' + tabName);
+            if (targetTab) targetTab.classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-amber-100', 'text-amber-900', 'font-black');
+            });
+            const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeBtn) activeBtn.classList.add('bg-amber-100', 'text-amber-900', 'font-black');
+
+            if (window.innerWidth < 1024) {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) sidebar.classList.add('translate-x-full');
             }
         };
 
-        window.toggleSidebar = function() {
-            document.getElementById('sidebar').classList.toggle('translate-x-full');
-        };
+        // إحصائيات النظام
+        function updateStats() {
+            const tCount = document.getElementById('stat-teachers-count');
+            const vCount = document.getElementById('stat-visits-count');
+            if (tCount) tCount.textContent = teachersData.length;
+            if (vCount) vCount.textContent = visitsData.length;
+        }
+
+        // سجل المعلمين
+        function renderTeachers() {
+            const tbody = document.getElementById('teachers-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = teachersData.length === 0 ? `<tr><td colspan="4" class="p-4 text-center text-slate-400">لا يوجد معلمون مسجلون</td></tr>` :
+            teachersData.map(t => `
+                <tr class="hover:bg-slate-50 transition-all">
+                    <td class="p-4 font-bold text-slate-900">${t.name}</td>
+                    <td class="p-4 text-slate-600">${t.subject}</td>
+                    <td class="p-4 text-slate-600">${t.grades}</td>
+                    <td class="p-4 flex gap-2">
+                        <button onclick="removeTeacher('${t.id}')" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg text-xs font-bold">
+                            <i class="fa-solid fa-trash"></i> حذف
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function populateTeacherDropdown() {
+            const select = document.getElementById('visit-teacher');
+            if (!select) return;
+            select.innerHTML = teachersData.map(t => `<option value="${t.id}">${t.name} (${t.subject})</option>`).join('');
+        }
 
         window.openTeacherModal = function() {
-            document.getElementById('teacher-modal').classList.remove('hidden');
-            document.getElementById('teacher-modal').classList.add('flex');
+            const modal = document.getElementById('teacher-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
         };
 
         window.closeTeacherModal = function() {
-            document.getElementById('teacher-modal').classList.add('hidden');
-            document.getElementById('teacher-modal').classList.remove('flex');
+            const modal = document.getElementById('teacher-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
         };
 
         window.handleSaveTeacher = function(e) {
@@ -463,6 +136,146 @@
             e.target.reset();
         };
 
+        window.removeTeacher = function(id) {
+            teachersData = teachersData.filter(t => t.id !== id);
+            saveAllLocalData();
+            renderTeachers();
+            populateTeacherDropdown();
+        };
+
+        // حفظ البيانات محلياً بسلاسة
+        function saveAllLocalData() {
+            localStorage.setItem('almajd_teachers', JSON.stringify(teachersData));
+            localStorage.setItem('almajd_visits', JSON.stringify(visitsData));
+            localStorage.setItem('almajd_trash', JSON.stringify(trashData));
+            localStorage.setItem('almajd_criteria', JSON.stringify(criteriaData));
+            updateStats();
+        }
+
+        // بناء استمارة الزيارة الديناميكية
+        function renderEvaluationForm() {
+            const container = document.getElementById('rubric-evaluation-container');
+            if (!container) return;
+
+            const categories = [...new Set(criteriaData.map(c => c.category))];
+            let maxTotal = criteriaData.reduce((sum, item) => sum + Number(item.maxScore), 0);
+            document.getElementById('visit-max-score').textContent = maxTotal;
+
+            container.innerHTML = categories.map(cat => {
+                const catItems = criteriaData.filter(c => c.category === cat);
+                return `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                        <h4 class="font-bold text-slate-800 text-sm border-r-4 border-amber-500 pr-2">${cat}</h4>
+                        <div class="space-y-2">
+                            ${catItems.map(item => `
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-3 rounded-lg border border-slate-200 gap-2">
+                                    <span class="text-xs font-semibold text-slate-700">${item.name}</span>
+                                    <div class="flex items-center gap-2 self-end sm:self-auto">
+                                        <input type="number" min="0" max="${item.maxScore}" value="${item.maxScore}" 
+                                            data-id="${item.id}" data-max="${item.maxScore}"
+                                            oninput="calculateTotalScore()"
+                                            class="rubric-score-input w-20 px-3 py-1 text-center font-bold text-amber-700 rounded-lg border border-slate-300 bg-amber-50/50 text-sm">
+                                        <span class="text-xs text-slate-400 font-bold">/ ${item.maxScore}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            calculateTotalScore();
+        }
+
+        function calculateTotalScore() {
+            const inputs = document.querySelectorAll('.rubric-score-input');
+            let total = 0;
+            inputs.forEach(input => {
+                let val = parseFloat(input.value) || 0;
+                let max = parseFloat(input.dataset.max) || 0;
+                if (val > max) input.value = max;
+                if (val < 0) input.value = 0;
+                total += parseFloat(input.value) || 0;
+            });
+            const scoreEl = document.getElementById('visit-total-score');
+            if (scoreEl) scoreEl.textContent = total;
+        }
+
+        // بناء واجهة تعديل البنود في الإعدادات
+        function renderCriteriaEditor() {
+            const container = document.getElementById('criteria-editor-container');
+            if (!container) return;
+            container.innerHTML = criteriaData.map((item, idx) => `
+                <div class="flex flex-col md:flex-row items-center gap-2 bg-white p-3 rounded-xl border border-slate-200">
+                    <input type="text" value="${item.category}" onchange="updateCriterion(${idx}, 'category', this.value)" placeholder="المجال/القسم" class="w-full md:w-1/4 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700">
+                    <input type="text" value="${item.name}" onchange="updateCriterion(${idx}, 'name', this.value)" placeholder="اسم البند" class="w-full md:w-2/4 px-3 py-1.5 rounded-lg border border-slate-300 text-xs">
+                    <div class="flex items-center gap-2 w-full md:w-1/4">
+                        <input type="number" min="1" value="${item.maxScore}" onchange="updateCriterion(${idx}, 'maxScore', this.value)" placeholder="الدرجة" class="w-20 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-center">
+                        <button type="button" onclick="removeCriterion(${idx})" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.addNewCriterion = function() {
+            criteriaData.push({ id: 'c' + Date.now(), category: 'بنود عامة', name: 'بند تقييم جديد', maxScore: 5 });
+            renderCriteriaEditor();
+            renderEvaluationForm();
+        };
+
+        window.updateCriterion = function(index, field, value) {
+            if (field === 'maxScore') value = Number(value);
+            criteriaData[index][field] = value;
+            renderEvaluationForm();
+        };
+
+        window.removeCriterion = function(index) {
+            criteriaData.splice(index, 1);
+            renderCriteriaEditor();
+            renderEvaluationForm();
+        };
+
+        // حفظ وتطبيق كل الإعدادات
+        window.handleSaveAllSettings = function(e) {
+            e.preventDefault();
+            const schoolName = document.getElementById('setting-school-name').value;
+            const academicYear = document.getElementById('setting-academic-year').value;
+            const pinCode = document.getElementById('setting-pin-code').value;
+            const logoSchool = document.getElementById('setting-logo-school').value;
+            const logoMoe = document.getElementById('setting-logo-moe').value;
+            const periodsText = document.getElementById('setting-periods-list').value;
+
+            // تحديث الواجهة فوراً
+            document.getElementById('header-school-name').textContent = schoolName;
+            document.getElementById('header-academic-year').textContent = academicYear;
+            const dashBadge = document.getElementById('dashboard-year-badge');
+            if (dashBadge) dashBadge.textContent = academicYear;
+            const formBadge = document.getElementById('form-academic-year');
+            if (formBadge) formBadge.textContent = academicYear;
+
+            document.getElementById('header-school-logo').src = logoSchool;
+            document.getElementById('sidebar-school-logo').src = logoSchool;
+            document.getElementById('header-moe-logo').src = logoMoe;
+
+            // حفظ الرمز السري والإعدادات
+            localStorage.setItem('almajd_pin', pinCode);
+            localStorage.setItem('almajd_school_name', schoolName);
+            localStorage.setItem('almajd_academic_year', academicYear);
+            localStorage.setItem('almajd_logo_school', logoSchool);
+            localStorage.setItem('almajd_logo_moe', logoMoe);
+
+            // تحديث قائمة الحصص في نموذج الزيارة
+            const periodSelect = document.getElementById('visit-period');
+            if (periodSelect && periodsText) {
+                const periods = periodsText.split(',').map(p => p.trim());
+                periodSelect.innerHTML = periods.map(p => `<option value="${p}">${p}</option>`).join('');
+                localStorage.setItem('almajd_periods', periodsText);
+            }
+
+            saveAllLocalData();
+            alert('تم حفظ وتطبيق جميع الإعدادات وبنود الاستمارة بنجاح!');
+        };
+
         window.handleSaveVisit = function(e) {
             e.preventDefault();
             const teacherId = document.getElementById('visit-teacher').value;
@@ -473,10 +286,27 @@
             
             const teacherObj = teachersData.find(t => t.id === teacherId);
 
+            const scores = [];
+            document.querySelectorAll('.rubric-score-input').forEach(input => {
+                const item = criteriaData.find(c => c.id === input.dataset.id);
+                if (item) {
+                    scores.push({
+                        category: item.category,
+                        name: item.name,
+                        score: Number(input.value),
+                        maxScore: item.maxScore
+                    });
+                }
+            });
+
+            const totalScore = scores.reduce((sum, s) => sum + s.score, 0);
+            const maxScore = scores.reduce((sum, s) => sum + s.maxScore, 0);
+
             visitsData.unshift({
                 id: Date.now().toString(),
                 teacherName: teacherObj ? teacherObj.name : 'غير محدد',
-                subject, className, period, notes,
+                subject, className, period, notes, scores, totalScore, maxScore,
+                academicYear: localStorage.getItem('almajd_academic_year') || 'الفصل الدراسي الأول 1448هـ',
                 date: new Date().toLocaleDateString('ar-SA')
             });
 
@@ -485,36 +315,8 @@
             alert('تم حفظ الزيارة بنجاح في السجل!');
             switchTab('archive');
             e.target.reset();
+            renderEvaluationForm();
         };
-
-        function renderTeachers() {
-            const tbody = document.getElementById('teachers-table-body');
-            if (!tbody) return;
-            tbody.innerHTML = teachersData.length === 0 ? '<tr><td colspan="4" class="p-6 text-center text-slate-400">لا يوجد معلمون مسجلون حالياً</td></tr>' : 
-            teachersData.map(t => `
-                <tr class="hover:bg-slate-50 transition-all">
-                    <td class="p-4 font-bold text-slate-900">${t.name}</td>
-                    <td class="p-4 text-slate-600">${t.subject}</td>
-                    <td class="p-4 text-slate-600">${t.grades}</td>
-                    <td class="p-4">
-                        <button onclick="deleteTeacher('${t.id}')" class="text-red-500 hover:text-red-700 text-xs font-bold px-3 py-1.5 bg-red-50 rounded-lg">حذف</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        window.deleteTeacher = function(id) {
-            teachersData = teachersData.filter(t => t.id !== id);
-            saveAllLocalData();
-            renderTeachers();
-            populateTeacherDropdown();
-        };
-
-        function populateTeacherDropdown() {
-            const select = document.getElementById('visit-teacher');
-            if (!select) return;
-            select.innerHTML = teachersData.map(t => `<option value="${t.id}">${t.name} (${t.subject})</option>`).join('');
-        }
 
         function renderArchive() {
             const container = document.getElementById('archive-list');
@@ -525,35 +327,28 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <span class="text-xs font-bold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg">${v.date}</span>
+                            <span class="text-xs font-bold px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg mr-1">${v.academicYear || ''}</span>
                             <h3 class="font-black text-slate-900 text-lg mt-2">${v.teacherName}</h3>
                         </div>
-                        <span class="text-xs font-bold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg">${v.period}</span>
+                        <div class="text-left">
+                            <span class="text-xs font-bold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg block mb-1">${v.period}</span>
+                            <span class="text-xs font-black px-2.5 py-1 bg-amber-500 text-slate-950 rounded-lg">الدرجة: ${v.totalScore || 0} / ${v.maxScore || 100}</span>
+                        </div>
                     </div>
                     <div class="text-sm text-slate-600 grid grid-cols-2 gap-2 border-y border-slate-100 py-2">
                         <p><strong>المادة:</strong> ${v.subject}</p>
                         <p><strong>الصف:</strong> ${v.className}</p>
                     </div>
-                    <p class="text-sm text-slate-700 bg-slate-50 p-3 rounded-xl"><strong>الملاحظات:</strong> ${v.notes || 'لا توجد ملاحظات إضافية'}</p>
+                    <p class="text-sm text-slate-700 bg-slate-50 p-3 rounded-xl"><strong>الملاحظات والتوصيات:</strong> ${v.notes || 'لا توجد ملاحظات إضافية'}</p>
                 </div>
             `).join('');
-        }
-
-        function updateStats() {
-            const tCount = document.getElementById('stat-teachers-count');
-            const vCount = document.getElementById('stat-visits-count');
-            if (tCount) tCount.textContent = teachersData.length;
-            if (vCount) vCount.textContent = visitsData.length;
-        }
-
-        function updateClock() {
-            const now = new Date();
-            const clockEl = document.getElementById('live-clock');
-            if (clockEl) clockEl.textContent = now.toLocaleDateString('ar-SA') + ' - ' + now.toLocaleTimeString('ar-SA');
         }
 
         function initAppData() {
             renderTeachers();
             populateTeacherDropdown();
+            renderEvaluationForm();
+            renderCriteriaEditor();
             renderArchive();
             updateStats();
         }
