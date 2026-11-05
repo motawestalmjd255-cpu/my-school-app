@@ -280,7 +280,7 @@
                 </div>
             </div>
             <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
-                <button onclick="closeTeacherModal()" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium">إلغاء</button>
+                <button onclick="closeTeacherModal()" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-100">إلغاء</button>
                 <button onclick="saveTeacher()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium shadow-md">حفظ المعلم</button>
             </div>
         </div>
@@ -362,10 +362,10 @@
         let levelsChartInstance = null;
 
         window.addEventListener('firebase-ready', async () => {
-            const { getDocs, collection } = window.FirebaseSDK;
-            const db = window.db;
-
             try {
+                const { getDocs, collection } = window.FirebaseSDK;
+                const db = window.db;
+
                 const tSnap = await getDocs(collection(db, "teachers"));
                 if (!tSnap.empty) {
                     teachers = tSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -394,6 +394,7 @@
                 document.getElementById('sync-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span> متصل بالسحابة';
             } catch (err) {
                 console.error("Firebase sync error:", err);
+                document.getElementById('sync-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span> وضع محلي';
             }
         });
 
@@ -472,38 +473,49 @@
         function closeTeacherModal() { document.getElementById('teacher-modal').classList.add('hidden'); }
 
         async function saveTeacher() {
-            const id = document.getElementById('teacher-id').value;
-            const name = document.getElementById('teacher-name').value;
-            const subject = document.getElementById('teacher-subject').value;
-            const phone = document.getElementById('teacher-phone').value;
+            try {
+                const id = document.getElementById('teacher-id').value;
+                const name = document.getElementById('teacher-name').value;
+                const subject = document.getElementById('teacher-subject').value;
+                const phone = document.getElementById('teacher-phone').value;
 
-            if (!name) { alert('يرجى إدخال اسم المعلم'); return; }
+                if (!name) { alert('يرجى إدخال اسم المعلم'); return; }
 
-            const teacherData = { name, subject, phone };
-            const { doc, setDoc } = window.FirebaseSDK || {};
-            const db = window.db;
+                const teacherData = { name, subject, phone };
+                const db = window.db;
 
-            if (id) {
-                const index = teachers.findIndex(x => x.id === id);
-                if (index !== -1) teachers[index] = { id, ...teacherData };
-                if (db) await setDoc(doc(db, "teachers", id), teacherData);
-            } else {
-                const newId = 't_' + Date.now();
-                teachers.push({ id: newId, ...teacherData });
-                if (db) await setDoc(doc(db, "teachers", newId), teacherData);
+                if (id) {
+                    const index = teachers.findIndex(x => x.id === id);
+                    if (index !== -1) teachers[index] = { id, ...teacherData };
+                    if (db && window.FirebaseSDK) await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(db, "teachers", id), teacherData);
+                } else {
+                    const newId = 't_' + Date.now();
+                    teachers.push({ id: newId, ...teacherData });
+                    if (db && window.FirebaseSDK) await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(db, "teachers", newId), teacherData);
+                }
+
+                closeTeacherModal();
+                renderTeachers();
+                updateStats();
+                alert('تم حفظ المعلم بنجاح!');
+            } catch (err) {
+                console.error("Save Teacher Error:", err);
+                alert('فشل الحفظ: ' + err.message);
             }
-
-            closeTeacherModal();
-            renderTeachers();
-            updateStats();
         }
 
         async function deleteTeacher(id) {
-            if (confirm('هل أنت متأكد من حذف هذا المعلم؟')) {
-                teachers = teachers.filter(x => x.id !== id);
-                if (window.db) await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "teachers", id));
-                renderTeachers();
-                updateStats();
+            try {
+                if (confirm('هل أنت متأكد من حذف هذا المعلم؟')) {
+                    teachers = teachers.filter(x => x.id !== id);
+                    if (window.db && window.FirebaseSDK) {
+                        await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "teachers", id));
+                    }
+                    renderTeachers();
+                    updateStats();
+                }
+            } catch (err) {
+                alert('خطأ في الحذف: ' + err.message);
             }
         }
 
@@ -524,27 +536,33 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = async function(e) {
-                const text = e.target.result;
-                const lines = text.split('\n');
-                for (let i = 1; i < lines.length; i++) {
-                    const row = lines[i].trim();
-                    if (!row) continue;
-                    const cols = row.split(',');
-                    if (cols.length >= 2) {
-                        const name = cols[0].trim();
-                        const subject = cols[1].trim();
-                        const phone = cols[2] ? cols[2].trim() : '';
-                        if (name) {
-                            const newId = 't_imp_' + Date.now() + Math.random();
-                            const tData = { name, subject, phone };
-                            teachers.push({ id: newId, ...tData });
-                            if (window.db) await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "teachers", newId), tData);
+                try {
+                    const text = e.target.result;
+                    const lines = text.split('\n');
+                    for (let i = 1; i < lines.length; i++) {
+                        const row = lines[i].trim();
+                        if (!row) continue;
+                        const cols = row.split(',');
+                        if (cols.length >= 2) {
+                            const name = cols[0].trim();
+                            const subject = cols[1].trim();
+                            const phone = cols[2] ? cols[2].trim() : '';
+                            if (name) {
+                                const newId = 't_imp_' + Date.now() + Math.random();
+                                const tData = { name, subject, phone };
+                                teachers.push({ id: newId, ...tData });
+                                if (window.db && window.FirebaseSDK) {
+                                    await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "teachers", newId), tData);
+                                }
+                            }
                         }
                     }
+                    renderTeachers();
+                    updateStats();
+                    alert('تم استيراد المعلمين بنجاح وحفظهم سحابياً!');
+                } catch (err) {
+                    alert('خطأ في الاستيراد: ' + err.message);
                 }
-                renderTeachers();
-                updateStats();
-                alert('تم استيراد المعلمين بنجاح وحفظهم سحابياً!');
             };
             reader.readAsText(file);
         }
@@ -617,39 +635,52 @@
         }
 
         async function saveVisit() {
-            const teacherId = document.getElementById('visit-teacher').value;
-            const subject = document.getElementById('visit-subject').value;
-            const date = document.getElementById('visit-date').value;
+            try {
+                const teacherId = document.getElementById('visit-teacher').value;
+                const subject = document.getElementById('visit-subject').value;
+                const date = document.getElementById('visit-date').value;
 
-            if (!teacherId) { alert('يرجى اختيار المعلم'); return; }
+                if (!teacherId) { alert('يرجى اختيار المعلم'); return; }
 
-            let scores = {};
-            let totalScore = 0;
-            document.querySelectorAll('.visit-score-input').forEach(input => {
-                let id = input.getAttribute('data-id');
-                let val = parseFloat(input.value) || 0;
-                scores[id] = val;
-                totalScore += val;
-            });
+                let scores = {};
+                let totalScore = 0;
+                document.querySelectorAll('.visit-score-input').forEach(input => {
+                    let id = input.getAttribute('data-id');
+                    let val = parseFloat(input.value) || 0;
+                    scores[id] = val;
+                    totalScore += val;
+                });
 
-            const visitData = { teacherId, subject, date, visitorName: "إدارة متوسطة المجد الجديد", scores, totalScore };
-            const newId = 'v_' + Date.now();
-            visits.push({ id: newId, ...visitData });
+                const visitData = { teacherId, subject, date, visitorName: "إدارة متوسطة المجد الجديد", scores, totalScore };
+                const newId = 'v_' + Date.now();
+                visits.push({ id: newId, ...visitData });
 
-            if (window.db) await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "visits", newId), visitData);
+                if (window.db && window.FirebaseSDK) {
+                    await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "visits", newId), visitData);
+                }
 
-            closeVisitModal();
-            renderVisits();
-            updateStats();
-            alert('تم حفظ الزيارة الصفية ومحفظتها سحابياً بنجاح!');
+                closeVisitModal();
+                renderVisits();
+                updateStats();
+                alert('تم حفظ الزيارة الصفية بنجاح!');
+            } catch (err) {
+                console.error("Save Visit Error:", err);
+                alert('فشل الحفظ: ' + err.message);
+            }
         }
 
         async function deleteVisit(id) {
-            if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
-                visits = visits.filter(x => x.id !== id);
-                if (window.db) await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "visits", id));
-                renderVisits();
-                updateStats();
+            try {
+                if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
+                    visits = visits.filter(x => x.id !== id);
+                    if (window.db && window.FirebaseSDK) {
+                        await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "visits", id));
+                    }
+                    renderVisits();
+                    updateStats();
+                }
+            } catch (err) {
+                alert('خطأ في الحذف: ' + err.message);
             }
         }
 
@@ -680,23 +711,36 @@
         function closeCriteriaModal() { document.getElementById('criteria-modal').classList.add('hidden'); }
 
         async function saveCriteria() {
-            const domain = document.getElementById('crit-domain').value;
-            const name = document.getElementById('crit-name').value;
-            const max = parseFloat(document.getElementById('crit-max').value) || 5;
+            try {
+                const domain = document.getElementById('crit-domain').value;
+                const name = document.getElementById('crit-name').value;
+                const max = parseFloat(document.getElementById('crit-max').value) || 5;
 
-            if (!domain || !name) { alert('يرجى تعبئة الحقول المطلوبة'); return; }
+                if (!domain || !name) { alert('يرجى تعبئة الحقول المطلوبة'); return; }
 
-            const newId = 'c_' + Date.now();
-            criteria.push({ id: newId, domain, name, max });
-            if (window.db) await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "criteria", newId), { domain, name, max });
-            closeCriteriaModal();
-            renderCriteria();
+                const newId = 'c_' + Date.now();
+                criteria.push({ id: newId, domain, name, max });
+                if (window.db && window.FirebaseSDK) {
+                    await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(window.db, "criteria", newId), { domain, name, max });
+                }
+                closeCriteriaModal();
+                renderCriteria();
+                alert('تم حفظ البند بنجاح!');
+            } catch (err) {
+                alert('خطأ في حفظ البند: ' + err.message);
+            }
         }
 
         async function deleteCriteria(id) {
-            criteria = criteria.filter(x => x.id !== id);
-            if (window.db) await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "criteria", String(id)));
-            renderCriteria();
+            try {
+                criteria = criteria.filter(x => x.id !== id);
+                if (window.db && window.FirebaseSDK) {
+                    await window.FirebaseSDK.deleteDoc(window.FirebaseSDK.doc(window.db, "criteria", String(id)));
+                }
+                renderCriteria();
+            } catch (err) {
+                alert('خطأ في الحذف: ' + err.message);
+            }
         }
 
         function updateStats() {
