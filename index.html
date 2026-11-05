@@ -216,6 +216,10 @@
                                 </select>
                             </div>
                             <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">رقم الزيارة (في الفصل الدراسي)</label>
+                                <input type="number" id="visit-number" min="1" value="1" required class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold text-center">
+                            </div>
+                            <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">المادة الدراسية</label>
                                 <input type="text" id="visit-subject" required placeholder="مثال: الرياضيات" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">
                             </div>
@@ -308,43 +312,41 @@
                             </div>
                         </div>
 
-                        <!-- 2. الشعارات -->
-            <div class="space-y-4 border-t border-slate-100 pt-4">
-                <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">رفع وتخصيص الشعارات</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-700 mb-2">شعار المدرسة</label>
-                        <input type="file" id="setting-file-school" accept="image/*" onchange="handleFileUpload(event, 'almajd_logo_school')" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-700 mb-2">شعار وزارة التعليم</label>
-                        <input type="file" id="setting-file-moe" accept="image/*" onchange="handleFileUpload(event, 'almajd_logo_moe')" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
-                    </div>
-                </div>
-            </div>
+                        <!-- 3. نقل البيانات بين الأجهزة -->
+                        <div class="space-y-4 border-t border-slate-100 pt-4">
+                            <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">مزامنة ونقل البيانات بين الجوال والكمبيوتر</h4>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <button type="button" onclick="exportDataBackup()" class="flex-1 py-2.5 bg-slate-800 text-white font-bold rounded-xl text-xs hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-download text-amber-400"></i> تصدير النسخة الاحتياطية (تنزيل)
+                                </button>
+                                <label class="flex-1 py-2.5 bg-amber-500 text-slate-950 font-black rounded-xl text-xs hover:bg-amber-600 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                    <i class="fa-solid fa-upload"></i> استعادة نسخة احتياطية (رفع)
+                                    <input type="file" accept=".json" onchange="importDataBackup(event)" class="hidden">
+                                </label>
+                            </div>
+                        </div>
 
-            <!-- 3. نقل البيانات بين الأجهزة -->
-            <div class="space-y-4 border-t border-slate-100 pt-4">
-                <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">مزامنة ونقل البيانات بين الجوال والكمبيوتر</h4>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button type="button" onclick="exportDataBackup()" class="flex-1 py-2.5 bg-slate-800 text-white font-bold rounded-xl text-xs hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-download text-amber-400"></i> تصدير النسخة الاحتياطية (تنزيل)
-                    </button>
-                    <label class="flex-1 py-2.5 bg-amber-500 text-slate-950 font-black rounded-xl text-xs hover:bg-amber-600 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-upload"></i> استعادة نسخة احتياطية (رفع)
-                        <input type="file" accept=".json" onchange="importDataBackup(event)" class="hidden">
-                    </label>
-                </div>
-            </div>
-            
-            <button type="submit" class="w-full py-3 bg-slate-900 text-white font-bold rounded-xl text-xs hover:bg-slate-800 transition-all">
-                <i class="fa-solid fa-check ml-1"></i> حفظ وتطبيق جميع الإعدادات
-            </button>
-        </form>
-    </section>
-</main>
-</div>
-</div>
+                        <!-- 4. إدارة بنود استمارة التقييم -->
+                        <div class="space-y-4 border-t border-slate-100 pt-4">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">إدارة وتعديل بنود الزيارة الصفية</h4>
+                                <button type="button" onclick="addNewCriteriaRow()" class="px-3 py-1.5 bg-amber-500 text-slate-950 font-black rounded-lg text-xs hover:bg-amber-600 transition-all">
+                                    <i class="fa-solid fa-plus ml-1"></i> إضافة بند تقييم جديد
+                                </button>
+                            </div>
+                            <div id="settings-criteria-editor" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar p-2 bg-slate-50 rounded-2xl border border-slate-200">
+                                <!-- يتم التوليد عبر JS -->
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="w-full py-3 bg-slate-900 text-white font-bold rounded-xl text-xs hover:bg-slate-800 transition-all">
+                            <i class="fa-solid fa-check ml-1"></i> حفظ وتطبيق جميع الإعدادات
+                        </button>
+                    </form>
+                </section>
+            </main>
+        </div>
+    </div>
 
     <!-- نافذة معاينة وطباعة الزيارة (صفحة واحدة A4) -->
     <div id="print-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden items-center justify-center p-2 sm:p-4 overflow-y-auto">
@@ -370,7 +372,7 @@
         </div>
     </div>
 
-    <!-- أنماط الطباعة المحدثة لتغطية صفحة A4 بالكامل -->
+    <!-- أنماط الطباعة المحدثة لتغطية صفحة A4 بالكامل (Fit) ومنع تداخل العناوين -->
     <style>
         @media print {
             body * {
@@ -391,20 +393,22 @@
                 box-shadow: none !important;
             }
             #printable-visit-card {
-                padding: 12mm 15mm !important;
+                padding: 8mm 12mm !important;
                 width: 100% !important;
                 height: 100% !important;
                 box-sizing: border-box !important;
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: space-between !important;
-                font-size: 12px !important;
+                font-size: 11px !important;
+                line-height: 1.4 !important;
             }
             #printable-visit-card table {
                 font-size: 11px !important;
+                width: 100% !important;
             }
             #printable-visit-card table td, #printable-visit-card table th {
-                padding: 6px 8px !important;
+                padding: 5px 8px !important;
             }
             @page {
                 size: A4 portrait;
@@ -577,6 +581,7 @@
             populateTeachersSelect();
             renderRubricForm();
             renderArchive();
+            renderSettingsCriteriaEditor();
             updateStats();
         });
 
@@ -604,54 +609,57 @@
         }
 
         function updateAcademicYearDisplay() {
-            const savedYear = localStorage.getItem('almajd_academic_year') || 'الفصل الدراسي الأول 1448هـ';
-            const savedSchool = localStorage.getItem('almajd_school_name') || 'متوسطة المجد الجديد الأهلية';
-            const savedSupervisor = localStorage.getItem('almajd_supervisor_name') || '';
-            const savedPrincipal = localStorage.getItem('almajd_principal_name') || '';
+            const year = localStorage.getItem('almajd_academic_year') || 'الفصل الدراسي الأول 1448هـ';
+            const schoolName = localStorage.getItem('almajd_school_name') || 'متوسطة المجد الجديد الأهلية';
+            const supervisorName = localStorage.getItem('almajd_supervisor_name') || '';
+            const principalName = localStorage.getItem('almajd_principal_name') || '';
 
-            const schoolHeader = document.getElementById('header-school-name');
-            if (schoolHeader) schoolHeader.textContent = savedSchool;
-
-            ['header-academic-year', 'auth-year-text', 'dashboard-year-badge', 'form-academic-year'].forEach(id => {
+            ['auth-year-text', 'header-academic-year', 'dashboard-year-badge', 'form-academic-year'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.textContent = savedYear;
+                if (el) el.textContent = year;
             });
 
-            const yearInput = document.getElementById('setting-academic-year');
-            if (yearInput) yearInput.value = savedYear;
+            const headerSchoolEl = document.getElementById('header-school-name');
+            if (headerSchoolEl) headerSchoolEl.textContent = schoolName;
 
-            const schoolInput = document.getElementById('setting-school-name');
-            if (schoolInput) schoolInput.value = savedSchool;
+            const setSchool = document.getElementById('setting-school-name');
+            if (setSchool) setSchool.value = schoolName;
 
-            const supervisorInput = document.getElementById('setting-supervisor-name');
-            if (supervisorInput) supervisorInput.value = savedSupervisor;
+            const setYear = document.getElementById('setting-academic-year');
+            if (setYear) setYear.value = year;
 
-            const principalInput = document.getElementById('setting-principal-name');
-            if (principalInput) principalInput.value = savedPrincipal;
+            const setPin = document.getElementById('setting-pin-code');
+            if (setPin) setPin.value = localStorage.getItem('almajd_pin') || '2403511922';
+
+            const setSup = document.getElementById('setting-supervisor-name');
+            if (setSup) setSup.value = supervisorName;
+
+            const setPrin = document.getElementById('setting-principal-name');
+            if (setPrin) setPrin.value = principalName;
         }
 
         function handleLogin(e) {
             e.preventDefault();
-            const inputPin = document.getElementById('pin-input').value;
+            const pinInput = document.getElementById('pin-input').value;
             const savedPin = localStorage.getItem('almajd_pin') || '2403511922';
-            const errorEl = document.getElementById('pin-error');
+            const pinError = document.getElementById('pin-error');
 
-            if (inputPin === savedPin) {
+            if (pinInput === savedPin) {
                 const authModal = document.getElementById('auth-modal');
                 const mainApp = document.getElementById('main-app');
                 if (authModal) authModal.classList.add('hidden');
                 if (mainApp) mainApp.classList.remove('hidden');
-                if (errorEl) errorEl.classList.add('hidden');
+                if (pinError) pinError.classList.add('hidden');
             } else {
-                if (errorEl) errorEl.classList.remove('hidden');
+                if (pinError) pinError.classList.remove('hidden');
             }
         }
 
         function logout() {
             const authModal = document.getElementById('auth-modal');
             const mainApp = document.getElementById('main-app');
-            if (authModal) authModal.classList.remove('hidden');
             if (mainApp) mainApp.classList.add('hidden');
+            if (authModal) authModal.classList.remove('hidden');
             document.getElementById('pin-input').value = '';
         }
 
@@ -669,10 +677,10 @@
             const targetTab = document.getElementById(`tab-${tabId}`);
             if (targetTab) targetTab.classList.remove('hidden');
 
-            const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
+            const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
             if (activeBtn) activeBtn.classList.add('bg-amber-100', 'text-amber-900', 'font-black');
 
-            // إغلاق الشاشة الجانبية في الهواتف
+            // إغلاق الشاشة الجانبية في الجوال
             const sidebar = document.getElementById('sidebar');
             if (sidebar && window.innerWidth < 1024) sidebar.classList.add('translate-x-full');
         }
@@ -681,18 +689,13 @@
             const tbody = document.getElementById('teachers-table-body');
             if (!tbody) return;
 
-            if (teachersData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">لا يوجد معلمون مسجلون حالياً</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = teachersData.map(t => `
-                <tr class="hover:bg-slate-50 transition-all">
+            tbody.innerHTML = teachersData.map((t, i) => `
+                <tr class="hover:bg-slate-50">
                     <td class="p-4 font-bold text-slate-900">${t.name}</td>
-                    <td class="p-4 text-slate-600">${t.subject}</td>
-                    <td class="p-4 text-slate-500">${t.classes}</td>
+                    <td class="p-4 font-semibold text-slate-600">${t.subject}</td>
+                    <td class="p-4 font-semibold text-slate-500">${t.classes}</td>
                     <td class="p-4">
-                        <button onclick="deleteTeacher('${t.id}')" class="text-rose-600 hover:text-rose-800 p-1 font-bold text-xs">
+                        <button onclick="removeTeacher('${t.id}')" class="text-rose-600 hover:bg-rose-50 p-2 rounded-xl text-xs font-bold transition-all">
                             <i class="fa-solid fa-trash ml-1"></i> حذف
                         </button>
                     </td>
@@ -703,10 +706,24 @@
         function populateTeachersSelect() {
             const select = document.getElementById('visit-teacher');
             if (!select) return;
-            select.innerHTML = teachersData.map(t => `<option value="${t.name}">${t.name} - ${t.subject}</option>`).join('');
+
+            select.innerHTML = teachersData.map(t => `<option value="${t.name}">${t.name} (${t.subject})</option>`).join('');
         }
 
-        function deleteTeacher(id) {
+        function openTeacherModal() {
+            const name = prompt('أدخل اسم المعلم الجديد:');
+            if (!name) return;
+            const subject = prompt('أدخل التخصص / المادة الدراسية:');
+            const classes = prompt('أدخل الصفوف التي يدرسها:');
+
+            teachersData.push({ id: 't_' + Date.now(), name, subject: subject || '-', classes: classes || '-' });
+            localStorage.setItem('almajd_teachers', JSON.stringify(teachersData));
+            renderTeachers();
+            populateTeachersSelect();
+            updateStats();
+        }
+
+        function removeTeacher(id) {
             if (confirm('هل أنت تأكد من حذف هذا المعلم؟')) {
                 teachersData = teachersData.filter(t => t.id !== id);
                 localStorage.setItem('almajd_teachers', JSON.stringify(teachersData));
@@ -716,93 +733,74 @@
             }
         }
 
-        function openTeacherModal() {
-            const name = prompt('أدخل اسم المعلم الجديد:');
-            if (!name) return;
-            const subject = prompt('المادة الدراسية:') || 'عام';
-            const classes = prompt('الصفوف والمراحل:') || 'المرحلة المتوسطة';
-
-            const newTeacher = { id: 't_' + Date.now(), name, subject, classes };
-            teachersData.push(newTeacher);
-            localStorage.setItem('almajd_teachers', JSON.stringify(teachersData));
-            renderTeachers();
-            populateTeachersSelect();
-            updateStats();
-        }
-
         function renderRubricForm() {
             const container = document.getElementById('rubric-evaluation-container');
             if (!container) return;
 
-            let maxTotal = criteriaData.reduce((sum, item) => sum + (Number(item.maxScore) || 0), 0);
-            document.getElementById('visit-max-score').textContent = maxTotal;
-
-            // تجميع حسب المجال
-            const categories = {};
-            criteriaData.forEach(c => {
-                if (!categories[c.category]) categories[c.category] = [];
-                categories[c.category].push(c);
-            });
-
-            container.innerHTML = Object.keys(categories).map(cat => `
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                    <h5 class="font-black text-amber-700 text-xs border-b border-slate-200 pb-2">${cat}</h5>
-                    <div class="space-y-3">
-                        ${categories[cat].map(item => `
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                                <span class="text-xs font-bold text-slate-800">${item.name}</span>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" min="0" max="${item.maxScore}" value="${item.maxScore}" data-id="${item.id}" data-max="${item.maxScore}" onchange="calculateRubricScore()" class="rubric-score-input w-16 p-1.5 text-center bg-slate-100 rounded-lg border border-slate-300 font-bold text-xs focus:ring-2 focus:ring-amber-500 outline-none">
-                                    <span class="text-[10px] text-slate-400 font-bold">/ ${item.maxScore}</span>
-                                </div>
-                            </div>
-                        `).join('')}
+            let totalMax = 0;
+            container.innerHTML = criteriaData.map(c => {
+                totalMax += Number(c.maxScore);
+                return `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-200 gap-2">
+                        <div>
+                            <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">${c.category}</span>
+                            <h5 class="font-bold text-slate-800 text-xs mt-1">${c.name}</h5>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="number" min="0" max="${c.maxScore}" value="${c.maxScore}" onchange="calculateFormScore()" data-id="${c.id}" data-max="${c.maxScore}" class="rubric-score-input w-20 px-3 py-1.5 bg-white rounded-xl border border-slate-300 font-black text-amber-600 text-center text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <span class="text-xs font-bold text-slate-400">/ ${c.maxScore}</span>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
-            calculateRubricScore();
+            const maxScoreEl = document.getElementById('visit-max-score');
+            if (maxScoreEl) maxScoreEl.textContent = totalMax;
+            calculateFormScore();
         }
 
-        function calculateRubricScore() {
-            const inputs = document.querySelectorAll('.rubric-score-input');
+        function calculateFormScore() {
             let currentTotal = 0;
-            inputs.forEach(input => {
-                let val = Number(input.value) || 0;
-                let max = Number(input.dataset.max) || 0;
-                if (val > max) { val = max; input.value = max; }
-                if (val < 0) { val = 0; input.value = 0; }
-                currentTotal += val;
+            document.querySelectorAll('.rubric-score-input').forEach(input => {
+                currentTotal += Number(input.value) || 0;
             });
-            const totalEl = document.getElementById('visit-total-score');
-            if (totalEl) totalEl.textContent = currentTotal;
+            const totalScoreEl = document.getElementById('visit-total-score');
+            if (totalScoreEl) totalScoreEl.textContent = currentTotal;
         }
 
         function handleSaveVisit(e) {
             e.preventDefault();
             const teacherName = document.getElementById('visit-teacher').value;
+            const visitNumber = document.getElementById('visit-number').value || 1;
             const subject = document.getElementById('visit-subject').value;
             const className = document.getElementById('visit-class').value;
             const period = document.getElementById('visit-period').value;
             const notes = document.getElementById('visit-notes').value;
-            const totalScore = Number(document.getElementById('visit-total-score').textContent) || 0;
-            const maxScore = Number(document.getElementById('visit-max-score').textContent) || 100;
 
-            const scoresObj = {};
+            const scores = {};
+            let totalScore = 0;
+            let maxScore = 0;
+
             document.querySelectorAll('.rubric-score-input').forEach(input => {
-                scoresObj[input.dataset.id] = Number(input.value) || 0;
+                const id = input.getAttribute('data-id');
+                const val = Number(input.value) || 0;
+                const max = Number(input.getAttribute('data-max')) || 0;
+                scores[id] = val;
+                totalScore += val;
+                maxScore += max;
             });
 
             const newVisit = {
                 id: 'v_' + Date.now(),
                 teacherName,
+                visitNumber,
                 subject,
                 className,
                 period,
                 notes,
+                scores,
                 totalScore,
                 maxScore,
-                scores: scoresObj,
                 date: new Date().toLocaleDateString('ar-SA')
             };
 
@@ -819,27 +817,31 @@
             if (!container) return;
 
             if (visitsData.length === 0) {
-                container.innerHTML = '<div class="col-span-full text-center text-slate-400 py-8 bg-white rounded-2xl border border-slate-200">لا توجد زيارات محفوظة بالأرشيف حتى الآن</div>';
+                container.innerHTML = '<div class="col-span-full text-center py-8 text-slate-400 text-xs font-bold">لا توجد زيارات مسجلة بالأرشيف حتى الآن</div>';
                 return;
             }
 
             container.innerHTML = visitsData.map(v => `
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h4 class="font-black text-slate-900 text-base">${v.teacherName}</h4>
-                            <p class="text-xs text-slate-500 font-semibold">${v.subject} - ${v.className} (${v.period})</p>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-black text-slate-900 text-base">${v.teacherName}</h4>
+                                <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-md">الزيارة رقم (${v.visitNumber || 1})</span>
+                            </div>
+                            <p class="text-xs text-slate-500 font-semibold">${v.subject} - ${v.className}</p>
                         </div>
-                        <span class="text-xs font-black bg-amber-50 text-amber-700 px-3 py-1 rounded-xl border border-amber-200">
-                            ${v.totalScore} / ${v.maxScore || 100}
-                        </span>
+                        <span class="text-xs font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-xl border border-amber-200">${v.totalScore} / ${v.maxScore || 100}</span>
                     </div>
-                    <p class="text-xs text-slate-400 font-bold"><i class="fa-regular fa-calendar ml-1"></i> ${v.date}</p>
-                    <div class="flex gap-2 pt-2 border-t border-slate-100">
-                        <button onclick="viewVisitModal('${v.id}')" class="flex-1 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all">
-                            <i class="fa-solid fa-print ml-1"></i> عرض وطباعة
+                    <div class="text-[11px] text-slate-400 font-semibold flex justify-between border-t border-slate-100 pt-2">
+                        <span>${v.period}</span>
+                        <span>${v.date}</span>
+                    </div>
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="viewVisitModal('${v.id}')" class="flex-1 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-eye text-amber-400"></i> عرض وطباعة
                         </button>
-                        <button onclick="deleteVisit('${v.id}')" class="px-3 py-2 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold hover:bg-rose-100 transition-all">
+                        <button onclick="deleteVisit('${v.id}')" class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-bold border border-rose-100">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -856,6 +858,51 @@
             }
         }
 
+        function renderSettingsCriteriaEditor() {
+            const container = document.getElementById('settings-criteria-editor');
+            if (!container) return;
+
+            container.innerHTML = criteriaData.map((c, index) => `
+                <div class="flex flex-col sm:flex-row items-center gap-2 p-2 bg-white rounded-xl border border-slate-200">
+                    <input type="text" value="${c.category}" onchange="updateCriteriaItem(${index}, 'category', this.value)" placeholder="المجال" class="w-full sm:w-1/4 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold">
+                    <input type="text" value="${c.name}" onchange="updateCriteriaItem(${index}, 'name', this.value)" placeholder="اسم البند المعياري" class="w-full sm:w-1/2 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold">
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                        <input type="number" value="${c.maxScore}" onchange="updateCriteriaItem(${index}, 'maxScore', Number(this.value))" placeholder="الدرجة" class="w-16 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center">
+                        <button type="button" onclick="removeCriteriaItem(${index})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg text-xs font-bold">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCriteriaItem(index, field, value) {
+            criteriaData[index][field] = value;
+            localStorage.setItem('almajd_criteria', JSON.stringify(criteriaData));
+            renderRubricForm();
+        }
+
+        function removeCriteriaItem(index) {
+            if (confirm('هل أنت تأكد من حذف هذا البند من الاستمارة؟')) {
+                criteriaData.splice(index, 1);
+                localStorage.setItem('almajd_criteria', JSON.stringify(criteriaData));
+                renderSettingsCriteriaEditor();
+                renderRubricForm();
+            }
+        }
+
+        function addNewCriteriaRow() {
+            criteriaData.push({
+                id: 'c_' + Date.now(),
+                category: 'مجال جديد',
+                name: 'اسم بند التقييم الجديد',
+                maxScore: 10
+            });
+            localStorage.setItem('almajd_criteria', JSON.stringify(criteriaData));
+            renderSettingsCriteriaEditor();
+            renderRubricForm();
+        }
+
         function viewVisitModal(id) {
             const visit = visitsData.find(v => v.id === id);
             if (!visit) return;
@@ -870,74 +917,78 @@
             const moeLogo = localStorage.getItem('almajd_logo_moe') || DEFAULT_MOE_LOGO;
 
             card.innerHTML = `
-                <!-- الترويسة -->
-                <div class="flex justify-between items-center border-b-2 border-slate-900 pb-4">
-                    <img src="${schoolLogo}" class="h-16 object-contain">
-                    <div class="text-center space-y-1">
-                        <h2 class="font-black text-lg text-slate-900">${schoolName}</h2>
-                        <h3 class="font-bold text-sm text-slate-700">استمارة تقويم زيارة صفية</h3>
-                        <span class="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-0.5 rounded-full border border-amber-200">${academicYear}</span>
+                <!-- الترويسة المحدثة بدون تداخل -->
+                <div class="flex justify-between items-center border-b-2 border-slate-900 pb-3">
+                    <img src="${schoolLogo}" class="h-14 w-auto object-contain">
+                    <div class="text-center flex flex-col items-center justify-center space-y-1">
+                        <h2 class="font-black text-base text-slate-900 leading-tight">${schoolName}</h2>
+                        <h3 class="font-bold text-xs text-slate-800 leading-tight">استمارة تقويم زيارة صفية</h3>
+                        <div class="pt-1 flex items-center justify-center gap-2">
+                            <span class="text-[11px] font-bold text-amber-800 bg-amber-50 px-3 py-0.5 rounded-md border border-amber-200 inline-block">${academicYear}</span>
+                            <span class="text-[11px] font-black text-slate-900 bg-slate-100 px-3 py-0.5 rounded-md border border-slate-300 inline-block">الزيارة رقم (${visit.visitNumber || 1})</span>
+                        </div>
                     </div>
-                    <img src="${moeLogo}" class="h-16 object-contain">
+                    <img src="${moeLogo}" class="h-14 w-auto object-contain">
                 </div>
 
                 <!-- معلومات الزيارة -->
-                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-300 font-bold text-xs">
+                <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-300 font-bold text-xs my-1">
                     <div><span class="text-slate-500">اسم المعلم:</span> ${visit.teacherName}</div>
+                    <div><span class="text-slate-500">رقم الزيارة:</span> الزيارة رقم (${visit.visitNumber || 1}) خلال ${academicYear}</div>
                     <div><span class="text-slate-500">المادة الدراسية:</span> ${visit.subject}</div>
                     <div><span class="text-slate-500">الصف / الفصل:</span> ${visit.className}</div>
-                    <div><span class="text-slate-500">الحصة والتاريخ:</span> ${visit.period} - (${visit.date})</div>
+                    <div class="col-span-2"><span class="text-slate-500">الحصة والتاريخ:</span> ${visit.period} - (${visit.date})</div>
                 </div>
 
                 <!-- جدول الدرجات -->
-                <table class="w-full border-collapse border border-slate-400 text-xs text-right">
+                <table class="w-full border-collapse border border-slate-400 text-xs text-right my-1">
                     <thead>
                         <tr class="bg-slate-200 text-slate-900 border-b border-slate-400">
-                            <th class="border border-slate-400 p-2">البند المعياري للتقييم</th>
-                            <th class="border border-slate-400 p-2 w-24 text-center">الدرجة المستحقة</th>
-                            <th class="border border-slate-400 p-2 w-24 text-center">الدرجة العظمى</th>
+                            <th class="border border-slate-400 p-1.5">البند المعياري للتقييم</th>
+                            <th class="border border-slate-400 p-1.5 w-24 text-center">الدرجة المستحقة</th>
+                            <th class="border border-slate-400 p-1.5 w-24 text-center">الدرجة العظمى</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${criteriaData.map(c => `
                             <tr>
-                                <td class="border border-slate-300 p-2 font-bold text-slate-800">${c.name}</td>
-                                <td class="border border-slate-300 p-2 text-center font-black text-amber-700">${visit.scores && visit.scores[c.id] !== undefined ? visit.scores[c.id] : '-'}</td>
-                                <td class="border border-slate-300 p-2 text-center font-bold text-slate-500">${c.maxScore}</td>
+                                <td class="border border-slate-300 p-1.5 font-bold text-slate-800">${c.name}</td>
+                                <td class="border border-slate-300 p-1.5 text-center font-black text-amber-700">${visit.scores && visit.scores[c.id] !== undefined ? visit.scores[c.id] : '-'}</td>
+                                <td class="border border-slate-300 p-1.5 text-center font-bold text-slate-500">${c.maxScore}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                     <tfoot>
                         <tr class="bg-amber-100 font-black text-slate-900 border-t-2 border-slate-900">
-                            <td class="border border-slate-400 p-2">المجموع الكلي والنسبة المئوية</td>
-                            <td class="border border-slate-400 p-2 text-center text-amber-800 text-sm">${visit.totalScore}</td>
-                            <td class="border border-slate-400 p-2 text-center text-slate-700 text-sm">${visit.maxScore || 100}</td>
+                            <td class="border border-slate-400 p-1.5">المجموع الكلي والنسبة المئوية</td>
+                            <td class="border border-slate-400 p-1.5 text-center text-amber-800 text-sm">${visit.totalScore}</td>
+                            <td class="border border-slate-400 p-1.5 text-center text-slate-700 text-sm">${visit.maxScore || 100}</td>
                         </tr>
                     </tfoot>
                 </table>
 
                 <!-- التوصيات والملاحظات -->
-                <div class="space-y-2">
+                <div class="space-y-1 my-1">
                     <h4 class="font-black text-slate-900 text-xs">التوصيات والملاحظات:</h4>
-                    <p class="p-3 bg-slate-50 rounded-xl border border-slate-300 min-h-[60px] text-xs font-semibold text-slate-700">${visit.notes || 'لا توجد ملاحظات إضافية'}</p>
+                    <p class="p-2.5 bg-slate-50 rounded-xl border border-slate-300 min-h-[50px] text-xs font-semibold text-slate-700 leading-relaxed">${visit.notes || 'لا توجد ملاحظات إضافية'}</p>
                 </div>
 
-                <!-- التوقيعات الثلاثية متضمنة المعلم والمشرف والمدير -->
-                <div class="grid grid-cols-3 text-center font-bold text-xs pt-4 border-t border-slate-300 gap-2">
-                    <div class="space-y-2">
-                        <span class="block text-slate-500 font-semibold">المعلم المعني:</span>
-                        <div class="font-black text-slate-900">${visit.teacherName}</div>
-                        <div class="text-[10px] text-slate-400 pt-2">التوقيع: .....................</div>
+                <!-- التوقيعات الثلاثية -->
+                <div class="grid grid-cols-3 text-center font-bold text-xs pt-3 border-t border-slate-300 gap-2 mt-auto">
+                    <div class="space-y-1">
+                        <span class="block text-slate-500 font-semibold text-[11px]">المعلم المعني:</span>
+                        <div class="font-black text-slate-900 text-xs">${visit.teacherName}</div>
+                        <div class="text-[10px] text-slate-400 pt-1">التوقيع: .....................</div>
                     </div>
-                    <div class="space-y-2">
-                        <span class="block text-slate-500 font-semibold">المشرف التربوي / الزائر:</span>
-                        <div class="font-black text-slate-900">${supervisorName}</div>
-                        <div class="text-[10px] text-slate-400 pt-2">التوقيع: .....................</div>
+                    <div class="space-y-1">
+                        <span class="block text-slate-500 font-semibold text-[11px]">المشرف التربوي / الزائر:</span>
+                        <div class="font-black text-slate-900 text-xs">${supervisorName}</div>
+                        <div class="text-[10px] text-slate-400 pt-1">التوقيع: .....................</div>
                     </div>
-                    <div class="space-y-2">
-                        <span class="block text-slate-500 font-semibold">مدير المدرسة:</span>
-                        <div class="font-black text-slate-900">${principalName}</div>
-                        <div class="text-[10px] text-slate-400 pt-2">التوقيع: .....................</div>
+                    <div class="space-y-1">
+                        <span class="block text-slate-500 font-semibold text-[11px]">مدير المدرسة:</span>
+                        <div class="font-black text-slate-900 text-xs">${principalName}</div>
+                        <div class="text-[10px] text-slate-400 pt-1">التوقيع: .....................</div>
                     </div>
                 </div>
             `;
