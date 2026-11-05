@@ -1,5 +1,368 @@
-<!-- ... existing code ... -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة الزيارات الصفية السحابية - متوسطة المجد الجديد الأهلية</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-white">
+    <!-- نافذة تسجيل الدخول وحماية النظام -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+            <!-- نافذة الشعار والترحيب في شاشة الدخول -->
+            <div class="text-center mb-6">
+                <div class="flex justify-center items-center gap-4 mb-4">
+                    <img id="login-school-logo" src="https://placehold.co/120x120/1e293b/ffffff?text=المجد+الجديد" onerror="this.src='https://placehold.co/120x120/1e293b/ffffff?text=المجد+الجديد'" alt="شعار المدرسة" class="h-16 w-16 object-contain rounded-xl shadow-md border border-slate-700 p-1 bg-slate-800">
+                    <img id="login-moe-logo" src="https://placehold.co/120x120/0d9488/ffffff?text=وزارة+التعليم" onerror="this.src='https://placehold.co/120x120/0d9488/ffffff?text=وزارة+التعليم'" alt="شعار وزارة التعليم" class="h-16 w-16 object-contain rounded-xl shadow-md border border-slate-700 p-1 bg-slate-800">
+                </div>
+                <h2 class="text-xl font-black text-amber-400">منظومة الزيارات الصفية</h2>
+                <p class="text-xs text-slate-400 mt-1">متوسطة المجد الجديد الأهلية</p>
+                <p id="auth-year-text" class="text-xs text-amber-500 font-bold mt-1">الفصل الدراسي الأول 1448هـ</p>
+            </div>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-300 text-right">الرمز السري للدخول</label>
+                    <input type="password" id="pin-input" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white text-center font-black tracking-widest text-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all">
+                </div>
+                <p id="pin-error" class="text-xs text-rose-500 font-bold hidden text-center">الرمز السري غير صحيح، حاول مرة أخرى!</p>
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg shadow-amber-500/20 active:scale-98">
+                    <i class="fa-solid fa-lock-open ml-2"></i> دخول المنظومة
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- التطبيق الرئيسي -->
+    <div id="main-app" class="hidden min-h-screen flex flex-col">
+        <!-- الهيدر العلوي -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <img id="header-school-logo" src="https://placehold.co/120x60/0284c7/ffffff?text=المجد+الجديد" alt="شعار المدرسة" class="h-10 object-contain">
+                    <div>
+                        <h1 id="header-school-name" class="font-black text-slate-900 text-base md:text-lg">متوسطة المجد الجديد الأهلية</h1>
+                        <span id="header-academic-year" class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">الفصل الدراسي الأول 1448هـ</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div id="live-clock" class="hidden md:block text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+                        <i class="fa-regular fa-clock ml-1"></i> --:--:--
+                    </div>
+                    <img id="header-moe-logo" src="https://placehold.co/120x60/059669/ffffff?text=وزارة+التعليم" alt="وزارة التعليم" class="h-10 object-contain hidden sm:block">
+                    <button onclick="logout()" class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-all text-xs font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span class="hidden sm:inline">خروج</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- جسم المنظومة والتنقل -->
+        <div class="flex-1 max-w-7xl w-full mx-auto flex">
+            <!-- القائمة الجانبية -->
+            <aside id="sidebar" class="fixed lg:static inset-y-0 right-0 z-40 w-64 bg-white border-l border-slate-200 transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between">
+                <div class="p-4 space-y-6">
+                    <div class="text-center p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                        <img id="sidebar-school-logo" src="https://placehold.co/120x60/0284c7/ffffff?text=المجد+الجديد" alt="شعار" class="h-12 mx-auto object-contain">
+                        <p class="text-xs font-bold text-slate-700">منظومة الإشراف والزيارات</p>
+                    </div>
+                    <nav class="space-y-1">
+                        <button onclick="switchTab('dashboard')" data-tab="dashboard" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all bg-amber-100 text-amber-900 font-black">
+                            <i class="fa-solid fa-chart-pie w-5 text-center text-amber-600"></i> الرئيسية
+                        </button>
+                        <button onclick="switchTab('teachers')" data-tab="teachers" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all">
+                            <i class="fa-solid fa-chalkboard-user w-5 text-center text-amber-600"></i> دليل المعلمين
+                        </button>
+                        <button onclick="switchTab('new-visit')" data-tab="new-visit" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all">
+                            <i class="fa-solid fa-file-circle-plus w-5 text-center text-amber-600"></i> زيارة جديدة
+                        </button>
+                        <button onclick="switchTab('archive')" data-tab="archive" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all">
+                            <i class="fa-solid fa-box-archive w-5 text-center text-amber-600"></i> أرشيف الزيارات
+                        </button>
+                        <button onclick="switchTab('settings')" data-tab="settings" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all">
+                            <i class="fa-solid fa-sliders w-5 text-center text-amber-600"></i> الإعدادات والتعديل
+                        </button>
+                    </nav>
+                </div>
+                <div class="p-4 border-t border-slate-100 text-center text-xs text-slate-400 font-semibold">
+                    إصدار المنظومة 3.5 الإصدار السحابي
+                </div>
+            </aside>
+
+            <!-- محتوى التبويبات -->
+            <main class="flex-1 p-4 md:p-6 overflow-y-auto">
+                <!-- 1. الرئيسية -->
+                <section id="tab-dashboard" class="tab-content space-y-6">
+                    <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-6 md:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
+                        <div>
+                            <span id="dashboard-year-badge" class="text-xs font-bold bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full border border-amber-500/30 mb-3 inline-block">الفصل الدراسي الأول 1448هـ</span>
+                            <h2 class="text-2xl md:text-3xl font-black">أهلاً بك في منصة الزيارات الصفية</h2>
+                            <p class="text-sm text-slate-300 mt-1">مرحباً بك في نظام متابعة الأداء التعليمي لمتوسطة المجد الجديد الأهلية</p>
+                        </div>
+                        <button onclick="switchTab('new-visit')" class="px-5 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-sm rounded-xl transition-all shadow-lg active:scale-95">
+                            <i class="fa-solid fa-plus ml-1"></i> تسجيل زيارة جديدة
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold">إجمالي المعلمين</p>
+                                <h3 id="stat-teachers-count" class="text-2xl font-black text-slate-800">0</h3>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-clipboard-check"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold">الزيارات المنفذة</p>
+                                <h3 id="stat-visits-count" class="text-2xl font-black text-slate-800">0</h3>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold">متوسط التقييم العام</p>
+                                <h3 class="text-2xl font-black text-slate-800">95%</h3>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. دليل المعلمين -->
+                <section id="tab-teachers" class="tab-content hidden space-y-4">
+                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200">
+                        <h3 class="font-black text-slate-800 text-lg">سجل المعلمين المسجلين</h3>
+                        <button onclick="openTeacherModal()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all">
+                            <i class="fa-solid fa-plus ml-1"></i> إضافة معلم جديد
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right text-sm">
+                                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs">
+                                    <tr>
+                                        <th class="p-4">اسم المعلم</th>
+                                        <th class="p-4">التخصص / المادة</th>
+                                        <th class="p-4">الصفوف التي يدرسها</th>
+                                        <th class="p-4">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teachers-table-body" class="divide-y divide-slate-100">
+                                    <!-- سيتم ملؤها ديناميكياً -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. زيارة جديدة -->
+                <section id="tab-new-visit" class="tab-content hidden space-y-6">
+                    <form onsubmit="handleSaveVisit(event)" class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+                        <div class="border-b border-slate-100 pb-4 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-black text-slate-900 text-lg">نموذج زيارة صفية جديد</h3>
+                                <p class="text-xs text-slate-500 mt-1">تعبئة التقييم المباشر للحصة وتخزينها في السجل</p>
+                            </div>
+                            <span id="form-academic-year" class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-xl">الفصل الدراسي الأول 1448هـ</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">المعلم المعني</label>
+                                <select id="visit-teacher" required class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                    <!-- خيارات المعلمين -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">المادة الدراسية</label>
+                                <input type="text" id="visit-subject" required placeholder="مثال: الرياضيات" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">الصف / الفصل</label>
+                                <input type="text" id="visit-class" required placeholder="مثال: الأول متوسط (1)" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">الحصة الدراسية</label>
+                                <select id="visit-period" required class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">
+                                    <option value="الحصة الأولى">الحصة الأولى</option>
+                                    <option value="الحصة الثانية">الحصة الثانية</option>
+                                    <option value="الحصة الثالثة">الحصة الثالثة</option>
+                                    <option value="الحصة الرابعة">الحصة الرابعة</option>
+                                    <option value="الحصة الخامسة">الحصة الخامسة</option>
+                                    <option value="الحصة السادسة">الحصة السادسة</option>
+                                    <option value="الحصة السابعة">الحصة السابعة</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- بنود التقييم الديناميكية -->
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center bg-slate-100 p-3 rounded-xl">
+                                <h4 class="font-black text-slate-800 text-sm">بنود استمارة التقييم الصفية</h4>
+                                <span class="text-xs font-black text-slate-700 bg-white px-3 py-1 rounded-lg shadow-sm">
+                                    المجموع: <span id="visit-total-score" class="text-amber-600">0</span> / <span id="visit-max-score">100</span>
+                                </span>
+                            </div>
+                            <div id="rubric-evaluation-container" class="space-y-4">
+                                <!-- يتم التوليد عبر JavaScript -->
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">الملاحظات التوجيهية والتوصيات</label>
+                            <textarea id="visit-notes" rows="3" placeholder="أدخل أي ملاحظات أو نقاط قوة وتوصيات للمعلم..." class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-sm shadow-md transition-all">
+                            <i class="fa-solid fa-floppy-disk ml-1"></i> حفظ وتوثيق الزيارة
+                        </button>
+                    </form>
+                </section>
+
+                <!-- 4. أرشيف الزيارات -->
+                <section id="tab-archive" class="tab-content hidden space-y-4">
+                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200">
+                        <h3 class="font-black text-slate-800 text-lg">أرشيف الزيارات الصفية المنفذة</h3>
+                    </div>
+                    <div id="archive-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- زيارات الأرشيف -->
+                    </div>
+                </section>
+
+                <!-- 5. الإعدادات وتعديل البنود -->
+                <section id="tab-settings" class="tab-content hidden space-y-6">
+                    <form onsubmit="handleSaveAllSettings(event)" class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+                        <div class="border-b border-slate-100 pb-3">
+                            <h3 class="font-black text-slate-900 text-lg">إعدادات المنظومة الشاملة</h3>
+                            <p class="text-xs text-slate-500">يمكنك تعديل أي بيانات، سنة دراسية، مواعيد حصص، أو بنود تقييم من هنا وحفظها فوراً</p>
+                        </div>
+
+                        <!-- 1. البيانات العامة -->
+                        <div class="space-y-4">
+                            <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">البيانات الرسمية والتحقق</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المدرسة</label>
+                                    <input type="text" id="setting-school-name" value="متوسطة المجد الجديد الأهلية" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">السنة / الفصل الدراسي</label>
+                                    <input type="text" id="setting-academic-year" value="الفصل الدراسي الأول 1448هـ" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">الرمز السري للقفل (PIN)</label>
+                                    <input type="text" id="setting-pin-code" value="2403511922" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold text-center">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. الشعارات -->
+                        <div class="space-y-4 border-t border-slate-100 pt-4">
+                            <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">روابط الشعارات</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">رابط شعار المدرسة</label>
+                                    <input type="text" id="setting-logo-school" value="https://placehold.co/120x60/0284c7/ffffff?text=المجد+الجديد" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">رابط شعار وزارة التعليم</label>
+                                    <input type="text" id="setting-logo-moe" value="https://placehold.co/120x60/059669/ffffff?text=وزارة+التعليم" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. أوقات وأسماء الحصص -->
+                        <div class="space-y-4 border-t border-slate-100 pt-4">
+                            <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">قائمة الحصص المتاحة (افصل بينها بفاصلة)</h4>
+                            <textarea id="setting-periods-list" rows="2" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">الحصة الأولى, الحصة الثانية, الحصة الثالثة, الحصة الرابعة, الحصة الخامسة, الحصة السادسة, الحصة السابعة</textarea>
+                        </div>
+
+                        <!-- 4. محرر بنود التقييم -->
+                        <div class="space-y-4 border-t border-slate-100 pt-4">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-black text-amber-600 uppercase tracking-wider">مُحرر بنود استمارة التقييم (إضافة / تعديل / حذف)</h4>
+                                <button type="button" onclick="addNewCriterion()" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-all">
+                                    <i class="fa-solid fa-plus ml-1"></i> إضافة بند جديد
+                                </button>
+                            </div>
+                            <div id="criteria-editor-container" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar p-1">
+                                <!-- يتم التوليد عبر JavaScript -->
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-xl text-sm transition-all shadow-lg">
+                            <i class="fa-solid fa-check ml-1"></i> حفظ وتطبيق جميع الإعدادات
+                        </button>
+                    </form>
+                </section>
+            </main>
+        </div>
+
+        <!-- فوتر سلفي -->
+        <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500 font-semibold">
+            جميع الحقوق محفوظة © متوسطة المجد الجديد الأهلية 1448هـ
+        </footer>
+    </div>
+
+    <!-- نافذة إضافة معلم -->
+    <div id="teacher-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 space-y-4">
+            <h3 class="font-black text-slate-900 text-base">إضافة معلم جديد</h3>
+            <form onsubmit="handleSaveTeacher(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المعلم الثلاثي</label>
+                    <input type="text" id="modal-teacher-name" required class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">التخصص / المادة</label>
+                    <input type="text" id="modal-teacher-subject" required class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">الصفوف المسندة إليه</label>
+                    <input type="text" id="modal-teacher-grades" required placeholder="مثال: أول متوسط / ثاني متوسط" class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="flex-1 py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs">حفظ المعلم</button>
+                    <button type="button" onclick="closeTeacherModal()" class="py-2.5 px-4 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
         // المنطق البرمجي وحفظ البيانات
+        const DEFAULT_SCHOOL_LOGO = 'https://placehold.co/120x120/1e293b/ffffff?text=المجد+الجديد';
+        const DEFAULT_MOE_LOGO = 'https://placehold.co/120x120/0d9488/ffffff?text=وزارة+التعليم';
+
         let defaultCriteria = [
             { id: 'c1', category: 'التخطيط والتحضير', name: 'وضوح الأهداف السلوكية وصياغتها وتنوعها', maxScore: 5 },
             { id: 'c2', category: 'التخطيط والتحضير', name: 'الربط بالواقع والمعرفة السابقة للمتعلمين', maxScore: 5 },
@@ -20,6 +383,22 @@
         let visitsData = JSON.parse(localStorage.getItem('almajd_visits')) || [];
         let trashData = JSON.parse(localStorage.getItem('almajd_trash')) || [];
 
+        // تحضير الشعارات وضمان عدم وجود صورة مكسورة
+        function loadLogos() {
+            const savedSchoolLogo = localStorage.getItem('almajd_logo_school') || DEFAULT_SCHOOL_LOGO;
+            const savedMoeLogo = localStorage.getItem('almajd_logo_moe') || DEFAULT_MOE_LOGO;
+
+            ['header-school-logo', 'sidebar-school-logo', 'login-school-logo'].forEach(id => {
+                const img = document.getElementById(id);
+                if (img) img.src = savedSchoolLogo;
+            });
+
+            ['header-moe-logo', 'login-moe-logo'].forEach(id => {
+                const img = document.getElementById(id);
+                if (img) img.src = savedMoeLogo;
+            });
+        }
+
         // تحديث الساعة الحية
         function updateClock() {
             const clockEl = document.getElementById('live-clock');
@@ -34,14 +413,26 @@
             const pinInput = document.getElementById('pin-input').value;
             const savedPin = localStorage.getItem('almajd_pin') || '2403511922';
             const errorEl = document.getElementById('pin-error');
+            const authModal = document.getElementById('auth-modal');
+            const mainApp = document.getElementById('main-app');
 
             if (pinInput === savedPin) {
-                document.getElementById('auth-modal').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
+                if (authModal) authModal.classList.add('hidden');
+                if (mainApp) mainApp.classList.remove('hidden');
+                if (errorEl) errorEl.classList.add('hidden');
                 initAppData();
             } else {
                 if (errorEl) errorEl.classList.remove('hidden');
             }
+        };
+
+        window.logout = function() {
+            const authModal = document.getElementById('auth-modal');
+            const mainApp = document.getElementById('main-app');
+            if (mainApp) mainApp.classList.add('hidden');
+            if (authModal) authModal.classList.remove('hidden');
+            const pinInput = document.getElementById('pin-input');
+            if (pinInput) pinInput.value = '';
         };
 
         window.logout = function() {
@@ -147,7 +538,6 @@
         function saveAllLocalData() {
             localStorage.setItem('almajd_teachers', JSON.stringify(teachersData));
             localStorage.setItem('almajd_visits', JSON.stringify(visitsData));
-            localStorage.setItem('almajd_trash', JSON.stringify(trashData));
             localStorage.setItem('almajd_criteria', JSON.stringify(criteriaData));
             updateStats();
         }
@@ -345,6 +735,7 @@
         }
 
         function initAppData() {
+            loadLogos();
             renderTeachers();
             populateTeacherDropdown();
             renderEvaluationForm();
@@ -354,6 +745,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            loadLogos();
             setInterval(updateClock, 1000);
             updateClock();
         });
