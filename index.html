@@ -46,118 +46,120 @@
     <div id="main-app" class="hidden flex-1 flex flex-col">
         
         <!-- الترويسة العلوية -->
-        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs no-print">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-                <div class="flex items-center space-x-4 space-x-reverse">
-                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100">
-                        <i class="fa-solid fa-bars text-xl"></i>
-                    </button>
-                    <div class="flex items-center space-x-3 space-x-reverse">
-                        <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-700 font-bold text-xl shadow-inner">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                        </div>
-                        <div>
-                            <h1 id="header-school-name" class="font-black text-lg text-slate-900">متوسطة المجد الجديد الأهلية</h1>
-                            <p class="text-xs text-amber-600 font-semibold flex items-center gap-1">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span> متصل بالسحابة الآمنة
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs no-print">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
                 <div class="flex items-center space-x-3 space-x-reverse">
-                    <div id="live-clock" class="hidden md:block text-xs font-bold px-3 py-1.5 bg-slate-100 rounded-lg text-slate-600 border border-slate-200"></div>
-                    <button onclick="logout()" class="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all" title="قفل المنظومة">
-                        <i class="fa-solid fa-lock text-lg"></i>
-                    </button>
+                    <!-- شعارات الهيدر -->
+                    <div class="flex items-center gap-2">
+                        <img id="header-school-logo" src="https://i.ibb.co/vz44Zf4/almajd-logo.jpg" onerror="this.src='https://placehold.co/100x100/1e293b/ffffff?text=المجد'" alt="شعار المدرسة" class="h-10 w-auto object-contain rounded-lg">
+                        <img id="header-moe-logo" src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Ministry_of_Education_%28Saudi_Arabia%29_logo.svg" alt="شعار وزارة التعليم" class="h-10 w-auto object-contain hidden sm:block">
+                    </div>
+                    <div>
+                        <h1 id="header-school-name" class="font-black text-lg text-slate-900">متوسطة المجد الجديد الأهلية</h1>
+                        <p class="text-xs text-amber-600 font-semibold flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span> متصل بالسحابة الآمنة
+                        </p>
+                    </div>
                 </div>
             </div>
-        </header>
-
-        <!-- هيكل التطبيق (القائمة الجانبية والمحتوى) -->
-        <div class="flex-1 flex max-w-7xl w-full mx-auto">
             
-            <!-- القائمة الجانبية -->
-            <aside id="sidebar" class="fixed inset-y-0 right-0 z-40 w-64 bg-white border-l border-slate-200 transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col no-print">
-                <div class="p-4 border-b border-slate-100 flex items-center justify-between lg:hidden">
-                    <span class="font-bold text-slate-800">القائمة الرئيسية</span>
-                    <button onclick="toggleSidebar()" class="p-2 text-slate-500"><i class="fa-solid fa-xmark text-lg"></i></button>
-                </div>
-                <nav class="p-4 space-y-1.5 flex-1">
-                    <button onclick="switchTab('dashboard')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-slate-100" data-tab="dashboard">
-                        <i class="fa-solid fa-chart-pie w-6 text-amber-600"></i> الرئيسية واللوحة
-                    </button>
-                    <button onclick="switchTab('teachers')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-slate-100" data-tab="teachers">
-                        <i class="fa-solid fa-chalkboard-user w-6 text-blue-600"></i> سجل المعلمين
-                    </button>
-                    <button onclick="switchTab('new-visit')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-slate-100" data-tab="new-visit">
-                        <i class="fa-solid fa-file-circle-plus w-6 text-emerald-600"></i> تسجيل زيارة صفية
-                    </button>
-                    <button onclick="switchTab('archive')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-slate-100" data-tab="archive">
-                        <i class="fa-solid fa-box-archive w-6 text-indigo-600"></i> أرشيف الزيارات
-                    </button>
-                    <button onclick="switchTab('trash')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-slate-100" data-tab="trash">
-                        <i class="fa-solid fa-trash-arrow-up w-6 text-rose-600"></i> سلة المحذوفات
-                    </button>
-                    <button onclick="switchTab('settings')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-slate-100" data-tab="settings">
-                        <i class="fa-solid fa-gears w-6 text-slate-600"></i> إعدادات المنظومة
-                    </button>
-                </nav>
-                <div class="p-4 border-t border-slate-100 text-center text-xs text-slate-400">
-                    جميع البيانات محفوظة سحابياً ☁️
-                </div>
-            </aside>
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div id="live-clock" class="hidden md:block text-xs font-bold px-3 py-1.5 bg-slate-100 rounded-lg text-slate-600 border border-slate-200"></div>
+                <button onclick="logout()" class="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all" title="قفل المنظومة">
+                    <i class="fa-solid fa-lock text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
 
-            <!-- محتوى التبويبات -->
-            <main class="flex-1 p-4 lg:p-8 lg:mr-64 max-w-full overflow-x-hidden">
-                
-                <!-- تبويب الرئيسية -->
-                <div id="tab-dashboard" class="tab-content space-y-6">
-                    <div class="bg-gradient-to-l from-amber-600 to-amber-700 text-white rounded-3xl p-6 lg:p-8 shadow-xl relative overflow-hidden">
-                        <div class="relative z-10">
-                            <h2 class="text-2xl lg:text-3xl font-black mb-2">أهلاً بك في نظام الإشراف التربوي</h2>
-                            <p class="text-amber-100 text-sm max-w-xl">متابعة الزيارات الصفية، تقييم الأداء، وتوثيق الممارسات التعليمية بمتوسطة المجد الجديد الأهلية بكل دقة وسهولة.</p>
-                        </div>
-                        <div class="absolute -left-10 -bottom-10 opacity-10 text-9xl">
-                            <i class="fa-solid fa-school"></i>
-                        </div>
-                    </div>
+    <!-- هيكل التطبيق (القائمة الجانبية والمحتوى) -->
+    <div class="flex-1 flex max-w-7xl w-full mx-auto">
+        
+        <!-- القائمة الجانبية المحدثة بالشعارات والأزرار السلسة -->
+        <aside id="sidebar" class="fixed inset-y-0 right-0 z-40 w-64 bg-white border-l border-slate-200 transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col no-print shadow-lg lg:shadow-none">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img id="sidebar-school-logo" src="https://i.ibb.co/vz44Zf4/almajd-logo.jpg" onerror="this.src='https://placehold.co/100x100/1e293b/ffffff?text=المجد'" class="h-9 w-auto rounded">
+                    <span class="font-bold text-slate-800 text-sm">لوحة الإشراف</span>
+                </div>
+                <button onclick="toggleSidebar()" class="p-2 text-slate-500 lg:hidden"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
+                <button onclick="switchTab('dashboard')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-amber-50 hover:text-amber-700" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-pie w-6 text-amber-600 text-base"></i> <span>الرئيسية واللوحة</span>
+                </button>
+                <button onclick="switchTab('teachers')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-blue-50 hover:text-blue-700" data-tab="teachers">
+                    <i class="fa-solid fa-chalkboard-user w-6 text-blue-600 text-base"></i> <span>سجل المعلمين</span>
+                </button>
+                <button onclick="switchTab('new-visit')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-emerald-50 hover:text-emerald-700" data-tab="new-visit">
+                    <i class="fa-solid fa-file-circle-plus w-6 text-emerald-600 text-base"></i> <span>تسجيل زيارة صفية</span>
+                </button>
+                <button onclick="switchTab('archive')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-indigo-50 hover:text-indigo-700" data-tab="archive">
+                    <i class="fa-solid fa-box-archive w-6 text-indigo-600 text-base"></i> <span>أرشيف الزيارات</span>
+                </button>
+                <button onclick="switchTab('trash')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-rose-50 hover:text-rose-700" data-tab="trash">
+                    <i class="fa-solid fa-trash-arrow-up w-6 text-rose-600 text-base"></i> <span>سلة المحذوفات</span>
+                </button>
+                <button onclick="switchTab('settings')" class="tab-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl font-bold text-sm transition-all text-slate-600 hover:bg-slate-100 hover:text-slate-900" data-tab="settings">
+                    <i class="fa-solid fa-gears w-6 text-slate-600 text-base"></i> <span>إعدادات المنظومة</span>
+                </button>
+            </nav>
+            <div class="p-4 border-t border-slate-100 text-center text-xs text-slate-400 bg-slate-50">
+                جميع البيانات محفوظة سحابياً ☁️
+            </div>
+        </aside>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
-                            <div>
-                                <p class="text-slate-500 text-sm font-semibold">إجمالي المعلمين</p>
-                                <h3 id="stat-teachers-count" class="text-3xl font-black text-slate-900 mt-1">0</h3>
-                            </div>
-                            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                                <i class="fa-solid fa-chalkboard-user"></i>
-                            </div>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
-                            <div>
-                                <p class="text-slate-500 text-sm font-semibold">إجمالي الزيارات المسجلة</p>
-                                <h3 id="stat-visits-count" class="text-3xl font-black text-slate-900 mt-1">0</h3>
-                            </div>
-                            <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                                <i class="fa-solid fa-clipboard-check"></i>
-                            </div>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
-                            <div>
-                                <p class="text-slate-500 text-sm font-semibold">الحالة السحابية</p>
-                                <h3 class="text-lg font-black text-emerald-600 mt-1 flex items-center gap-2">
-                                    <i class="fa-solid fa-cloud text-xl"></i> متصل فوري
-                                </h3>
-                            </div>
-                            <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                                <i class="fa-solid fa-database"></i>
-                            </div>
-                        </div>
+        <!-- محتوى التبويبات -->
+        <main class="flex-1 p-4 lg:p-8 lg:mr-64 max-w-full overflow-x-hidden">
+            <!-- تبويب لوحة التحكم الرئيسية -->
+            <div id="tab-dashboard" class="tab-content space-y-6">
+                <div class="bg-gradient-to-r from-slate-900 to-amber-900 text-white p-6 lg:p-8 rounded-2xl shadow-xl relative overflow-hidden">
+                    <h2 class="text-2xl font-black mb-2">أهلاً بك في منظومة الزيارات الصفية</h2>
+                    <p class="text-amber-200 text-sm max-w-xl">لوحة الإشراف والمتابعة الصفية لمتوسطة المجد الجديد الأهلية - جميع البيانات والإحصائيات محفوظة ومحدثة.</p>
+                    <div class="absolute -left-10 -bottom-10 opacity-10 text-9xl">
+                        <i class="fa-solid fa-school"></i>
                     </div>
                 </div>
 
-                <!-- تبويب سجل المعلمين -->
-                <div id="tab-teachers" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-500 text-sm font-semibold">إجمالي المعلمين</p>
+                            <h3 id="stat-teachers-count" class="text-3xl font-black text-slate-900 mt-1">0</h3>
+                        </div>
+                        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-500 text-sm font-semibold">إجمالي الزيارات المسجلة</p>
+                            <h3 id="stat-visits-count" class="text-3xl font-black text-slate-900 mt-1">0</h3>
+                        </div>
+                        <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-500 text-sm font-semibold">الحالة السحابية</p>
+                            <h3 class="text-lg font-black text-emerald-600 mt-1 flex items-center gap-2">
+                                <i class="fa-solid fa-cloud text-xl"></i> متصل فوري
+                            </h3>
+                        </div>
+                        <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تبويب سجل المعلمين -->
+            <div id="tab-teachers" class="tab-content hidden space-y-6">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                         <div>
                             <h2 class="text-xl font-black text-slate-900">سجل المعلمين</h2>
@@ -254,22 +256,61 @@
                     </div>
                 </div>
 
-                <!-- تبويب إعدادات المنظومة -->
+                <!-- تبويب إعدادات المنظومة المطور -->
                 <div id="tab-settings" class="tab-content hidden space-y-6">
-                    <div class="bg-white p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-200 max-w-2xl mx-auto space-y-6">
-                        <div>
-                            <h2 class="text-xl font-black text-slate-900 mb-1">إعدادات المنظومة</h2>
-                            <p class="text-slate-500 text-sm">تخصيص بيانات المدرسة والربط السحابي</p>
-                        </div>
-                        <div class="space-y-4">
+                    <div class="bg-white p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-200 max-w-3xl mx-auto space-y-6">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">اسم المدرسة الرسمي</label>
-                                <input type="text" id="setting-school-name" value="متوسطة المجد الجديد الأهلية" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
+                                <h2 class="text-xl font-black text-slate-900 mb-1">إعدادات المنظومة والشكل</h2>
+                                <p class="text-slate-500 text-sm">تعديل كافة نصوص وعناصر المنظومة بدون تعديل الأكواد</p>
                             </div>
-                            <button onclick="saveSettings()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md transition-all">
-                                حفظ الإعدادات سحابياً
-                            </button>
+                            <i class="fa-solid fa-sliders text-2xl text-amber-600"></i>
                         </div>
+                        
+                        <form onsubmit="handleSaveAllSettings(event)" class="space-y-6">
+                            <!-- بيانات المدرسة الأساسية -->
+                            <div class="space-y-4">
+                                <h3 class="text-sm font-bold text-slate-800 border-r-4 border-amber-500 pr-2">البيانات الرسمية والتحقق</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">اسم المدرسة الرسمي</label>
+                                        <input type="text" id="setting-school-name" value="متوسطة المجد الجديد الأهلية" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">الرمز السري لدخول المنظومة</label>
+                                        <input type="text" id="setting-pin-code" value="2403511922" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- الشعارات والصور -->
+                            <div class="space-y-4">
+                                <h3 class="text-sm font-bold text-slate-800 border-r-4 border-blue-500 pr-2">روابط الشعارات والأنماط البصرية</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">رابط شعار المدرسة (Image URL)</label>
+                                        <input type="text" id="setting-logo-school" value="https://i.ibb.co/vz44Zf4/almajd-logo.jpg" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">رابط شعار وزارة التعليم</label>
+                                        <input type="text" id="setting-logo-moe" value="https://upload.wikimedia.org/wikipedia/commons/5/5f/Ministry_of_Education_%28Saudi_Arabia%29_logo.svg" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- مواعيد الحصص -->
+                            <div class="space-y-4">
+                                <h3 class="text-sm font-bold text-slate-800 border-r-4 border-emerald-500 pr-2">تخصيص الحصص الدراسية</h3>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">الحصص المتاحة (افصل بين كل حصة بفاصلة)</label>
+                                    <input type="text" id="setting-periods-list" value="الحصة الأولى, الحصة الثانية, الحصة الثالثة, الحصة الرابعة, الحصة الخامسة, الحصة السادسة, الحصة السابعة" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-slate-50">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> حفظ وتطبيق كل الإعدادات سحابياً
+                            </button>
+                        </form>
                     </div>
                 </div>
 
@@ -302,78 +343,67 @@
         </div>
     </div>
 
-    <!-- شفرة الربط السحابي (Firebase 11) ومنطق التطبيق -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- المنطق البرمجي وحفظ البيانات -->
+    <script>
+        // الذاكرة التلقائية للنظام
+        let teachersData = JSON.parse(localStorage.getItem('almajd_teachers')) || [
+            { id: '1', name: 'أحمد محمود العلي', subject: 'الرياضيات', grades: 'أول متوسط / ثاني متوسط' },
+            { id: '2', name: 'خالد عبدالله السعيد', subject: 'العلوم', grades: 'ثالث متوسط' }
+        ];
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'almajd-school-system-v1';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyDummyKeyForCloudFallback",
-            authDomain: "cloud.firebaseapp.com",
-            projectId: "almajd-cloud",
-            storageBucket: "almajd.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123:web:abc"
+        let visitsData = JSON.parse(localStorage.getItem('almajd_visits')) || [];
+        let trashData = JSON.parse(localStorage.getItem('almajd_trash')) || [];
+
+        // حفظ البيانات محلياً بسلاسة
+        function saveAllLocalData() {
+            localStorage.setItem('almajd_teachers', JSON.stringify(teachersData));
+            localStorage.setItem('almajd_visits', JSON.stringify(visitsData));
+            localStorage.setItem('almajd_trash', JSON.stringify(trashData));
+            updateStats();
+        }
+
+        // حفظ وتطبيق كل الإعدادات
+        window.handleSaveAllSettings = function(e) {
+            e.preventDefault();
+            const schoolName = document.getElementById('setting-school-name').value;
+            const pinCode = document.getElementById('setting-pin-code').value;
+            const logoSchool = document.getElementById('setting-logo-school').value;
+            const logoMoe = document.getElementById('setting-logo-moe').value;
+            const periodsText = document.getElementById('setting-periods-list').value;
+
+            // تحديث الواجهة فوراً
+            document.getElementById('header-school-name').textContent = schoolName;
+            document.getElementById('header-school-logo').src = logoSchool;
+            document.getElementById('sidebar-school-logo').src = logoSchool;
+            document.getElementById('header-moe-logo').src = logoMoe;
+
+            // حفظ الرمز السري في الإعدادات
+            localStorage.setItem('almajd_pin', pinCode);
+            localStorage.setItem('almajd_school_name', schoolName);
+            localStorage.setItem('almajd_logo_school', logoSchool);
+            localStorage.setItem('almajd_logo_moe', logoMoe);
+
+            // تحديث قائمة الحصص في نموذج الزيارة
+            const periodSelect = document.getElementById('visit-period');
+            if (periodSelect && periodsText) {
+                const periods = periodsText.split(',').map(p => p.trim());
+                periodSelect.innerHTML = periods.map(p => `<option value="${p}">${p}</option>`).join('');
+                localStorage.setItem('almajd_periods', periodsText);
+            }
+
+            alert('تم حفظ وتطبيق جميع الإعدادات بنجاح في المنظومة!');
         };
-
-        let app, db, auth, currentUser = null;
-        let teachersData = [];
-        let visitsData = [];
-        let trashData = [];
-
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            
-            const initAuth = async () => {
-                try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                    currentUser = auth.currentUser;
-                    startCloudSync();
-                } catch (e) {
-                    console.error("Auth error:", e);
-                }
-            };
-            initAuth();
-        } catch (e) {
-            console.error("Firebase init error:", e);
-        }
-
-        function startCloudSync() {
-            if (!currentUser) return;
-
-            // جلب المعلمين سحابياً
-            const teachersRef = collection(db, 'artifacts', appId, 'public', 'data', 'teachers');
-            onSnapshot(teachersRef, (snapshot) => {
-                teachersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderTeachers();
-                populateTeacherDropdown();
-                updateStats();
-            }, (err) => console.error(err));
-
-            // جلب الزيارات سحابياً
-            const visitsRef = collection(db, 'artifacts', appId, 'public', 'data', 'visits');
-            onSnapshot(visitsRef, (snapshot) => {
-                visitsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderArchive();
-                updateStats();
-            }, (err) => console.error(err));
-        }
 
         window.handleLogin = function(e) {
             e.preventDefault();
             const pin = document.getElementById('pin-input').value;
-            if (pin === '2403511922') {
+            const savedPin = localStorage.getItem('almajd_pin') || '2403511922';
+            
+            if (pin === savedPin) {
                 document.getElementById('auth-modal').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 switchTab('dashboard');
+                initAppData();
             } else {
                 document.getElementById('pin-error').classList.remove('hidden');
             }
@@ -389,12 +419,19 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('bg-amber-50', 'text-amber-700', 'font-black'));
             
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
-            if (activeBtn) activeBtn.classList.add('bg-amber-50', 'text-amber-700', 'font-black');
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
             
-            if (window.innerWidth < 1024) {
-                document.getElementById('sidebar').classList.add('translate-x-full');
+            const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-amber-50', 'text-amber-700', 'font-black');
+            }
+            
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && window.innerWidth < 1024) {
+                sidebar.classList.add('translate-x-full');
             }
         };
 
@@ -412,22 +449,21 @@
             document.getElementById('teacher-modal').classList.remove('flex');
         };
 
-        window.handleSaveTeacher = async function(e) {
+        window.handleSaveTeacher = function(e) {
             e.preventDefault();
             const name = document.getElementById('modal-teacher-name').value;
             const subject = document.getElementById('modal-teacher-subject').value;
             const grades = document.getElementById('modal-teacher-grades').value;
 
-            if (db && currentUser) {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'teachers'), {
-                    name, subject, grades, createdAt: new Date().toISOString()
-                });
-            }
+            teachersData.push({ id: Date.now().toString(), name, subject, grades });
+            saveAllLocalData();
+            renderTeachers();
+            populateTeacherDropdown();
             closeTeacherModal();
             e.target.reset();
         };
 
-        window.handleSaveVisit = async function(e) {
+        window.handleSaveVisit = function(e) {
             e.preventDefault();
             const teacherId = document.getElementById('visit-teacher').value;
             const subject = document.getElementById('visit-subject').value;
@@ -437,16 +473,18 @@
             
             const teacherObj = teachersData.find(t => t.id === teacherId);
 
-            if (db && currentUser) {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'visits'), {
-                    teacherName: teacherObj ? teacherObj.name : 'غير محدد',
-                    subject, className, period, notes,
-                    date: new Date().toLocaleDateString('ar-SA')
-                });
-                alert('تم حفظ الزيارة بنجاح في السحابة!');
-                switchTab('archive');
-                e.target.reset();
-            }
+            visitsData.unshift({
+                id: Date.now().toString(),
+                teacherName: teacherObj ? teacherObj.name : 'غير محدد',
+                subject, className, period, notes,
+                date: new Date().toLocaleDateString('ar-SA')
+            });
+
+            saveAllLocalData();
+            renderArchive();
+            alert('تم حفظ الزيارة بنجاح في السجل!');
+            switchTab('archive');
+            e.target.reset();
         };
 
         function renderTeachers() {
@@ -465,10 +503,11 @@
             `).join('');
         }
 
-        window.deleteTeacher = async function(id) {
-            if (db && currentUser) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'teachers', id));
-            }
+        window.deleteTeacher = function(id) {
+            teachersData = teachersData.filter(t => t.id !== id);
+            saveAllLocalData();
+            renderTeachers();
+            populateTeacherDropdown();
         };
 
         function populateTeacherDropdown() {
@@ -480,7 +519,7 @@
         function renderArchive() {
             const container = document.getElementById('archive-list');
             if (!container) return;
-            container.innerHTML = visitsData.length === 0 ? '<p class="text-slate-400 text-center col-span-2">لا توجد زيارات مسجلة سحابياً حتى الآن</p>' :
+            container.innerHTML = visitsData.length === 0 ? '<p class="text-slate-400 text-center col-span-2">لا توجد زيارات مسجلة حتى الآن</p>' :
             visitsData.map(v => `
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3">
                     <div class="flex justify-between items-start">
@@ -512,11 +551,12 @@
             if (clockEl) clockEl.textContent = now.toLocaleDateString('ar-SA') + ' - ' + now.toLocaleTimeString('ar-SA');
         }
 
-        window.saveSettings = function() {
-            const name = document.getElementById('setting-school-name').value;
-            document.getElementById('header-school-name').textContent = name;
-            alert('تم حفظ الإعدادات بنجاح!');
-        };
+        function initAppData() {
+            renderTeachers();
+            populateTeacherDropdown();
+            renderArchive();
+            updateStats();
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             setInterval(updateClock, 1000);
