@@ -13,42 +13,6 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase SDKs with Cloud Sync Support -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSy@6df/iSdUcHORrx1JcNOnkV-KuvGlIzNY",
-            authDomain: "almajd-visits.firebaseapp.com",
-            projectId: "almajd-visits",
-            storageBucket: "almajd-visits.appspot.com",
-            messagingSenderId: "28247058785",
-            appId: "1:28247058785:web:h587c5dd84aecbcBF33d28",
-            measurementId: "G-4NF@NXCVNP"
-        };
-
-        let dbInstance = null;
-        let isCloudConnected = false;
-        try {
-            const app = initializeApp(firebaseConfig);
-            dbInstance = getFirestore(app);
-            isCloudConnected = true;
-        } catch (e) {
-            console.warn("Firebase cloud init fallback:", e);
-        }
-
-        window.db = dbInstance;
-        window.isCloudConnected = isCloudConnected;
-        window.FirebaseSDK = { 
-            collection, 
-            getDocs, 
-            setDoc, 
-            doc, 
-            deleteDoc
-        };
-    </script>
-
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; color: #1e293b; }
         .print-only { display: none; }
@@ -56,14 +20,14 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 0.3cm;
+                margin: 0.8cm;
             }
             body, html { 
                 background: white !important; 
                 color: #000 !important;
-                font-size: 9.5px !important;
+                font-size: 11px !important;
                 height: 100% !important;
-                overflow: hidden !important;
+                overflow: visible !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -71,32 +35,25 @@
             .print-only { display: block !important; }
             
             #print-modal {
-                position: fixed !important;
+                position: absolute !important;
                 top: 0 !important;
                 left: 0 !important;
-                width: 100vw !important;
-                height: 100vh !important;
+                width: 100% !important;
+                height: auto !important;
                 background: white !important;
                 z-index: 99999 !important;
                 padding: 0 !important;
                 margin: 0 !important;
-                overflow: hidden !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
+                display: block !important;
             }
             #print-content {
                 width: 100% !important;
-                max-width: 19cm !important;
-                height: auto !important;
-                max-height: 27cm !important;
-                padding: 10px !important;
-                margin: 0 auto !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
                 background: white !important;
                 box-shadow: none !important;
                 border: none !important;
-                transform: scale(0.92);
-                transform-origin: top center;
             }
         }
     </style>
@@ -139,8 +96,8 @@
             </div>
 
             <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 text-center">
-                <p class="text-xs font-bold text-slate-200">الإصدار السحابي المتزامن</p>
-                <p class="text-[10px] text-slate-400 mt-1">حفظ مباشر عبر سحابة المجد</p>
+                <p class="text-xs font-bold text-slate-200">النسخة الرسمية المطورة</p>
+                <p class="text-[10px] text-slate-400 mt-1">حفظ محلي وسحابي متكامل</p>
             </div>
         </aside>
 
@@ -153,8 +110,8 @@
                     <h2 id="page-title" class="text-base sm:text-xl font-bold text-slate-800 truncate">الرئيسية والإحصائيات العامة</h2>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span id="sync-status" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> متزامن سحابياً
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> النظام جاهز
                     </span>
                     <div class="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold shadow">المجد</div>
                 </div>
@@ -165,19 +122,61 @@
                 
                 <!-- 1. الرئيسية -->
                 <div id="tab-dashboard" class="tab-content space-y-6">
-                    <!-- بطاقة الترحيب -->
                     <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-900 text-white p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
                         <div class="space-y-2 text-center md:text-right">
                             <span class="px-3 py-1 bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-bold dashboard-semester-label">الفصل الدراسي الأول 1448هـ</span>
                             <h2 class="text-xl sm:text-3xl font-black">منظومة الإشراف والزيارات الصفية</h2>
-                            <p class="text-slate-300 text-xs sm:text-sm max-w-xl">متابعة الأداء التعليمي، توثيق الزيارات، وتحليل مستوى الكفاءة المهنية للمعلمين سحابياً وبدقة عالية.</p>
+                            <p class="text-slate-300 text-xs sm:text-sm max-w-xl">متابعة الأداء التعليمي، توثيق الزيارات، وتحليل مستوى الكفاءة المهنية للمعلمين بدقة واحترافية عالية.</p>
                         </div>
                         <button onclick="openNewVisitModal()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-emerald-900/40 transition flex items-center gap-2.5 text-sm whitespace-nowrap">
                             <i class="fa-solid fa-plus-circle text-lg"></i> تسجيل زيارة صفية جديدة
                         </button>
                     </div>
 
-                    <!-- إحصائيات سريعة -->
+                    <!-- شريط الوقت والتاريخ والمناسبات المباشر -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg"><i class="fa-solid fa-calendar-days"></i></div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-bold block">التاريخ الهجري</span>
+                                <span id="live-hijri-date" class="text-xs font-bold text-slate-800">جاري التحميل...</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg"><i class="fa-solid fa-clock"></i></div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-bold block">الوقت الحالي</span>
+                                <span id="live-digital-clock" class="text-xs font-bold text-slate-800">00:00:00</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg"><i class="fa-solid fa-bell"></i></div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-bold block">الحصة / الفترة الدراسية</span>
+                                <span id="live-active-period" class="text-xs font-bold text-slate-800">جاري التحقق...</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg"><i class="fa-solid fa-school"></i></div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-bold block">الوضع التعليمي</span>
+                                <span class="text-xs font-bold text-emerald-600">انتظام دراسي كامل</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- قسم المناسبات والإجازات الرسمية -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-sm">أبرز المناسبات والإجازات في التقويم الدراسي</h3>
+                                <p class="text-slate-500 text-xs">الفعاليات الوطنية والإجازات الرسمية المعتمدة</p>
+                            </div>
+                            <span class="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200">التقويم المدرسي</span>
+                        </div>
+                        <div id="holidays-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                             <div>
@@ -202,7 +201,6 @@
                         </div>
                     </div>
 
-                    <!-- الرسوم البيانية -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                             <h3 class="font-bold text-slate-800 mb-4 text-sm">مستوى الأداء حسب مجالات التقويم</h3>
@@ -220,7 +218,7 @@
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                         <div>
                             <h3 class="font-bold text-slate-800 text-base">سجل الزيارات الصفية المنفذة</h3>
-                            <p class="text-slate-500 text-xs">عرض ومتابعة بطاقات الزيارات المسجلة وطباعتها</p>
+                            <p class="text-slate-500 text-xs">عرض ومتابعة بطاقات الزيارات المسجلة وطباعتها وإرسالها</p>
                         </div>
                         <button onclick="openNewVisitModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow">
                             <i class="fa-solid fa-plus"></i> زيارة جديدة
@@ -305,7 +303,7 @@
                     </div>
                 </div>
 
-                <!-- 5. الإعدادات -->
+                <!-- 5. الإعدادات والبنود -->
                 <div id="tab-settings" class="tab-content hidden space-y-6">
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6 max-w-4xl mx-auto">
                         <div class="border-b border-slate-200 pb-4">
@@ -340,9 +338,22 @@
                             <button onclick="saveGeneralSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">حفظ التعديلات العامة</button>
                         </div>
 
+                        <!-- إدارة بنود التقييم -->
+                        <div class="pt-6 border-t border-slate-200 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">بنود ومعايير التقويم الصفي المعتمدة</h4>
+                                    <p class="text-slate-500 text-xs">عرض وتعديل بنود الزيارة الصفية</p>
+                                </div>
+                                <button onclick="openCriteriaModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-plus"></i> إضافة بند</button>
+                            </div>
+                            <div id="criteria-container" class="space-y-2 max-h-96 overflow-y-auto"></div>
+                        </div>
+
                         <!-- النسخ الاحتياطي اليدوي والتصدير -->
                         <div class="pt-6 border-t border-slate-200 space-y-4">
-                            <h4 class="font-bold text-slate-800 text-sm">النسخ الاحتياطي اليدوي ونقل البيانات</h4>
+                            <h4 class="font-bold text-slate-800 text-sm">النسخ الاحتياطي ونقل البيانات بين الأجهزة</h4>
+                            <p class="text-slate-500 text-xs">يمكنك تصدير نسخة احتياطية واستيرادها في أي جوال أو جهاز آخر لضمان بقاء بياناتك دائمًا معك.</p>
                             <div class="flex flex-wrap gap-3">
                                 <button onclick="exportBackupJSON()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow">
                                     <i class="fa-solid fa-file-arrow-down"></i> تصدير النسخة الاحتياطية (JSON)
@@ -351,13 +362,6 @@
                                     <i class="fa-solid fa-file-arrow-up"></i> استيراد نسخة احتياطية <input type="file" accept=".json" class="hidden" onchange="importBackupJSON(event)">
                                 </label>
                             </div>
-                        </div>
-
-                        <!-- إدارة مواعيد الحصص -->
-                        <div class="pt-6 border-t border-slate-200 space-y-4">
-                            <h4 class="font-bold text-slate-800 text-sm">مواعيد الحصص اليومية</h4>
-                            <div id="periods-settings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
-                            <button onclick="savePeriodSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-xl text-xs">حفظ مواعيد الحصص</button>
                         </div>
                     </div>
                 </div>
@@ -391,7 +395,7 @@
                 </div>
 
                 <div class="border-t border-slate-200 pt-4 mt-2">
-                    <h4 class="font-bold text-slate-800 text-sm mb-3">بنود ومعايير التقويم الصفي</h4>
+                    <h4 class="font-bold text-slate-800 text-sm mb-3">بنود ومعايير التقويم الصفي (إجبارية التعبئة)</h4>
                     <div id="evaluation-form-container" class="space-y-3"></div>
                 </div>
             </div>
@@ -421,13 +425,38 @@
                     <input type="text" id="teacher-subject" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-slate-50">
                 </div>
                 <div>
-                    <label class="font-bold text-slate-700 block mb-1">رقم الجوال (للتيليجرام / الواتساب)</label>
+                    <label class="font-bold text-slate-700 block mb-1">رقم الجوال (لإرسال الواتساب)</label>
                     <input type="text" id="teacher-phone" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-slate-50" placeholder="9665xxxxxxxx">
                 </div>
             </div>
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeTeacherModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">إلغاء</button>
                 <button onclick="saveTeacher()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة بند تقييم -->
+    <div id="criteria-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-base text-slate-800">إضافة بند تقييم جديد</h3>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">المجال الرئيسي</label>
+                    <input type="text" id="crit-domain" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-slate-50" placeholder="مثال: المجال الثاني: إجراءات التدريس">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">اسم المعيار / البند</label>
+                    <input type="text" id="crit-name" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-slate-50">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">الدرجة القصوى</label>
+                    <input type="number" id="crit-max" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-slate-50" value="5">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeCriteriaModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">إلغاء</button>
+                <button onclick="saveCriteria()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow">حفظ البند</button>
             </div>
         </div>
     </div>
@@ -476,7 +505,7 @@
                     <button onclick="closePrintModal()" class="bg-slate-800 hover:bg-slate-700 text-white p-1.5 px-3 rounded-lg text-xs"><i class="fa-solid fa-xmark"></i> إغلاق</button>
                 </div>
             </div>
-            <div class="p-6 overflow-y-auto flex-1 bg-white" id="print-content"></div>
+            <div class="p-4 overflow-y-auto flex-1 bg-white" id="print-content"></div>
         </div>
     </div>
 
@@ -520,6 +549,7 @@
             ministryLogo: "",
             schoolLogo: DEFAULT_SCHOOL_LOGO_SVG
         };
+
         let periodTimes = [
             { id: 1, name: "الحصة الأولى", start: "07:00", end: "07:45" },
             { id: 2, name: "الحصة الثانية", start: "07:45", end: "08:30" },
@@ -535,6 +565,61 @@
         let levelsChartInstance = null;
         let homeDomainsChartInstance = null;
         let homeLevelsChartInstance = null;
+
+        function renderCriteria() {
+            const container = document.getElementById('criteria-container');
+            if (!container) return;
+            container.innerHTML = '';
+            let currentDomain = '';
+            criteria.forEach(c => {
+                if (c.domain !== currentDomain) {
+                    currentDomain = c.domain;
+                    container.innerHTML += `<div class="font-bold text-slate-800 bg-slate-100 p-3 rounded-xl mt-4 text-xs">${currentDomain}</div>`;
+                }
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl mt-2 text-xs">
+                        <span class="flex-1 font-medium">${c.name}</span>
+                        <span class="px-3 py-1 bg-slate-100 rounded-lg text-slate-600 font-bold ml-4">الدرجة: ${c.max}</span>
+                        <button onclick="deleteCriteria('${c.id}')" class="text-red-500 hover:text-red-700 px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                    </div>`;
+            });
+        }
+        window.renderCriteria = renderCriteria;
+
+        function openCriteriaModal() {
+            document.getElementById('crit-domain').value = '';
+            document.getElementById('crit-name').value = '';
+            document.getElementById('crit-max').value = '5';
+            document.getElementById('criteria-modal').classList.remove('hidden');
+        }
+        window.openCriteriaModal = openCriteriaModal;
+
+        function closeCriteriaModal() {
+            document.getElementById('criteria-modal').classList.add('hidden');
+        }
+        window.closeCriteriaModal = closeCriteriaModal;
+
+        function saveCriteria() {
+            const domain = document.getElementById('crit-domain').value;
+            const name = document.getElementById('crit-name').value;
+            const max = parseFloat(document.getElementById('crit-max').value) || 5;
+
+            if (!domain || !name) { alert('يرجى تعبئة جميع الحقول'); return; }
+
+            criteria.push({ id: 'c_' + Date.now(), domain, name, max });
+            saveData();
+            closeCriteriaModal();
+            renderCriteria();
+            alert('تم إضافة البند بنجاح!');
+        }
+        window.saveCriteria = saveCriteria;
+
+        function deleteCriteria(id) {
+            criteria = criteria.filter(x => String(x.id) !== String(id));
+            saveData();
+            renderCriteria();
+        }
+        window.deleteCriteria = deleteCriteria;
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -573,108 +658,30 @@
         }
         window.toggleSidebar = toggleSidebar;
 
-        function loadLocalData() {
+        function loadData() {
             try {
                 const sTeachers = localStorage.getItem('almajd_teachers');
                 const sVisits = localStorage.getItem('almajd_visits');
                 const sCriteria = localStorage.getItem('almajd_criteria');
                 const sSettings = localStorage.getItem('almajd_settings');
-                const sPeriods = localStorage.getItem('almajd_periods');
 
                 if (sTeachers) teachers = JSON.parse(sTeachers);
                 if (sVisits) visits = JSON.parse(sVisits);
                 if (sCriteria) criteria = JSON.parse(sCriteria);
                 if (sSettings) appSettings = JSON.parse(sSettings);
-                if (sPeriods) periodTimes = JSON.parse(sPeriods);
             } catch (e) {
-                console.warn("Local storage read note:", e);
+                console.warn("Storage load note:", e);
             }
         }
 
-        function saveLocalData() {
+        function saveData() {
             try {
                 localStorage.setItem('almajd_teachers', JSON.stringify(teachers));
                 localStorage.setItem('almajd_visits', JSON.stringify(visits));
                 localStorage.setItem('almajd_criteria', JSON.stringify(criteria));
                 localStorage.setItem('almajd_settings', JSON.stringify(appSettings));
-                localStorage.setItem('almajd_periods', JSON.stringify(periodTimes));
             } catch (e) {
-                console.warn("Local storage save note:", e);
-            }
-        }
-
-        async function syncDataWithCloud() {
-            loadLocalData();
-            if (!window.db) {
-                updateSyncBadge(false);
-                return;
-            }
-            try {
-                const { collection, getDocs } = window.FirebaseSDK;
-                
-                const tSnap = await getDocs(collection(window.db, "artifacts", "almajd-visits", "public", "data", "teachers"));
-                if (!tSnap.empty) {
-                    let cloudTeachers = [];
-                    tSnap.forEach(docSnap => cloudTeachers.push(docSnap.data()));
-                    if (cloudTeachers.length > 0) teachers = cloudTeachers;
-                }
-
-                const vSnap = await getDocs(collection(window.db, "artifacts", "almajd-visits", "public", "data", "visits"));
-                if (!vSnap.empty) {
-                    let cloudVisits = [];
-                    vSnap.forEach(docSnap => cloudVisits.push(docSnap.data()));
-                    if (cloudVisits.length > 0) visits = cloudVisits;
-                }
-
-                const sSnap = await getDocs(collection(window.db, "artifacts", "almajd-visits", "public", "data", "settings"));
-                if (!sSnap.empty) {
-                    sSnap.forEach(docSnap => {
-                        if (docSnap.id === 'general') appSettings = docSnap.data();
-                        if (docSnap.id === 'periods') periodTimes = docSnap.data().periods || periodTimes;
-                    });
-                }
-
-                saveLocalData();
-                updateSyncBadge(true);
-            } catch (err) {
-                console.warn("Cloud sync warning (using offline fallback):", err);
-                updateSyncBadge(false);
-            }
-        }
-
-        async function saveCloudData(collectionName, docId, data) {
-            saveLocalData();
-            if (!window.db) return;
-            try {
-                const { doc, setDoc } = window.FirebaseSDK;
-                await setDoc(doc(window.db, "artifacts", "almajd-visits", "public", "data", collectionName, docId), data);
-                updateSyncBadge(true);
-            } catch (e) {
-                console.warn("Cloud save warning:", e);
-                updateSyncBadge(false);
-            }
-        }
-
-        async function deleteCloudData(collectionName, docId) {
-            saveLocalData();
-            if (!window.db) return;
-            try {
-                const { doc, deleteDoc } = window.FirebaseSDK;
-                await deleteDoc(doc(window.db, "artifacts", "almajd-visits", "public", "data", collectionName, docId));
-            } catch (e) {
-                console.warn("Cloud delete warning:", e);
-            }
-        }
-
-        function updateSyncBadge(isCloud) {
-            const badge = document.getElementById('sync-status');
-            if (!badge) return;
-            if (isCloud) {
-                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> متزامن سحابياً`;
-                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200";
-            } else {
-                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> وضع العمل المحلي`;
-                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200";
+                console.warn("Storage save note:", e);
             }
         }
 
@@ -685,27 +692,11 @@
             appSettings.ministryLogo = document.getElementById('setting-ministry-logo').value || appSettings.ministryLogo;
             appSettings.schoolLogo = document.getElementById('setting-school-logo').value || appSettings.schoolLogo;
             
-            saveLocalData();
-            await saveCloudData('settings', 'general', appSettings);
+            saveData();
             updateBrandingDisplay();
-            alert('تم حفظ الإعدادات ومزامنتها سحابياً بنجاح!');
+            alert('تم حفظ الإعدادات بنجاح!');
         }
         window.saveGeneralSettings = saveGeneralSettings;
-
-        async function savePeriodSettings() {
-            for (let p of periodTimes) {
-                const sInp = document.getElementById(`period-start-${p.id}`);
-                const eInp = document.getElementById(`period-end-${p.id}`);
-                if (sInp && eInp) {
-                    p.start = sInp.value;
-                    p.end = eInp.value;
-                }
-            }
-            saveLocalData();
-            await saveCloudData('settings', 'periods', { periods: periodTimes });
-            alert('تم حفظ ومزامنة مواعيد الحصص بنجاح!');
-        }
-        window.savePeriodSettings = savePeriodSettings;
 
         async function uploadLogoFile(event, inputId) {
             const file = event.target.files[0];
@@ -717,10 +708,9 @@
                 if (el) el.value = base64;
                 if (inputId === 'setting-ministry-logo') appSettings.ministryLogo = base64;
                 if (inputId === 'setting-school-logo') appSettings.schoolLogo = base64;
-                saveLocalData();
-                await saveCloudData('settings', 'general', appSettings);
+                saveData();
                 updateBrandingDisplay();
-                alert('تم رفع الشعار ومزامنته سحابياً بنجاح!');
+                alert('تم رفع الشعار بنجاح!');
             };
             reader.readAsDataURL(file);
         }
@@ -744,30 +734,8 @@
             if (schLogoEl) schLogoEl.value = appSettings.schoolLogo;
         }
 
-        function renderPeriodSettingsInputs() {
-            const grid = document.getElementById('periods-settings-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-            periodTimes.forEach(p => {
-                grid.innerHTML += `
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                        <span class="text-xs font-bold text-slate-800 block">${p.name}</span>
-                        <div class="flex items-center gap-2">
-                            <div>
-                                <label class="text-[10px] text-slate-500">من</label>
-                                <input type="time" id="period-start-${p.id}" value="${p.start}" class="w-full border border-slate-300 rounded-lg px-2 py-1 text-xs bg-white">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-slate-500">إلى</label>
-                                <input type="time" id="period-end-${p.id}" value="${p.end}" class="w-full border border-slate-300 rounded-lg px-2 py-1 text-xs bg-white">
-                            </div>
-                        </div>
-                    </div>`;
-            });
-        }
-
         function exportBackupJSON() {
-            const backupData = { teachers, visits, criteria, appSettings, periodTimes };
+            const backupData = { teachers, visits, criteria, appSettings };
             const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -788,20 +756,14 @@
                     if (data.visits) visits = data.visits;
                     if (data.criteria) criteria = data.criteria;
                     if (data.appSettings) appSettings = data.appSettings;
-                    if (data.periodTimes) periodTimes = data.periodTimes;
                     
-                    saveLocalData();
-                    for (let t of teachers) await saveCloudData('teachers', t.id, t);
-                    for (let v of visits) await saveCloudData('visits', v.id, v);
-                    await saveCloudData('settings', 'general', appSettings);
-
+                    saveData();
                     renderTeachers();
                     renderVisits();
                     renderCriteria();
-                    renderPeriodSettingsInputs();
                     updateBrandingDisplay();
                     updateStats();
-                    alert('تم استيراد ومزامنة النسخة الاحتياطية سحابياً بنجاح!');
+                    alert('تم استيراد النسخة الاحتياطية بنجاح!');
                 } catch (err) {
                     alert('خطأ في استيراد الملف: ' + err.message);
                 }
@@ -865,7 +827,7 @@
         function editTeacher(id) { openTeacherModal(id); }
         window.editTeacher = editTeacher;
 
-        async function saveTeacher() {
+        function saveTeacher() {
             const id = document.getElementById('teacher-id').value;
             const name = document.getElementById('teacher-name').value;
             const subject = document.getElementById('teacher-subject').value;
@@ -884,20 +846,18 @@
                 teachers.push(teacherObj);
             }
 
-            saveLocalData();
-            await saveCloudData('teachers', teacherObj.id, teacherObj);
+            saveData();
             closeTeacherModal();
             renderTeachers();
             updateStats();
-            alert('تم حفظ المعلم ومزامنته سحابياً بنجاح!');
+            alert('تم حفظ المعلم بنجاح!');
         }
         window.saveTeacher = saveTeacher;
 
-        async function deleteTeacher(id) {
+        function deleteTeacher(id) {
             if (confirm('هل أنت متأكد من حذف هذا المعلم؟')) {
                 teachers = teachers.filter(x => x.id !== id);
-                saveLocalData();
-                await deleteCloudData('teachers', id);
+                saveData();
                 renderTeachers();
                 updateStats();
             }
@@ -919,7 +879,7 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = async function(e) {
+            reader.onload = function(e) {
                 try {
                     const text = e.target.result;
                     const lines = text.split('\n');
@@ -932,16 +892,14 @@
                             const subject = cols[1].trim();
                             const phone = cols[2] ? cols[2].trim() : '';
                             if (name) {
-                                const newT = { id: 't_imp_' + Date.now() + Math.random(), name, subject, phone };
-                                teachers.push(newT);
-                                await saveCloudData('teachers', newT.id, newT);
+                                teachers.push({ id: 't_imp_' + Date.now() + Math.random(), name, subject, phone });
                             }
                         }
                     }
-                    saveLocalData();
+                    saveData();
                     renderTeachers();
                     updateStats();
-                    alert('تم استيراد ومزامنة المعلمين سحابياً بنجاح!');
+                    alert('تم استيراد المعلمين بنجاح!');
                 } catch (err) {
                     alert('خطأ في الاستيراد: ' + err.message);
                 }
@@ -1089,7 +1047,7 @@
         }
         window.calculateVisitScore = calculateVisitScore;
 
-        async function saveVisit() {
+        function saveVisit() {
             const teacherId = document.getElementById('visit-teacher').value;
             const subject = document.getElementById('visit-subject').value;
             const date = document.getElementById('visit-date').value;
@@ -1126,20 +1084,18 @@
             };
             visits.push(visitObj);
 
-            saveLocalData();
-            await saveCloudData('visits', visitObj.id, visitObj);
+            saveData();
             closeVisitModal();
             renderVisits();
             updateStats();
-            alert('تم حفظ الزيارة الصفية ومزامنتها سحابياً بنجاح!');
+            alert('تم حفظ الزيارة الصفية بنجاح!');
         }
         window.saveVisit = saveVisit;
 
-        async function deleteVisit(id) {
+        function deleteVisit(id) {
             if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
                 visits = visits.filter(x => x.id !== id);
-                saveLocalData();
-                await deleteCloudData('visits', id);
+                saveData();
                 renderVisits();
                 updateStats();
             }
@@ -1158,52 +1114,52 @@
             criteria.forEach(c => {
                 if (c.domain !== currentDom) {
                     currentDom = c.domain;
-                    criteriaHtml += `<tr class="bg-slate-100 font-bold text-slate-900 text-[10px]"><td colspan="3" class="p-1.5 border border-slate-300">${currentDom}</td></tr>`;
+                    criteriaHtml += `<tr class="bg-slate-100 font-bold text-slate-900 text-xs"><td colspan="3" class="p-2 border border-slate-300">${currentDom}</td></tr>`;
                 }
                 const obtained = v.scores && v.scores[c.id] !== undefined ? v.scores[c.id] : c.max;
                 criteriaHtml += `
-                    <tr class="text-[10px]">
-                        <td class="p-1 border border-slate-300">${c.name}</td>
-                        <td class="p-1 border border-slate-300 text-center font-bold">${c.max}</td>
-                        <td class="p-1 border border-slate-300 text-center font-bold text-emerald-700">${obtained}</td>
+                    <tr class="text-xs">
+                        <td class="p-1.5 border border-slate-300">${c.name}</td>
+                        <td class="p-1.5 border border-slate-300 text-center font-bold">${c.max}</td>
+                        <td class="p-1.5 border border-slate-300 text-center font-bold text-emerald-700">${obtained}</td>
                     </tr>`;
             });
 
-            const ministryImg = appSettings.ministryLogo ? `<img src="${appSettings.ministryLogo}" class="w-12 h-12 object-contain" alt="وزارة التعليم">` : `<div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-[10px] text-slate-500">التعليم</div>`;
-            const schoolImg = appSettings.schoolLogo ? `<img src="${appSettings.schoolLogo}" class="w-16 h-12 object-contain" alt="المدرسة">` : `<div class="w-16 h-12 rounded-xl bg-emerald-50 flex items-center justify-center font-bold text-[10px] text-emerald-700">المجد</div>`;
+            const ministryImg = appSettings.ministryLogo ? `<img src="${appSettings.ministryLogo}" class="w-14 h-14 object-contain" alt="وزارة التعليم">` : `<div class="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-xs text-slate-500">التعليم</div>`;
+            const schoolImg = appSettings.schoolLogo ? `<img src="${appSettings.schoolLogo}" class="w-18 h-14 object-contain" alt="المدرسة">` : `<div class="w-18 h-14 rounded-xl bg-emerald-50 flex items-center justify-center font-bold text-xs text-emerald-700">المجد</div>`;
 
             content.innerHTML = `
-                <div class="flex items-center justify-between border-b-2 border-slate-800 pb-2 mb-2">
+                <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3 mb-3">
                     <div class="flex items-center gap-2">
                         ${ministryImg}
                         <div>
-                            <p class="text-[9px] font-bold text-slate-600">المملكة العربية السعودية</p>
-                            <p class="text-[9px] font-bold text-slate-600">وزارة التعليم</p>
-                            <p class="text-[9px] font-bold text-emerald-800">متوسطة المجد الجديد الأهلية</p>
+                            <p class="text-[10px] font-bold text-slate-600">المملكة العربية السعودية</p>
+                            <p class="text-[10px] font-bold text-slate-600">وزارة التعليم</p>
+                            <p class="text-[10px] font-bold text-emerald-800">متوسطة المجد الجديد الأهلية</p>
                         </div>
                     </div>
                     <div class="text-center">
-                        <h2 class="text-sm font-black text-slate-900">تقرير الزيارة الصفية الرسمية</h2>
-                        <p class="text-[10px] text-slate-500">بطاقة متابعة أداء المعلم الصفي</p>
+                        <h2 class="text-base font-black text-slate-900">تقرير الزيارة الصفية الرسمية</h2>
+                        <p class="text-xs text-slate-500">بطاقة متابعة أداء المعلم الصفي</p>
                     </div>
                     <div class="flex items-center gap-2">
                         ${schoolImg}
                     </div>
                 </div>
 
-                <div class="grid grid-cols-4 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200 text-[10px] mb-2">
+                <div class="grid grid-cols-4 gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs mb-3">
                     <div><span class="text-slate-500 font-bold">المعلم:</span> <strong class="text-slate-900">${t ? t.name : '-'}</strong></div>
                     <div><span class="text-slate-500 font-bold">المادة:</span> <strong class="text-slate-900">${v.subject}</strong></div>
                     <div><span class="text-slate-500 font-bold">التاريخ:</span> <strong class="text-slate-900">${v.date}</strong></div>
                     <div><span class="text-slate-500 font-bold">الدرجة:</span> <strong class="text-emerald-700">${v.totalScore} / 100</strong></div>
                 </div>
 
-                <table class="w-full text-right border-collapse text-[10px] mb-3">
+                <table class="w-full text-right border-collapse text-xs mb-4">
                     <thead>
                         <tr class="bg-slate-800 text-white">
-                            <th class="p-1.5 border border-slate-800">مؤشرات ومعايير التقويم الصفي</th>
-                            <th class="p-1.5 border border-slate-800 text-center w-16">الدرجة القصوى</th>
-                            <th class="p-1.5 border border-slate-800 text-center w-16">الدرجة الممنوحة</th>
+                            <th class="p-2 border border-slate-800">مؤشرات ومعايير التقويم الصفي</th>
+                            <th class="p-2 border border-slate-800 text-center w-24">الدرجة القصوى</th>
+                            <th class="p-2 border border-slate-800 text-center w-24">الدرجة الممنوحة</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1211,21 +1167,21 @@
                     </tbody>
                 </table>
 
-                <div class="grid grid-cols-3 gap-3 pt-4 text-center text-[10px] font-bold border-t border-slate-300">
+                <div class="grid grid-cols-3 gap-4 pt-4 text-center text-xs font-bold border-t border-slate-300">
                     <div>
                         <p class="text-slate-600 mb-1">المعلم المزار</p>
                         <p class="text-slate-900 mb-4">${t ? t.name : '-'}</p>
-                        <p class="border-t border-dashed border-slate-400 pt-1 text-slate-500">التوقيع: ............</p>
+                        <p class="border-t border-dashed border-slate-400 pt-1 text-slate-500">التوقيع: ....................</p>
                     </div>
                     <div>
                         <p class="text-slate-600 mb-1">المشرف التربوي</p>
                         <p class="text-slate-900 mb-4">${appSettings.supervisorName}</p>
-                        <p class="border-t border-dashed border-slate-400 pt-1 text-slate-500">التوقيع: ............</p>
+                        <p class="border-t border-dashed border-slate-400 pt-1 text-slate-500">التوقيع: ....................</p>
                     </div>
                     <div>
                         <p class="text-slate-600 mb-1">مدير المدرسة</p>
                         <p class="text-slate-900 mb-4">${appSettings.principalName}</p>
-                        <p class="border-t border-dashed border-slate-400 pt-1 text-slate-500">التوقيع: ............</p>
+                        <p class="border-t border-dashed border-slate-400 pt-1 text-slate-500">التوقيع: ....................</p>
                     </div>
                 </div>`;
 
@@ -1345,20 +1301,75 @@
 
         function updateLiveDateTime() {
             const now = new Date();
+            
+            try {
+                const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' });
+                const hijriStr = hijriFormatter.format(now);
+                const hEl = document.getElementById('live-hijri-date');
+                if (hEl) hEl.innerText = hijriStr;
+            } catch (e) {
+                const hEl = document.getElementById('live-hijri-date');
+                if (hEl) hEl.innerText = "1448 هـ";
+            }
+
             const timeStr = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
             const clockEl = document.getElementById('live-digital-clock');
             if (clockEl) clockEl.innerText = timeStr;
+
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            let activeName = "خارج أوقات الدوام";
+
+            for (let p of periodTimes) {
+                if (p.start && p.end) {
+                    const [sH, sM] = p.start.split(':').map(Number);
+                    const [eH, eM] = p.end.split(':').map(Number);
+                    const startMin = sH * 60 + sM;
+                    const endMin = eH * 60 + eM;
+                    if (currentMinutes >= startMin && currentMinutes <= endMin) {
+                        activeName = p.name;
+                        break;
+                    }
+                }
+            }
+            const activePeriodEl = document.getElementById('live-active-period');
+            if (activePeriodEl) activePeriodEl.innerText = activeName;
         }
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            await syncDataWithCloud();
+        function fetchSaudiHolidays() {
+            const container = document.getElementById('holidays-container');
+            if (!container) return;
+
+            const holidays = [
+                { title: "إجازة اليوم الوطني السعودي", date: "23 سبتمبر", desc: "احتفالية توحيد المملكة العربية السعودية." },
+                { title: "إجازة يوم التأسيس", date: "22 فبراير", desc: "استذكاراً لبداية تأسيس الدولة السعودية وتاريخها العريق." },
+                { title: "إجازة عيد الفطر المبارك", date: "حسب التقويم الدراسي", desc: "إجازة رسمية لقطاع التعليم وبداية الاحتفال بالعيد." },
+                { title: "إجازة عيد الأضحى المبارك", date: "حسب التقويم الدراسي", desc: "إجازة عيد الأضحى المبارك وحجج العام." }
+            ];
+
+            container.innerHTML = '';
+            holidays.forEach(h => {
+                container.innerHTML += `
+                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-emerald-600 block mb-0.5"><i class="fa-solid fa-calendar-day ml-1"></i> ${h.date}</span>
+                            <h5 class="font-bold text-slate-800 text-xs">${h.title}</h5>
+                        </div>
+                        <p class="text-slate-500 text-[11px] mt-2">${h.desc}</p>
+                    </div>`;
+            });
+        }
+        window.fetchSaudiHolidays = fetchSaudiHolidays;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
             updateBrandingDisplay();
-            renderPeriodSettingsInputs();
             renderTeachers();
             renderVisits();
             renderCriteria();
             updateStats();
+            fetchSaudiHolidays();
             setInterval(updateLiveDateTime, 1000);
+            updateLiveDateTime();
             setTimeout(renderCharts, 200);
         });
     </script>
