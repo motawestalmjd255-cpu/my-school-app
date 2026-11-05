@@ -112,7 +112,7 @@
                     </nav>
                 </div>
                 <div class="p-4 border-t border-slate-100 text-center text-xs text-slate-400 font-semibold">
-                    إصدار المنظومة 3.7 المستقر
+                    إصدار المنظومة 3.8 المستقر
                 </div>
             </aside>
 
@@ -611,7 +611,7 @@
         const DEFAULT_MOE_LOGO = 'https://placehold.co/120x120/059669/ffffff?text=التعليم';
         let currentViewingVisit = null;
 
-        // تهيئة المتغيرات وبيانات التخزين المحلي
+        // تهيئة المتغيرات وبيانات التخزين المحلي مع استرجاع آمن وثابت
         let teachersData = JSON.parse(localStorage.getItem('almajd_teachers')) || [
             { id: 't1', name: 'أحمد محمود', specialty: 'رياضيات', subject: 'الرياضيات', phone: '0501234567', nationalId: '1029384756', archived: false },
             { id: 't2', name: 'خالد عبد الله', specialty: 'علوم عامة', subject: 'العلوم', phone: '0559876543', nationalId: '1098765432', archived: false }
@@ -1182,7 +1182,7 @@
             if (el) el.classList.toggle('hidden', !checked);
         }
 
-        // --- الشعارات والبصمة ---
+        // --- الشعارات والبصمة الثابتة ---
         function loadLogos() {
             const schoolLogo = localStorage.getItem('almajd_logo_school') || DEFAULT_SCHOOL_LOGO;
             const moeLogo = localStorage.getItem('almajd_logo_moe') || DEFAULT_MOE_LOGO;
@@ -1204,7 +1204,12 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const dataUrl = e.target.result;
-                localStorage.setItem(key, dataUrl);
+                try {
+                    localStorage.setItem(key, dataUrl);
+                } catch (err) {
+                    alert('حجم الصورة كبير جداً، يرجى اختيار صورة أصغر حجماً.');
+                    return;
+                }
                 const preview = document.getElementById(previewId);
                 if (preview) preview.src = dataUrl;
                 loadLogos();
@@ -1227,7 +1232,7 @@
             if (principalName) localStorage.setItem('almajd_principal_name', principalName);
 
             updateAcademicYearDisplay();
-            alert('تم حفظ وتطبيق كافة الإعدادات بنجاح!');
+            alert('تم حفظ وتطبيق كافة الإعدادات بنجاح وثبات تام!');
         }
 
         function updateAcademicYearDisplay() {
